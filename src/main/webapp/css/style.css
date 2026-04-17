@@ -1,0 +1,851 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    line-height: 1.6;
+    background-color: #f8f9fa;
+    color: #212529;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+/* NAVIGATION */
+header {
+    background-color: #dc143c;
+    color: white;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+.navbar {
+    background-color: transparent;
+}
+
+.nav-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 24px;
+}
+
+.logo a {
+    color: white;
+    text-decoration: none;
+    font-size: 24px;
+    font-weight: 600;
+    letter-spacing: -0.5px;
+}
+
+.nav-menu {
+    display: flex;
+    gap: 8px;
+}
+
+.nav-menu a {
+    color: white;
+    text-decoration: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    transition: background-color 0.2s;
+    font-size: 15px;
+}
+
+.nav-menu a:hover {
+    background-color: rgba(255, 255, 255, 0.15);
+}
+
+.nav-menu a.active {
+    background-color: rgba(255, 255, 255, 0.25);
+    font-weight: 600;
+}
+
+.nav-actions {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.user-name {
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 14px;
+}
+
+.btn-logout {
+    background-color: white;
+    color: #dc143c;
+    padding: 8px 16px;
+    text-decoration: none;
+    border-radius: 6px;
+    font-weight: 500;
+    font-size: 14px;
+    transition: all 0.2s;
+}
+
+.btn-logout:hover {
+    background-color: #f8f9fa;
+}
+
+.admin-navbar {
+    background-color: #b71c1c;
+}
+
+/* FORMS */
+.login-box,
+.register-box,
+.forgot-password-box {
+    max-width: 420px;
+    margin: 60px auto;
+    background: white;
+    padding: 40px;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    border: 1px solid #e9ecef;
+}
+
+.login-box h2,
+.register-box h2,
+.forgot-password-box h2 {
+    text-align: center;
+    color: #212529;
+    margin-bottom: 32px;
+    font-size: 28px;
+    font-weight: 600;
+}
+
+.form-container {
+    max-width: 600px;
+    margin: 40px auto;
+    background: white;
+    padding: 32px;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    border: 1px solid #e9ecef;
+}
+
+.form-container h2 {
+    margin-bottom: 24px;
+    color: #212529;
+    font-size: 24px;
+    font-weight: 600;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 6px;
+    color: #495057;
+    font-weight: 500;
+    font-size: 14px;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #ced4da;
+    border-radius: 6px;
+    font-size: 15px;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    background-color: white;
+    font-family: inherit;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: #dc143c;
+    box-shadow: 0 0 0 3px rgba(220, 20, 60, 0.1);
+}
+
+.form-group textarea {
+    resize: vertical;
+    min-height: 100px;
+}
+
+/* BUTTONS */
+.btn,
+.btn-primary {
+    width: 100%;
+    padding: 12px;
+    background-color: #dc143c;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    text-decoration: none;
+    display: inline-block;
+    text-align: center;
+}
+
+.btn:hover,
+.btn-primary:hover {
+    background-color: #b71c1c;
+}
+
+.btn-secondary {
+    background-color: white;
+    color: #dc143c;
+    border: 1px solid #dc143c;
+    padding: 10px 16px;
+    text-decoration: none;
+    border-radius: 6px;
+    display: inline-block;
+    margin-left: 8px;
+    transition: all 0.2s;
+    font-weight: 500;
+}
+
+.btn-secondary:hover {
+    background-color: #dc143c;
+    color: white;
+}
+
+.btn-success {
+    background-color: #28a745;
+    color: white;
+}
+
+.btn-success:hover {
+    background-color: #218838;
+}
+
+.btn-danger {
+    background-color: #dc3545;
+}
+
+.btn-danger:hover {
+    background-color: #c82333;
+}
+
+.btn-search,
+.btn-sort,
+.btn-view,
+.btn-edit,
+.btn-block,
+.btn-delete,
+.btn-success {
+    padding: 6px 12px;
+    font-size: 13px;
+    margin: 2px;
+    text-decoration: none;
+    border-radius: 4px;
+    display: inline-block;
+    transition: all 0.2s;
+    font-weight: 500;
+    border: none;
+    cursor: pointer;
+}
+
+.btn-search {
+    background-color: #dc143c;
+    color: white;
+}
+
+.btn-search:hover {
+    background-color: #b71c1c;
+}
+
+.btn-sort {
+    background-color: white;
+    color: #6c757d;
+    border: 1px solid #ced4da;
+}
+
+.btn-sort:hover {
+    background-color: #f8f9fa;
+    border-color: #adb5bd;
+}
+
+.btn-view {
+    background-color: #17a2b8;
+    color: white;
+}
+
+.btn-view:hover {
+    background-color: #138496;
+}
+
+.btn-edit {
+    background-color: #ffc107;
+    color: #212529;
+}
+
+.btn-edit:hover {
+    background-color: #e0a800;
+}
+
+.btn-block {
+    background-color: #6f42c1;
+    color: white;
+}
+
+.btn-block:hover {
+    background-color: #5a32a3;
+}
+
+.btn-delete {
+    background-color: #dc3545;
+    color: white;
+}
+
+.btn-delete:hover {
+    background-color: #c82333;
+}
+
+/* MESSAGES */
+.error-message {
+    background-color: #f8d7da;
+    color: #721c24;
+    padding: 12px 16px;
+    border-radius: 6px;
+    margin-bottom: 20px;
+    border: 1px solid #f5c6cb;
+    font-size: 14px;
+}
+
+.success-message {
+    background-color: #d4edda;
+    color: #155724;
+    padding: 12px 16px;
+    border-radius: 6px;
+    margin-bottom: 20px;
+    border: 1px solid #c3e6cb;
+    font-size: 14px;
+}
+
+.alert {
+    padding: 12px 16px;
+    margin-bottom: 20px;
+    border-radius: 6px;
+    font-size: 14px;
+}
+
+.alert-success {
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.alert-error {
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+.links {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.links a {
+    color: #dc143c;
+    text-decoration: none;
+    font-size: 14px;
+}
+
+.links a:hover {
+    text-decoration: underline;
+}
+
+/* DASHBOARD */
+.dashboard {
+    min-height: 100vh;
+    background-color: #f8f9fa;
+}
+
+.main-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 24px;
+}
+
+.welcome-section {
+    background: white;
+    padding: 32px;
+    border-radius: 8px;
+    margin-bottom: 24px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    border: 1px solid #e9ecef;
+}
+
+.welcome-section h1 {
+    color: #212529;
+    margin-bottom: 8px;
+    font-size: 32px;
+    font-weight: 600;
+}
+
+.welcome-section p {
+    color: #6c757d;
+    font-size: 16px;
+}
+
+/* STATS */
+.dashboard-stats,
+.stats-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 20px;
+    margin: 24px 0;
+}
+
+.stat-card {
+    background: white;
+    padding: 24px;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    border: 1px solid #e9ecef;
+    text-align: center;
+}
+
+.stat-card h3 {
+    color: #6c757d;
+    font-size: 14px;
+    margin-bottom: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 500;
+}
+
+.stat-card p,
+.stat-card .stat-number {
+    font-size: 36px;
+    font-weight: 600;
+    color: #dc143c;
+}
+
+/* MOVIE CARDS */
+.movie-grid,
+.movies-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 24px;
+    margin-top: 24px;
+}
+
+.movie-card {
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    border: 1px solid #e9ecef;
+    transition: box-shadow 0.2s;
+}
+
+.movie-card:hover {
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.movie-card img,
+.movie-poster img {
+    width: 100%;
+    height: 360px;
+    object-fit: cover;
+    background-color: #e9ecef;
+}
+
+.movie-card-content,
+.movie-details {
+    padding: 16px;
+}
+
+.movie-card h3 {
+    margin-bottom: 8px;
+    color: #212529;
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.movie-card p {
+    color: #6c757d;
+    font-size: 14px;
+    margin-bottom: 6px;
+}
+
+/* TABLES */
+.table-container {
+    background: white;
+    padding: 24px;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    margin-top: 24px;
+    overflow-x: auto;
+    border: 1px solid #e9ecef;
+}
+
+table,
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+}
+
+table th,
+table td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #e9ecef;
+    vertical-align: middle;
+}
+
+table th {
+    background-color: #dc143c;
+    color: white;
+    font-weight: 500;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+table td {
+    color: #495057;
+    font-size: 14px;
+}
+
+table tr:hover {
+    background-color: #f8f9fa;
+}
+
+table td:last-child {
+    white-space: nowrap;
+}
+
+/* SEARCH & FILTERS */
+.search-section,
+.search-filter-section {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    border: 1px solid #e9ecef;
+}
+
+.search-form {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.search-form input {
+    flex: 1;
+    padding: 10px 12px;
+    border: 1px solid #ced4da;
+    border-radius: 6px;
+    font-size: 15px;
+}
+
+.search-form input:focus {
+    outline: none;
+    border-color: #dc143c;
+    box-shadow: 0 0 0 3px rgba(220, 20, 60, 0.1);
+}
+
+.filter-section {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.filter-section label {
+    font-weight: 500;
+    color: #495057;
+    font-size: 14px;
+}
+
+.filter-section select {
+    padding: 8px 12px;
+    border: 1px solid #ced4da;
+    border-radius: 6px;
+    background-color: white;
+    font-size: 14px;
+}
+
+.sort-options {
+    display: flex;
+    gap: 8px;
+    margin-top: 8px;
+}
+
+.action-buttons {
+    margin: 20px 0;
+}
+
+.search-bar {
+    margin: 20px 0;
+}
+
+.search-bar input {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ced4da;
+    border-radius: 6px;
+    font-size: 15px;
+}
+
+/* BOOKING */
+.booking-card {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 16px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    border: 1px solid #e9ecef;
+}
+
+.booking-details h3 {
+    color: #212529;
+    margin-bottom: 12px;
+    font-size: 20px;
+    font-weight: 600;
+}
+
+.booking-details p {
+    margin: 6px 0;
+    color: #495057;
+    font-size: 14px;
+}
+
+.booking-info,
+.booking-form,
+.profile-container,
+.about-container,
+.contact-container {
+    background: white;
+    padding: 28px;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    margin-bottom: 20px;
+    border: 1px solid #e9ecef;
+}
+
+.about-section,
+.contact-info {
+    margin: 20px 0;
+}
+
+.about-section h2,
+.contact-info h2 {
+    color: #212529;
+    margin-bottom: 12px;
+    font-size: 22px;
+    font-weight: 600;
+}
+
+.about-section ul {
+    margin-left: 20px;
+    line-height: 1.8;
+    color: #495057;
+}
+
+.contact-form {
+    margin-bottom: 24px;
+}
+
+.recent-movies-section h2 {
+    color: #212529;
+    margin-bottom: 20px;
+    font-size: 26px;
+    font-weight: 600;
+}
+
+.quick-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 24px;
+    flex-wrap: wrap;
+}
+
+.no-results {
+    text-align: center;
+    padding: 48px;
+    color: #6c757d;
+    font-size: 16px;
+}
+
+.no-results a {
+    color: #dc143c;
+    text-decoration: underline;
+}
+
+/* MOVIE DETAILS */
+.movie-detail-container {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 32px;
+    background: white;
+    padding: 32px;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    border: 1px solid #e9ecef;
+}
+
+.movie-poster-large img {
+    width: 100%;
+    height: auto;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.movie-info h1 {
+    font-size: 32px;
+    font-weight: 600;
+    color: #212529;
+    margin-bottom: 20px;
+}
+
+.movie-info p {
+    margin-bottom: 12px;
+    color: #495057;
+    font-size: 15px;
+    line-height: 1.6;
+}
+
+.movie-info strong {
+    color: #212529;
+    font-weight: 600;
+}
+
+.booking-section {
+    margin-top: 32px;
+    padding-top: 24px;
+    border-top: 1px solid #e9ecef;
+}
+
+.status-Confirmed {
+    color: #28a745;
+    font-weight: 600;
+}
+
+.status-Cancelled {
+    color: #dc3545;
+    font-weight: 600;
+}
+
+.status-Completed {
+    color: #6c757d;
+    font-weight: 600;
+}
+
+/* ERROR PAGES */
+.error-container {
+    text-align: center;
+    padding: 80px 20px;
+}
+
+.error-container h1 {
+    font-size: 96px;
+    color: #dc143c;
+    margin-bottom: 16px;
+    font-weight: 700;
+}
+
+.error-container h2 {
+    font-size: 32px;
+    color: #212529;
+    margin-bottom: 12px;
+    font-weight: 600;
+}
+
+.error-container p {
+    font-size: 16px;
+    color: #6c757d;
+    margin-bottom: 24px;
+}
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+    .nav-container {
+        flex-direction: column;
+        gap: 12px;
+        padding: 12px 16px;
+    }
+
+    .nav-menu {
+        flex-direction: column;
+        gap: 8px;
+        width: 100%;
+    }
+
+    .nav-menu a {
+        width: 100%;
+        text-align: center;
+    }
+
+    .movie-grid,
+    .movies-grid {
+        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    }
+
+    .dashboard-stats,
+    .stats-container {
+        grid-template-columns: 1fr;
+    }
+
+    .welcome-section h1 {
+        font-size: 26px;
+    }
+
+    .stat-card p,
+    .stat-card .stat-number {
+        font-size: 28px;
+    }
+}
+
+@media (max-width: 480px) {
+    .login-box,
+    .register-box,
+    .forgot-password-box,
+    .form-container {
+        padding: 24px;
+        margin: 40px 16px;
+    }
+
+    .movie-grid,
+    .movies-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .btn,
+    .btn-primary {
+        width: 100%;
+    }
+
+    .quick-actions {
+        flex-direction: column;
+    }
+
+    .quick-actions .btn {
+        width: 100%;
+    }
+
+    table {
+        font-size: 12px;
+    }
+
+    table th,
+    table td {
+        padding: 8px;
+    }
+}
