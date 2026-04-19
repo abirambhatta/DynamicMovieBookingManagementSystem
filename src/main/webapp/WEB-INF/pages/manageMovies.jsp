@@ -184,6 +184,18 @@
                         <input type="text" name="language" id="editLanguage" required>
                     </div>
                     <div class="form-group">
+                        <label>Release Date:</label>
+                        <input type="date" name="releaseDate" id="editReleaseDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Start Date (Movie Airing):</label>
+                        <input type="date" id="editStartDate" name="startDate" required onchange="updateEditSchedule()">
+                    </div>
+                    <div class="form-group">
+                        <label>End Date (Movie Airing):</label>
+                        <input type="date" id="editEndDate" name="endDate" required onchange="updateEditSchedule()">
+                    </div>
+                    <div class="form-group">
                         <label>Description:</label>
                         <textarea name="description" id="editDescription" required></textarea>
                     </div>
@@ -196,11 +208,11 @@
                             <div id="editHallSelection" style="display: none; margin-top: 20px;">
                                 <label style="font-weight: 500; margin-bottom: 10px; display: block;">Select Halls:</label>
                                 <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 20px;">
-                                    <div class="date-tab" onclick="toggleEditHall(this, 'audi01')">Audi 01</div>
-                                    <div class="date-tab" onclick="toggleEditHall(this, 'audi02')">Audi 02</div>
-                                    <div class="date-tab" onclick="toggleEditHall(this, 'audi03')">Audi 03</div>
-                                    <div class="date-tab" onclick="toggleEditHall(this, 'audi04')">Audi 04</div>
-                                    <div class="date-tab" onclick="toggleEditHall(this, 'audi05')">Audi 05</div>
+                                    <div class="date-tab" data-hall="audi01" onclick="toggleEditHall(this, 'audi01')">Audi 01</div>
+                                    <div class="date-tab" data-hall="audi02" onclick="toggleEditHall(this, 'audi02')">Audi 02</div>
+                                    <div class="date-tab" data-hall="audi03" onclick="toggleEditHall(this, 'audi03')">Audi 03</div>
+                                    <div class="date-tab" data-hall="audi04" onclick="toggleEditHall(this, 'audi04')">Audi 04</div>
+                                    <div class="date-tab" data-hall="audi05" onclick="toggleEditHall(this, 'audi05')">Audi 05</div>
                                 </div>
                             </div>
                             <div id="editTimeInputSections"></div>
@@ -214,6 +226,26 @@
             </div>
             
             <script>
+                console.log('JavaScript is loading...');
+                // Store all show times from database
+                const allShowTimesData = [
+                    <c:if test="${not empty allShowTimes}">
+                    <c:forEach var="st" items="${allShowTimes}" varStatus="status">
+                        {movieId: ${st.movieId}, date: '${st.showDate}', time: '${st.showTime}', hall: '${st.hall}'}<c:if test="${!status.last}">,</c:if>
+                    </c:forEach>
+                    </c:if>
+                ];
+                
+                // Store movie-specific show times if editing
+                const movieShowTimesData = [
+                    <c:if test="${not empty movieShowTimes}">
+                    <c:forEach var="st" items="${movieShowTimes}" varStatus="status">
+                        {movieId: ${st.movieId}, date: '${st.showDate}', time: '${st.showTime}', hall: '${st.hall}'}<c:if test="${!status.last}">,</c:if>
+                    </c:forEach>
+                    </c:if>
+                ];
+                console.log('movieShowTimesData:', movieShowTimesData);
+                
                 // Store all show schedule data (dates, halls, times)
                 let schedule = {};
                 // Store which halls are selected for current date
@@ -245,6 +277,11 @@
                 document.addEventListener('DOMContentLoaded', function() {
                     document.getElementById('startDate').addEventListener('change', generateDateTabs);
                     document.getElementById('endDate').addEventListener('change', generateDateTabs);
+                    
+                    // If editMovie is set, show the edit form automatically
+                    <c:if test="${not empty editMovie}">
+                    showEditForm(${editMovie.movieId}, `${editMovie.title}`, `${editMovie.genre}`, `${editMovie.director}`, ${editMovie.duration}, `${editMovie.language}`, `${editMovie.description}`, `${editMovie.posterImage}`, `${editMovie.startDate}`, `${editMovie.endDate}`, `${editMovie.releaseDate}`);
+                    </c:if>
                 });
                 
                 // Create date tabs between start and end date
@@ -357,24 +394,24 @@
                 function toggleHall(element, hallId) {
                     if (!currentDate) return;
                     
-                    // Toggle active class on hall button
-                    element.classList.toggle('active');
-                    
-                    // If hall is now selected
+                    // If hall is currently selected (about to be unselected)
                     if (element.classList.contains('active')) {
-                        // Add hall to selected list
+                        if (schedule[currentDate].halls[hallId] && schedule[currentDate].halls[hallId].length > 0) {
+                            if (!confirm("This will clear all times for " + hallId.replace('audi', 'Audi ') + ". Are you sure?")) {
+                                return; // Abort
+                            }
+                        }
+                        element.classList.remove('active');
+                        selectedHalls = selectedHalls.filter(h => h !== hallId);
+                        removeHallSection(hallId);
+                    } else {
+                        // Hall is unselected (about to be selected)
+                        element.classList.add('active');
                         selectedHalls.push(hallId);
-                        // Create empty time array for this hall
                         if (!schedule[currentDate].halls[hallId]) {
                             schedule[currentDate].halls[hallId] = [];
                         }
-                        // Show time input section for this hall
                         addHallSection(hallId);
-                    } else {
-                        // Remove hall from selected list
-                        selectedHalls = selectedHalls.filter(h => h !== hallId);
-                        // Remove time input section for this hall
-                        removeHallSection(hallId);
                     }
                 }
                 
@@ -611,7 +648,13 @@
                 }
                 
                 // Show edit movie form with movie data
-                function showEditForm(movieId, title, genre, director, duration, language, description, posterImage, startDate, endDate) {
+                let editSchedule = {};
+                let selectedEditHalls = [];
+                let currentEditDate = null;
+
+                function showEditForm(movieId, title, genre, director, duration, language, description, posterImage, startDate, endDate, releaseDate) {
+                    console.log('Opening edit form for movie ID:', movieId);
+                    
                     document.getElementById('editMovieId').value = movieId;
                     document.getElementById('editTitle').value = title;
                     document.getElementById('editGenre').value = genre;
@@ -619,18 +662,50 @@
                     document.getElementById('editDuration').value = duration;
                     document.getElementById('editLanguage').value = language;
                     document.getElementById('editDescription').value = description;
+                    document.getElementById('editReleaseDate').value = releaseDate;
+                    document.getElementById('editStartDate').value = startDate;
+                    document.getElementById('editEndDate').value = endDate;
                     
-                    // Show current poster image
                     const posterImg = document.getElementById('posterImg');
                     posterImg.src = '${pageContext.request.contextPath}/images/' + posterImage;
                     
-                    // Clear new poster preview
                     document.getElementById('newPosterPreview').innerHTML = '';
                     document.getElementById('editPosterInput').value = '';
                     
-                    // Generate date tabs for edit form
                     if (startDate && endDate) {
+                        editSchedule = {};
+                        selectedEditHalls = [];
+                        currentEditDate = null;
                         generateEditDateTabs(startDate, endDate, duration);
+                        
+                        // PRE-POPULATE EXISTING DATABASE SHOWTIMES!
+                        const existingTimes = typeof allShowTimesData !== 'undefined' ? allShowTimesData.filter(st => st.movieId == movieId) : [];
+                        if (existingTimes && existingTimes.length > 0) {
+                            existingTimes.forEach(st => {
+                                const dt = new Date(st.date);
+                                const dateStr = dt.toISOString().split('T')[0];
+                                const dateKey = 'date_' + dateStr.replace(/-/g, '');
+                                
+                                if (editSchedule[dateKey]) {
+                                    if (!editSchedule[dateKey].halls[st.hall]) {
+                                        editSchedule[dateKey].halls[st.hall] = [];
+                                    }
+                                    const timeStr = st.time.substring(0, 5);
+                                    if (!editSchedule[dateKey].halls[st.hall].includes(timeStr)) {
+                                       editSchedule[dateKey].halls[st.hall].push(timeStr);
+                                       editSchedule[dateKey].halls[st.hall].sort();
+                                    }
+                                }
+                            });
+                        }
+                        
+                        // Trigger re-render of currently visually active hall block unconditionally
+                        if (currentEditDate) {
+                            const activeTab = document.querySelector('#editDateTabs .date-tab.active');
+                            if (activeTab) {
+                               switchEditDate(activeTab, currentEditDate);
+                            }
+                        }
                     }
                     
                     document.getElementById('editMovieForm').style.display = 'block';
@@ -670,6 +745,8 @@
                         const dateStr = current.toISOString().split('T')[0];
                         const dateKey = 'date_' + dateStr.replace(/-/g, '');
                         
+                        editSchedule[dateKey] = { date: dateStr, halls: {} };
+                        
                         const tab = document.createElement('div');
                         tab.className = 'date-tab' + (isFirst ? ' active' : '');
                         tab.setAttribute('data-date', dateKey);
@@ -678,11 +755,13 @@
                         dateTabs.appendChild(tab);
                         
                         if (isFirst) {
+                            currentEditDate = dateKey;
                             document.getElementById('editHallSelection').style.display = 'block';
+                            isFirst = false;
                         }
                         
-                        current.setDate(current.getDate() + 1);
-                        isFirst = false;
+                        // Increment day explicitly to fix local timezone offset skips
+                        current.setUTCDate(current.getUTCDate() + 1);
                     }
                 }
                 
@@ -690,25 +769,81 @@
                 function switchEditDate(element, dateKey) {
                     document.querySelectorAll('#editDateTabs .date-tab').forEach(tab => tab.classList.remove('active'));
                     element.classList.add('active');
+                    currentEditDate = dateKey;
+                    
                     document.getElementById('editHallSelection').style.display = 'block';
                     document.querySelectorAll('#editHallSelection .date-tab').forEach(tab => tab.classList.remove('active'));
+                    selectedEditHalls = [];
                     document.getElementById('editTimeInputSections').innerHTML = '';
+                    
+                    // Dynamically active tabs already selected
+                    if (editSchedule[currentEditDate] && editSchedule[currentEditDate].halls) {
+                        Object.keys(editSchedule[currentEditDate].halls).forEach(h => {
+                            if (editSchedule[currentEditDate].halls[h].length > 0) {
+                                const hallTab = document.querySelector(`#editHallSelection .date-tab[data-hall="${h}"]`);
+                                if (hallTab) {
+                                    toggleEditHall(hallTab, h);
+                                }
+                            }
+                        });
+                    }
                 }
                 
                 // Toggle edit hall
                 function toggleEditHall(element, hallId) {
-                    element.classList.toggle('active');
+                    if (!currentEditDate) return;
+                    
                     if (element.classList.contains('active')) {
-                        addEditHallSection(hallId);
-                    } else {
+                        if (editSchedule[currentEditDate].halls[hallId] && editSchedule[currentEditDate].halls[hallId].length > 0) {
+                            if (!confirm("This will clear all times for " + hallId.replace('audi', 'Audi ') + ". Are you sure?")) {
+                                return; // Abort
+                            }
+                        }
+                        element.classList.remove('active');
+                        selectedEditHalls = selectedEditHalls.filter(h => h !== hallId);
                         removeEditHallSection(hallId);
+                    } else {
+                        element.classList.add('active');
+                        selectedEditHalls.push(hallId);
+                        if (!editSchedule[currentEditDate].halls[hallId]) {
+                            editSchedule[currentEditDate].halls[hallId] = [];
+                        }
+                        addEditHallSection(hallId);
                     }
                 }
                 
+                // Render specific edit hall times
+                function renderEditTimes(sectionId, hallId) {
+                    const timeList = document.getElementById('timeList_' + sectionId);
+                    const times = editSchedule[currentEditDate].halls[hallId] || [];
+                    
+                    if (times.length === 0) {
+                        timeList.innerHTML = '<p style="color: #6c757d; font-size: 13px;">No times added yet</p>';
+                        return;
+                    }
+                    
+                    let html = '';
+                    times.forEach(t => {
+                        const timeStr = t.length > 5 ? t.substring(0, 5) : t;
+                        let hours = 0, minutes = "00";
+                        if(timeStr.includes(':')) {
+                            const parts = timeStr.split(':');
+                            hours = parts[0];
+                            minutes = parts[1];
+                        }
+                        const h = parseInt(hours) || 0;
+                        const ampm = h >= 12 ? 'PM' : 'AM';
+                        const displayHour = h % 12 || 12;
+                        const formattedTime = displayHour + ':' + minutes + ' ' + ampm;
+                        html += '<span class="time-chip">' + formattedTime + '<span class="remove" onclick="removeEditTime(\'' + sectionId + '\', \'' + hallId + '\', \'' + timeStr + '\')">×</span></span>';
+                    });
+                    timeList.innerHTML = html;
+                }
+
                 // Add edit hall section
                 function addEditHallSection(hallId) {
                     const timeInputSections = document.getElementById('editTimeInputSections');
-                    const sectionId = 'edit_' + hallId;
+                    const sectionId = currentEditDate + '_edit_' + hallId;
                     
                     if (document.getElementById('section_' + sectionId)) return;
                     
@@ -745,18 +880,23 @@
                     const timeList = document.createElement('div');
                     timeList.className = 'time-list';
                     timeList.id = 'timeList_' + sectionId;
-                    timeList.innerHTML = '<p style="color: #6c757d; font-size: 13px;">No times added yet</p>';
                     
                     section.appendChild(timeInputRow);
                     section.appendChild(timeList);
                     timeInputSections.appendChild(section);
+                    
+                    renderEditTimes(sectionId, hallId);
                 }
                 
                 // Remove edit hall section
                 function removeEditHallSection(hallId) {
-                    const sectionId = 'edit_' + hallId;
+                    const sectionId = currentEditDate + '_edit_' + hallId;
                     const section = document.getElementById('section_' + sectionId);
                     if (section) section.remove();
+                    if (editSchedule[currentEditDate] && editSchedule[currentEditDate].halls[hallId]) {
+                        delete editSchedule[currentEditDate].halls[hallId];
+                    }
+                    updateEditScheduleData();
                 }
                 
                 // Add edit time
@@ -769,26 +909,97 @@
                         return;
                     }
                     
-                    const timeList = document.getElementById('timeList_' + sectionId);
-                    const [hours, minutes] = time.split(':');
-                    const h = parseInt(hours);
-                    const ampm = h >= 12 ? 'PM' : 'AM';
-                    const displayHour = h % 12 || 12;
-                    const formattedTime = displayHour + ':' + minutes + ' ' + ampm;
-                    
-                    let html = timeList.innerHTML;
-                    if (html.includes('No times added yet')) {
-                        html = '';
+                    const timeHhMm = time.includes(':') ? time.split(':').slice(0,2).join(':') : time;
+                    if (!editSchedule[currentEditDate].halls[hallId].includes(timeHhMm)) {
+                        editSchedule[currentEditDate].halls[hallId].push(timeHhMm);
+                        editSchedule[currentEditDate].halls[hallId].sort();
+                        renderEditTimes(sectionId, hallId);
                     }
-                    html += '<span class="time-chip">' + formattedTime + '<span class="remove" onclick="this.parentElement.remove()">×</span></span>';
-                    timeList.innerHTML = html;
                     timeInput.value = '';
+                    updateEditScheduleData();
+                }
+
+                // Remove edit time
+                function removeEditTime(sectionId, hallId, timeHhMm) {
+                    if (editSchedule[currentEditDate] && editSchedule[currentEditDate].halls[hallId]) {
+                        editSchedule[currentEditDate].halls[hallId] = editSchedule[currentEditDate].halls[hallId].filter(t => t !== timeHhMm);
+                    }
+                    renderEditTimes(sectionId, hallId);
+                    updateEditScheduleData();
+                }
+
+                // Update hidden edit schedule data field before submit
+                function updateEditScheduleData() {
+                    let scheduleDataParams = [];
+                    for (const [dateKey, dateData] of Object.entries(editSchedule)) {
+                        const dateStr = dateKey.replace('date_', '');
+                        const formattedDate = dateStr.slice(0,4) + '-' + dateStr.slice(4,6) + '-' + dateStr.slice(6,8);
+                        for (const [hallId, times] of Object.entries(dateData.halls)) {
+                            for (const time of times) {
+                                scheduleDataParams.push(formattedDate + '|' + hallId + '|' + time);
+                            }
+                        }
+                    }
+                    const hiddenField = document.getElementById('editScheduleData');
+                    if (hiddenField) {
+                        hiddenField.value = scheduleDataParams.join(',');
+                    }
                 }
                 
-                // Update edit schedule
+                // Update edit schedule limits
                 function updateEditSchedule() {
-                    // Placeholder for schedule updates
+                    const startDate = document.getElementById('editStartDate').value;
+                    const endDate = document.getElementById('editEndDate').value;
+                    const duration = document.getElementById('editDuration').value;
+                    
+                    if (startDate && endDate) {
+                        const start = new Date(startDate);
+                        const end = new Date(endDate);
+                        if (start > end) {
+                            alert('End date must be after start date');
+                            return;
+                        }
+                        
+                        // Extract movie string logic and re-generate date tabs while trying to preserve editSchedule
+                        let preservedSchedule = JSON.parse(JSON.stringify(editSchedule));
+                        editSchedule = {};
+                        selectedEditHalls = [];
+                        currentEditDate = null;
+                        generateEditDateTabs(startDate, endDate, duration);
+                        
+                        // Copy anything back if the date remains valid
+                        for (let dk in preservedSchedule) {
+                            if (editSchedule[dk]) {
+                                editSchedule[dk].halls = preservedSchedule[dk].halls;
+                            }
+                        }
+                        
+                        // Refresh active tab display
+                        const activeTab = document.querySelector('#editDateTabs .date-tab.active');
+                        if (activeTab) {
+                            switchEditDate(activeTab, activeTab.getAttribute('data-date'));
+                        }
+                    }
                 }
+
+                // Hook edit form submit to ensure update runs
+                document.addEventListener('DOMContentLoaded', () => {
+                    const editForm = document.querySelector('#editMovieForm form');
+                    if(editForm) {
+                        editForm.addEventListener('submit', () => {
+                            if (currentEditDate) {
+                                // Add logic to read from DOM to editSchedule dynamically if the user bypassed memory somehow
+                                document.querySelectorAll('[id^="section_"').forEach(section => {
+                                    if(section.id.includes('_edit_')) {
+                                        const hallId = section.id.split('_edit_')[1];
+                                        // DOM has elements, they're already in editSchedule if logic doesn't break
+                                    }
+                                });
+                            }
+                            updateEditScheduleData();
+                        });
+                    }
+                });
                 
                 // Hide edit movie form
                 function hideEditForm() {
@@ -845,7 +1056,7 @@
                                         <td>${movie.language}</td>
                                         <td>${movie.duration} mins</td>
                                         <td>
-                                            <button onclick="showEditForm(${movie.movieId}, '${movie.title}', '${movie.genre}', '${movie.director}', ${movie.duration}, '${movie.language}', '${movie.description}', '${movie.posterImage}', '${movie.startDate}', '${movie.endDate}')" class="btn-edit">Edit</button>
+                                            <a href="${pageContext.request.contextPath}/manageMovies?action=edit&id=${movie.movieId}" class="btn-edit">Edit</a>
                                             <a href="${pageContext.request.contextPath}/manageMovies?action=delete&id=${movie.movieId}" class="btn-delete" onclick="return confirm('Are you sure?')">Delete</a>
                                         </td>
                                     </tr>

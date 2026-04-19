@@ -4,6 +4,9 @@ import com.moviebooking.dao.BookingDao;
 import com.moviebooking.dao.MovieDao;
 import com.moviebooking.model.Booking;
 import com.moviebooking.model.Movie;
+import com.moviebooking.dao.ShowTimeDao;
+import com.moviebooking.model.ShowTime;
+import java.util.List;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
@@ -18,6 +21,7 @@ import java.io.IOException;
 public class BookTicketServlet extends HttpServlet {
     private final MovieDao movieDao = new MovieDao();
     private final BookingDao bookingDao = new BookingDao();
+    private final ShowTimeDao showTimeDao = new ShowTimeDao();
     
     // Seat prices for each type (in currency)
     private static final double STANDARD_PRICE = 200.0;
@@ -47,7 +51,32 @@ public class BookTicketServlet extends HttpServlet {
             Movie movie = movieDao.getMovieById(movieId);
 
             if (movie != null) {
-                // Pass the movie and all seat prices to the booking page
+                List<ShowTime> showTimes = showTimeDao.getShowTimesByMovie(movieId);
+                StringBuilder json = new StringBuilder("[");
+                for(int i=0; i<showTimes.size(); i++){
+                    ShowTime st = showTimes.get(i);
+                    json.append("{");
+                    json.append("\"date\":\"").append(st.getShowDate().toString()).append("\",");
+                    java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("HH:mm");
+                    json.append("\"time\":\"").append(sdf.format(st.getShowTime())).append("\",");
+                    json.append("\"hall\":\"").append(st.getHall() != null ? st.getHall() : "Grand Hall 01").append("\"");
+                    json.append("}");
+                    if(i < showTimes.size() -1) json.append(",");
+                }
+                json.append("]");
+
+                // Fetch booked seats
+                List<Booking> bookings = bookingDao.getBookingsByMovieId(movieId);
+                StringBuilder bookedSeatsJson = new StringBuilder("{");
+                for(int i=0; i<bookings.size(); i++){
+                    Booking b = bookings.get(i);
+                    bookedSeatsJson.append("\"").append(b.getShowTime()).append("\":\"").append(b.getSeatType()).append("\"");
+                    if(i < bookings.size() -1) bookedSeatsJson.append(",");
+                }
+                bookedSeatsJson.append("}");
+                
+                request.setAttribute("bookedSeatsJson", bookedSeatsJson.toString());
+                request.setAttribute("showTimesJson", json.toString());
                 request.setAttribute("movie", movie);
                 request.setAttribute("standardPrice", STANDARD_PRICE);
                 request.setAttribute("premiumPrice", PREMIUM_PRICE);
@@ -81,28 +110,22 @@ public class BookTicketServlet extends HttpServlet {
         // Get user ID from session and form values
         int userId = (int) session.getAttribute("userId");
         String movieIdParam = request.getParameter("movieId");
-        String showTime = request.getParameter("showTime");
+        String finalShowTime = request.getParameter("finalShowTime");
         String seatsParam = request.getParameter("numberOfSeats");
-        String seatType = request.getParameter("seatType");
+        String selectedSeatIds = request.getParameter("selectedSeatIds");
 
         try {
             int movieId = Integer.parseInt(movieIdParam);
             int numberOfSeats = Integer.parseInt(seatsParam);
             
-            // Set the price based on which seat type the user picked
             double pricePerSeat = STANDARD_PRICE;
-            switch (seatType) {
-                case "Premium": pricePerSeat = PREMIUM_PRICE; break;
-                case "Recliner": pricePerSeat = RECLINER_PRICE; break;
-                case "VIP": pricePerSeat = VIP_PRICE; break;
-                default: pricePerSeat = STANDARD_PRICE;
-            }
-            
-            // Calculate total price = number of seats x price per seat
             double totalPrice = numberOfSeats * pricePerSeat;
+            
+            // Store specific seat ids into seatType column for the layout
+            String seatType = (selectedSeatIds != null && !selectedSeatIds.isEmpty()) ? selectedSeatIds : "Seats unselected";
 
             // Create a new booking object and save it to the database
-            Booking booking = new Booking(userId, movieId, showTime, numberOfSeats, seatType, totalPrice, "Confirmed");
+            Booking booking = new Booking(userId, movieId, finalShowTime != null ? finalShowTime : "Not selected", numberOfSeats, seatType, totalPrice, "Confirmed");
             boolean isBooked = bookingDao.createBooking(booking);
 
             if (isBooked) {

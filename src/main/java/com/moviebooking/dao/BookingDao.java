@@ -142,6 +142,39 @@ public class BookingDao {
     }
 
     /**
+     * Get all confirmed bookings for a specific movie.
+     * Used to figure out which seats are already occupied for a specific showtime.
+     * @param movieId the ID of the movie
+     * @return list of confirmed bookings for the movie
+     */
+    public List<Booking> getBookingsByMovieId(int movieId) {
+        List<Booking> bookings = new ArrayList<>();
+        String query = "SELECT b.*, m.title as movie_title FROM bookings b JOIN movies m ON b.movie_id = m.movie_id WHERE b.movie_id = ? AND b.status = 'Confirmed'";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(query)) {
+            pstmt.setInt(1, movieId);
+            ResultSet rs = pstmt.executeQuery();
+            while (rs.next()) {
+                Booking booking = new Booking();
+                booking.setBookingId(rs.getInt("booking_id"));
+                booking.setUserId(rs.getInt("user_id"));
+                booking.setMovieId(rs.getInt("movie_id"));
+                booking.setShowTime(rs.getString("show_time"));
+                booking.setNumberOfSeats(rs.getInt("number_of_seats"));
+                booking.setSeatType(rs.getString("seat_type"));
+                booking.setTotalPrice(rs.getDouble("total_price"));
+                booking.setStatus(rs.getString("status"));
+                booking.setBookingDate(rs.getTimestamp("booking_date"));
+                booking.setMovieTitle(rs.getString("movie_title"));
+                bookings.add(booking);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return bookings;
+    }
+
+    /**
      * Update the status of a booking (e.g. Confirmed to Cancelled).
      * @param bookingId the ID of the booking to update
      * @param status the new status to set

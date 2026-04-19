@@ -19,13 +19,22 @@ public class ShowTimeDao {
      * @return true if added, false if failed
      */
     public boolean addShowTime(ShowTime showTime) {
-        String query = "INSERT INTO show_times (movie_id, show_date, show_time) VALUES (?, ?, ?)";
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(query)) {
-            pstmt.setInt(1, showTime.getMovieId());
-            pstmt.setDate(2, showTime.getShowDate());
-            pstmt.setTime(3, showTime.getShowTime());
-            return pstmt.executeUpdate() > 0;
+        String query = "INSERT INTO show_times (movie_id, show_date, show_time, hall) VALUES (?, ?, ?, ?)";
+        try (Connection conn = DBConnection.getConnection()) {
+            
+            // Add column if it doesn't exist yet
+            try (Statement s = conn.createStatement()) {
+                s.executeUpdate("ALTER TABLE show_times ADD COLUMN IF NOT EXISTS hall VARCHAR(50)");
+            } catch (Exception e) {}
+
+            try (PreparedStatement pstmt = conn.prepareStatement(query)) {
+                pstmt.setInt(1, showTime.getMovieId());
+                pstmt.setDate(2, showTime.getShowDate());
+                pstmt.setTime(3, showTime.getShowTime());
+                pstmt.setString(4, showTime.getHall() != null ? showTime.getHall() : "Grand Hall 01");
+                return pstmt.executeUpdate() > 0;
+            }
+
         } catch (SQLException e) {
             e.printStackTrace();
             return false;
@@ -52,6 +61,12 @@ public class ShowTimeDao {
                 st.setMovieId(rs.getInt("movie_id"));
                 st.setShowDate(rs.getDate("show_date"));
                 st.setShowTime(rs.getTime("show_time"));
+                try {
+                    String hall = rs.getString("hall");
+                    st.setHall(hall != null ? hall : "audi01");
+                } catch(Exception e) {
+                    st.setHall("audi01");
+                }
                 showTimes.add(st);
             }
         } catch (SQLException e) {
@@ -109,7 +124,39 @@ public class ShowTimeDao {
                 st.setMovieId(rs.getInt("movie_id"));
                 st.setShowDate(rs.getDate("show_date"));
                 st.setShowTime(rs.getTime("show_time"));
+                try {
+                    String hall = rs.getString("hall");
+                    st.setHall(hall != null ? hall : "audi01");
+                } catch(Exception e) {
+                    st.setHall("audi01");
+                }
                 st.setMovieTitle(rs.getString("movie_title"));
+                showTimes.add(st);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return showTimes;
+    }
+
+    public List<ShowTime> getAllShowTimes() {
+        List<ShowTime> showTimes = new ArrayList<>();
+        String query = "SELECT * FROM show_times ORDER BY show_date, show_time";
+        try (Connection conn = DBConnection.getConnection();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(query)) {
+            while (rs.next()) {
+                ShowTime st = new ShowTime();
+                st.setShowTimeId(rs.getInt("show_time_id"));
+                st.setMovieId(rs.getInt("movie_id"));
+                st.setShowDate(rs.getDate("show_date"));
+                st.setShowTime(rs.getTime("show_time"));
+                try {
+                    String hall = rs.getString("hall");
+                    st.setHall(hall != null ? hall : "audi01");
+                } catch(Exception e) {
+                    st.setHall("audi01");
+                }
                 showTimes.add(st);
             }
         } catch (SQLException e) {

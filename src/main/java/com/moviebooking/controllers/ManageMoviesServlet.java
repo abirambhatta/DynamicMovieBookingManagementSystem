@@ -46,12 +46,23 @@ public class ManageMoviesServlet extends HttpServlet {
                 int id = Integer.parseInt(request.getParameter("id"));
                 Movie movie = movieDao.getMovieById(id);
                 request.setAttribute("editMovie", movie);
+                
+                // Get show times for this specific movie
+                List<ShowTime> movieShowTimes = showTimeDao.getShowTimesByMovie(id);
+                System.out.println("Show times for movie " + id + ": " + (movieShowTimes != null ? movieShowTimes.size() : "null"));
+                request.setAttribute("movieShowTimes", movieShowTimes);
             }
 
             // Get all movies and show the manage movies page
             List<Movie> movies = movieDao.getAllMovies();
             System.out.println("Movies fetched: " + (movies != null ? movies.size() : "null"));
             request.setAttribute("movies", movies);
+            
+            // Get all show times for all movies
+            List<ShowTime> allShowTimes = showTimeDao.getAllShowTimes();
+            System.out.println("Show times fetched: " + (allShowTimes != null ? allShowTimes.size() : "null"));
+            request.setAttribute("allShowTimes", allShowTimes);
+            
             request.getRequestDispatcher("/WEB-INF/pages/manageMovies.jsp").forward(request, response);
         } catch (Exception e) {
             e.printStackTrace();
@@ -180,6 +191,27 @@ public class ManageMoviesServlet extends HttpServlet {
             boolean isUpdated = movieDao.updateMovie(movie);
 
             if (isUpdated) {
+                // UPDATE SHOWTIMES
+                String scheduleData = request.getParameter("scheduleData");
+                if (scheduleData != null) { 
+                    // Delete all old show times for this movie to cleanly replace
+                    showTimeDao.deleteShowTimesByMovie(movieId);
+                    
+                    if (!scheduleData.isEmpty()) {
+                        String[] entries = scheduleData.split(",");
+                        for (String entry : entries) {
+                            String[] parts = entry.split("\\|");
+                            if (parts.length == 3) {
+                                Date showDate = Date.valueOf(parts[0].trim());
+                                String hall = parts[1].trim();
+                                Time showTime = Time.valueOf(parts[2].trim() + ":00");
+                                ShowTime st = new ShowTime(movieId, showDate, showTime);
+                                st.setHall(hall);
+                                showTimeDao.addShowTime(st);
+                            }
+                        }
+                    }
+                }
                 response.sendRedirect(request.getContextPath() + "/manageMovies?success=Movie updated successfully");
             } else {
                 request.setAttribute("error", "Failed to update movie");
