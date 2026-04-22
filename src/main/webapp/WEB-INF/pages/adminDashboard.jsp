@@ -26,6 +26,9 @@
         .booking-user { font-weight: 500; color: #333; }
         .booking-status { font-size: 12px; padding: 4px 8px; border-radius: 4px; background: #28a745; color: white; }
         .booking-details { font-size: 13px; color: #6c757d; }
+        .refresh-btn { background: #dc143c; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 600; margin-left: 10px; }
+        .refresh-btn:hover { background: #b71c1c; }
+        .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
     </style>
 </head>
 <body>
@@ -90,25 +93,30 @@
             
             <!-- Bookings Tab -->
             <div id="bookings" class="tab-content">
-                <h2>Recent Bookings</h2>
-                <c:choose>
-                    <c:when test="${not empty recentBookings}">
-                        <c:forEach var="booking" items="${recentBookings}">
-                            <div class="booking-item">
-                                <div class="booking-header">
-                                    <div class="booking-user">${booking.userName} - ${booking.movieTitle}</div>
-                                    <div class="booking-status">Confirmed</div>
+                <div class="section-header">
+                    <h2>Recent Bookings</h2>
+                    <button class="refresh-btn" onclick="loadRecentBookings()">🔄 Refresh</button>
+                </div>
+                <div id="bookingsContainer">
+                    <c:choose>
+                        <c:when test="${not empty recentBookings}">
+                            <c:forEach var="booking" items="${recentBookings}">
+                                <div class="booking-item">
+                                    <div class="booking-header">
+                                        <div class="booking-user">${booking.userName} - ${booking.movieTitle}</div>
+                                        <div class="booking-status">Confirmed</div>
+                                    </div>
+                                    <div class="booking-details">
+                                        Seats: ${booking.seatsBooked} | Amount: Rs. ${booking.totalAmount} | Date: ${booking.bookingDate}
+                                    </div>
                                 </div>
-                                <div class="booking-details">
-                                    Seats: ${booking.seatsBooked} | Amount: Rs. ${booking.totalAmount} | Date: ${booking.bookingDate}
-                                </div>
-                            </div>
-                        </c:forEach>
-                    </c:when>
-                    <c:otherwise>
-                        <p style="color: #6c757d;">No recent bookings.</p>
-                    </c:otherwise>
-                </c:choose>
+                            </c:forEach>
+                        </c:when>
+                        <c:otherwise>
+                            <p style="color: #6c757d;">No recent bookings.</p>
+                        </c:otherwise>
+                    </c:choose>
+                </div>
             </div>
         </div>
     </div>
@@ -128,6 +136,40 @@
             if (confirm('Are you sure you want to delete this show time?')) {
                 window.location.href = '${pageContext.request.contextPath}/adminDashboard?action=deleteShowTime&id=' + showTimeId;
             }
+        }
+
+        // ===========================
+        // LOAD RECENT BOOKINGS (REST API)
+        // ===========================
+        function loadRecentBookings() {
+            const container = document.getElementById('bookingsContainer');
+            container.innerHTML = '<p style="color: #999; text-align: center; padding: 20px;">Loading...</p>';
+            
+            fetch('${pageContext.request.contextPath}/api/stats/bookings/recent?limit=10')
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success && data.bookings.length > 0) {
+                        let html = '';
+                        data.bookings.forEach(booking => {
+                            html += '<div class="booking-item">';
+                            html += '<div class="booking-header">';
+                            html += '<div class="booking-user">' + booking.userName + ' - ' + booking.movieTitle + '</div>';
+                            html += '<div class="booking-status">' + booking.status + '</div>';
+                            html += '</div>';
+                            html += '<div class="booking-details">';
+                            html += 'Seats: ' + booking.numberOfSeats + ' | Amount: Rs. ' + booking.totalPrice + ' | Showtime: ' + booking.showTime;
+                            html += '</div>';
+                            html += '</div>';
+                        });
+                        container.innerHTML = html;
+                    } else {
+                        container.innerHTML = '<p style="color: #6c757d;">No recent bookings.</p>';
+                    }
+                })
+                .catch(err => {
+                    console.error('Error loading bookings:', err);
+                    container.innerHTML = '<p style="color: #c0392b;">Failed to load bookings. Please try again.</p>';
+                });
         }
     </script>
 </body>

@@ -33,6 +33,22 @@
                         <div class="movie-info">
                             <!-- Movie title -->
                             <h1>${movie.title}</h1>
+                            <!-- Format and Age Rating badges -->
+                            <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:16px;">
+                                <c:if test="${not empty movie.format}">
+                                    <span style="background:#e8f4f8;color:#2980b9;padding:4px 14px;border-radius:16px;font-size:13px;font-weight:700;">${movie.format}</span>
+                                </c:if>
+                                <c:if test="${not empty movie.ageRating}">
+                                    <c:choose>
+                                        <c:when test="${movie.ageRating == 'R' or movie.ageRating == 'NC-17'}">
+                                            <span style="background:#fde8e8;color:#c0392b;padding:4px 14px;border-radius:16px;font-size:13px;font-weight:700;">${movie.ageRating} &mdash; 18+ Only</span>
+                                        </c:when>
+                                        <c:otherwise>
+                                            <span style="background:#fdf2f8;color:#8e44ad;padding:4px 14px;border-radius:16px;font-size:13px;font-weight:700;">${movie.ageRating}</span>
+                                        </c:otherwise>
+                                    </c:choose>
+                                </c:if>
+                            </div>
                             <!-- Movie director -->
                             <p><strong>Director:</strong> ${movie.director}</p>
                             <!-- Movie genre -->

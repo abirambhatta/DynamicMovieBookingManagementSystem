@@ -25,6 +25,7 @@ header {
     position: sticky;
     top: 0;
     z-index: 1000;
+    user-select: none;
 }
 
 .navbar {
@@ -46,6 +47,7 @@ header {
     font-size: 24px;
     font-weight: 600;
     letter-spacing: -0.5px;
+    user-select: none;
 }
 
 .nav-menu {
@@ -60,6 +62,7 @@ header {
     border-radius: 6px;
     transition: background-color 0.2s;
     font-size: 15px;
+    user-select: none;
 }
 
 .nav-menu a:hover {
@@ -80,6 +83,7 @@ header {
 .user-name {
     color: rgba(255, 255, 255, 0.9);
     font-size: 14px;
+    user-select: none;
 }
 
 .btn-logout {
@@ -91,6 +95,7 @@ header {
     font-weight: 500;
     font-size: 14px;
     transition: all 0.2s;
+    user-select: none;
 }
 
 .btn-logout:hover {
@@ -151,6 +156,7 @@ header {
     color: #495057;
     font-weight: 500;
     font-size: 14px;
+    user-select: none;
 }
 
 .form-group input,
@@ -180,6 +186,10 @@ header {
 }
 
 /* BUTTONS */
+button {
+    cursor: pointer;
+    user-select: none;
+}
 .btn,
 .btn-primary {
     width: 100%;
@@ -195,6 +205,7 @@ header {
     text-decoration: none;
     display: inline-block;
     text-align: center;
+    user-select: none;
 }
 
 .btn:hover,
@@ -213,6 +224,7 @@ header {
     margin-left: 8px;
     transition: all 0.2s;
     font-weight: 500;
+    user-select: none;
 }
 
 .btn-secondary:hover {
@@ -254,6 +266,7 @@ header {
     font-weight: 500;
     border: none;
     cursor: pointer;
+    user-select: none;
 }
 
 .btn-search {
@@ -393,11 +406,13 @@ header {
     margin-bottom: 8px;
     font-size: 32px;
     font-weight: 600;
+    user-select: none;
 }
 
 .welcome-section p {
     color: #6c757d;
     font-size: 16px;
+    user-select: none;
 }
 
 /* STATS */
@@ -425,6 +440,7 @@ header {
     text-transform: uppercase;
     letter-spacing: 0.5px;
     font-weight: 500;
+    user-select: none;
 }
 
 .stat-card p,
@@ -432,6 +448,7 @@ header {
     font-size: 36px;
     font-weight: 600;
     color: #dc143c;
+    user-select: none;
 }
 
 /* MOVIE CARDS */
@@ -474,12 +491,14 @@ header {
     color: #212529;
     font-size: 18px;
     font-weight: 600;
+    user-select: none;
 }
 
 .movie-card p {
     color: #6c757d;
     font-size: 14px;
     margin-bottom: 6px;
+    user-select: none;
 }
 
 /* TABLES */
@@ -515,6 +534,7 @@ table th {
     font-size: 13px;
     text-transform: uppercase;
     letter-spacing: 0.5px;
+    user-select: none;
 }
 
 table td {
@@ -572,6 +592,7 @@ table td:last-child {
     font-weight: 500;
     color: #495057;
     font-size: 14px;
+    user-select: none;
 }
 
 .filter-section select {

@@ -1,635 +1,506 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <!DOCTYPE html>
-<html class="light" lang="en">
+<html lang="en">
 <head>
-    <meta charset="utf-8"/>
-    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-    <title>${movie.title} - Select Seats</title>
-    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Epilogue:wght@700;800;900&display=swap" rel="stylesheet"/>
-    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet"/>
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
-    <script id="tailwind-config">
-        tailwind.config = {
-          darkMode: "class",
-          theme: {
-            extend: {
-              "colors": {
-                "primary": "#dc143c",
-                "on-primary": "#ffffff",
-                "secondary": "#1a1a1a",
-                "surface": "#ffffff",
-                "on-surface": "#1a1a1a",
-                "surface-container": "#f5f5f5",
-                "surface-container-low": "#fafafa",
-                "surface-container-high": "#eeeeee",
-                "surface-container-highest": "#e0e0e0",
-                "outline": "#d1d1d1",
-                "outline-variant": "#e5e5e5",
-                "on-surface-variant": "#666666"
-              },
-              "fontFamily": {
-                "headline": ["Epilogue"],
-                "body": ["Manrope"],
-                "label": ["Manrope"]
-              }
-            },
-          },
-        }
-    </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>${movie.title} - Book Tickets | MovieMint</title>
+    <link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath}/css/style.css">
     <style>
-        body { font-family: 'Manrope', sans-serif; background-color: #ffffff; color: #1a1a1a; }
-        .font-epilogue { font-family: 'Epilogue', sans-serif; }
-        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
-        .curved-screen {
-          height: 60px;
-          width: 100%;
-          background: linear-gradient(to bottom, #dc143c1a 0%, transparent 100%);
-          border-top: 4px solid #dc143c;
-          border-radius: 50% 50% 0 0 / 100% 100% 0 0;
-        }
-        .seat-grid {
-          display: grid;
-          grid-template-columns: repeat(16, minmax(0, 1fr));
-          gap: 0.75rem;
-        }
-        .perspective-theater {
-          perspective: 1000px;
-        }
-        .seat-map-container {
-          transform: rotateX(15deg);
-        }
-        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: #f5f5f5; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #e0e0e0; border-radius: 10px; }
-        .selected-seat { background-color: #dc143c !important; }
-        .seat-base { transition: background-color 0.2s ease; }
+        /* ===== Book Ticket Page Styles ===== */
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Segoe UI', Arial, sans-serif; background: #f5f7fa; color: #1a1a1a; height: 100vh; overflow: hidden; }
+        .booking-layout { display: flex; height: 100vh; overflow: hidden; }
+
+        /* LEFT: Seat Selection */
+        .seat-section { flex: 1; padding: 28px 48px; overflow-y: auto; background: #fff; }
+        .back-link { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: #666; text-decoration: none; margin-bottom: 20px; }
+        .back-link:hover { color: #dc143c; }
+        .seat-header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 36px; }
+        .hall-label { display: block; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.15em; color: #dc143c; margin-bottom: 6px; }
+        .movie-h1 { font-size: 2.8rem; font-weight: 900; color: #1a1a1a; line-height: 1; letter-spacing: -0.02em; }
+        .legend { display: flex; gap: 16px; flex-wrap: wrap; }
+        .legend-item { display: flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: #666; }
+        .legend-dot { width: 16px; height: 16px; border-radius: 4px; }
+        .legend-dot.standard  { background: #e0e0e0; }
+        .legend-dot.premium   { background: #c8e6c9; }
+        .legend-dot.recliner  { background: #ffe0b2; }
+        .legend-dot.vip       { background: #e1bee7; }
+        .legend-dot.selected  { background: #dc143c; }
+        .legend-dot.reserved  { background: #ff6b6b; border: 2px solid #c92a2a; }
+
+        /* Screen */
+        .screen-wrap { width: 100%; margin-bottom: 48px; }
+        .cinema-screen { max-width: 600px; margin: 0 auto 8px; height: 56px; background: linear-gradient(to bottom, rgba(220,20,60,0.12), transparent); border-top: 4px solid #dc143c; border-radius: 50% 50% 0 0 / 100% 100% 0 0; }
+        .screen-label { text-align: center; font-size: 10px; font-weight: 700; letter-spacing: 0.35em; text-transform: uppercase; color: #999; }
+
+        /* Seat grid */
+        .seat-map { perspective: 1000px; padding-bottom: 60px; display: flex; justify-content: center; }
+        .seat-rows-container { transform: rotateX(10deg); display: flex; flex-direction: column; gap: 10px; align-items: center; width: 100%; }
+        .seat-row { display: flex; align-items: center; gap: 24px; justify-content: center; }
+        .row-label { font-size: 10px; font-weight: 800; color: #999; width: 16px; text-align: center; flex-shrink: 0; }
+        .seats-in-row { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; }
+        .row-type-separator { height: 14px; }
+
+        /* Seats */
+        .seat { width: 28px; height: 28px; border-radius: 4px; cursor: pointer; transition: background 0.15s, transform 0.1s; border: none; display: inline-block; }
+        .seat:hover { transform: scale(1.12); }
+        .seat.standard  { background: #e0e0e0; }
+        .seat.premium   { background: #c8e6c9; }
+        .seat.recliner  { background: #ffe0b2; }
+        .seat.vip       { background: #e1bee7; }
+        .seat.standard:hover  { background: #bdbdbd; }
+        .seat.premium:hover   { background: #a5d6a7; }
+        .seat.recliner:hover  { background: #ffcc80; }
+        .seat.vip:hover       { background: #ce93d8; }
+        .seat.selected { background: #dc143c !important; }
+        .seat.reserved { background: #ff6b6b !important; border: 2px solid #c92a2a; cursor: not-allowed; }
+        .seat.reserved:hover { transform: none; }
+
+        /* RIGHT: Booking Panel */
+        .booking-panel { width: 400px; background: #f9fbfd; border-left: 1px solid #e8edf2; display: flex; flex-direction: column; z-index: 10; }
+        .panel-body { flex: 1; overflow-y: auto; padding: 28px 28px 0; display: flex; flex-direction: column; gap: 24px; }
+        .panel-label { font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.15em; color: #5c3f3f; margin-bottom: 12px; display: block; }
+
+        /* Date & Time */
+        .date-row { display: flex; flex-wrap: wrap; gap: 10px; }
+        .date-btn { display: flex; flex-direction: column; align-items: center; padding: 10px 14px; background: #fff; border: 1px solid #e0e0e0; border-radius: 8px; cursor: pointer; width: 60px; transition: all 0.15s; user-select: none; }
+        .date-btn:hover { border-color: #dc143c; }
+        .date-btn.active { background: #dc143c; border-color: #dc143c; color: #fff; }
+        .date-btn .d-month { font-size: 10px; font-weight: 800; text-transform: uppercase; user-select: none; }
+        .date-btn .d-day   { font-size: 20px; font-weight: 900; line-height: 1.1; user-select: none; }
+        .date-btn .d-name  { font-size: 10px; font-weight: 700; text-transform: uppercase; user-select: none; }
+        .time-row { display: flex; flex-wrap: wrap; gap: 8px; }
+        .time-btn { padding: 8px 16px; background: #fff; border: 1px solid #e0e0e0; border-radius: 6px; font-size: 13px; font-weight: 700; cursor: pointer; transition: all 0.15s; user-select: none; }
+        .time-btn:hover, .time-btn.active { background: #dc143c; color: #fff; border-color: #dc143c; }
+        .time-btn.expired { background: #f5f5f5; color: #bbb; border-color: #e0e0e0; cursor: not-allowed; text-decoration: line-through; user-select: none; }
+
+        /* Summary */
+        .summary-card { background: #fff; border: 1px solid #e8edf2; border-radius: 10px; padding: 18px; }
+        .summary-card h3 { font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.15em; color: #5c3f3f; margin-bottom: 14px; }
+        .movie-thumb-row { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
+        .movie-thumb { width: 52px; height: 68px; border-radius: 6px; overflow: hidden; border: 1px solid #e8edf2; flex-shrink: 0; }
+        .movie-thumb img { width: 100%; height: 100%; object-fit: cover; }
+        .movie-meta p { font-size: 13px; font-weight: 700; color: #1a1a1a; }
+        .movie-meta span { font-size: 11px; color: #666; }
+        .summary-hall { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em; color: #dc143c; }
+        .summary-divider { border: none; border-top: 1px solid #f0f0f0; margin: 10px 0; }
+        .summary-row { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 8px; }
+        .summary-row .lbl { color: #666; }
+        .summary-row .val { font-weight: 700; color: #1a1a1a; word-break: break-all; text-align: right; max-width: 55%; }
+        .summary-row .val.highlight { color: #dc143c; }
+        .booking-error { background: #fde8e8; color: #c0392b; padding: 10px 14px; border-radius: 6px; font-size: 13px; font-weight: 700; }
+        
+        /* Remove text cursor from non-input elements */
+        .back-link, .hall-label, .movie-h1, .legend, .legend-item, .screen-label, .row-label, .panel-label, .summary-card h3, .movie-meta, .summary-hall, .summary-row, .total-label, .total-amount { user-select: none; cursor: default; }
+
+        /* Footer */
+        .panel-footer { padding: 20px 28px; background: #fff; border-top: 1px solid #e8edf2; }
+        .total-row { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 16px; }
+        .total-label { font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.12em; color: #5c3f3f; }
+        .total-amount { font-size: 2rem; font-weight: 900; color: #dc143c; }
+        .btn-book { width: 100%; padding: 14px; background: #e0e0e0; color: #999; border: none; border-radius: 8px; font-size: 1rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.08em; cursor: not-allowed; transition: all 0.2s; }
+        .btn-book.ready { background: #dc143c; color: #fff; cursor: pointer; }
+        .btn-book.ready:hover { background: #b71c1c; }
+        .no-showtimes-msg { font-size: 11px; font-weight: 700; color: #666; background: #f5f5f5; border: 1px solid #e0e0e0; padding: 6px 12px; border-radius: 6px; }
     </style>
 </head>
-<body class="bg-surface text-on-surface antialiased overflow-hidden">
-    <c:if test="${empty user}">
-        <c:redirect url="login"/>
-    </c:if>
+<body>
+    <c:if test="${empty user}"><c:redirect url="login"/></c:if>
 
-    <main class="h-screen flex overflow-hidden">
-        <!-- Left Canvas: Seat Selection -->
-        <section class="flex-1 px-12 pb-12 flex flex-col items-center overflow-y-auto custom-scrollbar">
-            <div class="w-full max-w-5xl mt-6">
-                <!-- Header navigation -->
-                <a href="${pageContext.request.contextPath}/movieDetails?id=${movie.movieId}" class="text-on-surface-variant hover:text-primary mb-6 flex items-center gap-1">
-                    <span class="material-symbols-outlined text-sm">arrow_back</span>
-                    <span class="text-sm font-bold uppercase">Back to Details</span>
-                </a>
-                
-                <header class="mb-12 flex justify-between items-end">
-                    <div>
-                        <span id="selectedHallLabel" class="text-primary font-bold text-xs tracking-widest uppercase mb-2 block">Grand Hall 04</span>
-                        <h1 class="text-5xl font-black font-epilogue tracking-tighter leading-none text-secondary">${movie.title}</h1>
-                    </div>
-                    <div class="flex space-x-6">
-                        <div class="flex items-center space-x-2">
-                            <div class="w-4 h-4 bg-surface-container-highest rounded-sm"></div>
-                            <span class="text-xs text-on-surface-variant font-bold uppercase tracking-wider">Available</span>
-                        </div>
-                        <div class="flex items-center space-x-2">
-                            <div class="w-4 h-4 bg-primary rounded-sm"></div>
-                            <span class="text-xs text-on-surface-variant font-bold uppercase tracking-wider">Selected</span>
-                        </div>
-                        <div class="flex items-center space-x-2">
-                            <div class="w-4 h-4 bg-surface-container border border-outline-variant rounded-sm"></div>
-                            <span class="text-xs text-on-surface-variant font-bold uppercase tracking-wider">Reserved</span>
-                        </div>
-                    </div>
-                </header>
+    <div class="booking-layout">
 
-                <!-- Screen Visual -->
-                <div class="w-full mb-20">
-                    <div class="curved-screen mx-auto max-w-3xl mb-4"></div>
-                    <p class="text-center text-[10px] font-bold text-on-surface-variant tracking-[0.4em] uppercase">Cinema Screen Projection Area</p>
+        <%-- ===== LEFT: SEAT MAP ===== --%>
+        <section class="seat-section">
+            <a href="${pageContext.request.contextPath}/movieDetails?id=${movie.movieId}" class="back-link">&larr; Back to Details</a>
+            <div class="seat-header">
+                <div>
+                    <span class="hall-label" id="selectedHallLabel">Select a showtime</span>
+                    <h1 class="movie-h1">${movie.title}</h1>
                 </div>
-
-                <!-- Seat Grid -->
-                <div class="perspective-theater pb-20">
-                    <div class="seat-map-container flex flex-col space-y-6" id="seatContainer">
-                        <div class="flex flex-col space-y-3">
-                            <!-- Seat Rows (Irregular Layout) -->
-                            <div class="flex items-center space-x-8 row-container">
-                                <span class="text-[10px] font-bold text-on-surface-variant w-4 text-center">A</span>
-                                <div class="seat-grid flex-1">
-                                    <div class="w-6 h-6 bg-surface-container border border-outline-variant rounded-sm"></div>
-                                    <div class="w-6 h-6 bg-surface-container border border-outline-variant rounded-sm"></div>
-                                    <div class="col-span-1"></div>
-                                    <div class="w-6 h-6 bg-surface-container-highest rounded-sm seat-base cursor-pointer"></div>
-                                    <div class="w-6 h-6 bg-surface-container-highest rounded-sm seat-base cursor-pointer"></div>
-                                    <div class="w-6 h-6 bg-surface-container-highest rounded-sm seat-base cursor-pointer"></div>
-                                    <div class="w-6 h-6 bg-surface-container-highest rounded-sm seat-base cursor-pointer"></div>
-                                    <div class="w-6 h-6 bg-surface-container-highest rounded-sm seat-base cursor-pointer"></div>
-                                    <div class="w-6 h-6 bg-surface-container-highest rounded-sm seat-base cursor-pointer"></div>
-                                    <div class="w-6 h-6 bg-surface-container-highest rounded-sm seat-base cursor-pointer"></div>
-                                    <div class="w-6 h-6 bg-surface-container-highest rounded-sm seat-base cursor-pointer"></div>
-                                    <div class="w-6 h-6 bg-surface-container-highest rounded-sm seat-base cursor-pointer"></div>
-                                    <div class="col-span-1"></div>
-                                    <div class="w-6 h-6 bg-surface-container border border-outline-variant rounded-sm"></div>
-                                    <div class="w-6 h-6 bg-surface-container border border-outline-variant rounded-sm"></div>
-                                </div>
-                            </div>
-                            <div class="flex items-center space-x-8 row-container">
-                                <span class="text-[10px] font-bold text-on-surface-variant w-4 text-center">B</span>
-                                <div class="seat-grid flex-1">
-                                    <div class="w-6 h-6 bg-surface-container-highest rounded-sm seat-base cursor-pointer"></div>
-                                    <div class="w-6 h-6 bg-surface-container-highest rounded-sm seat-base cursor-pointer"></div>
-                                    <div class="col-span-1"></div>
-                                    <div class="w-6 h-6 bg-surface-container-highest rounded-sm seat-base cursor-pointer"></div>
-                                    <div class="w-6 h-6 bg-surface-container-highest rounded-sm seat-base cursor-pointer"></div>
-                                    <div class="w-6 h-6 bg-surface-container-highest rounded-sm seat-base cursor-pointer"></div>
-                                    <div class="w-6 h-6 bg-surface-container-highest rounded-sm seat-base cursor-pointer"></div>
-                                    <div class="w-6 h-6 bg-surface-container-highest rounded-sm seat-base cursor-pointer"></div>
-                                    <div class="w-6 h-6 bg-surface-container-highest rounded-sm seat-base cursor-pointer"></div>
-                                    <div class="w-6 h-6 bg-surface-container-highest rounded-sm seat-base cursor-pointer"></div>
-                                    <div class="w-6 h-6 bg-surface-container-highest rounded-sm seat-base cursor-pointer"></div>
-                                    <div class="w-6 h-6 bg-surface-container-highest rounded-sm seat-base cursor-pointer"></div>
-                                    <div class="col-span-1"></div>
-                                    <div class="w-6 h-6 bg-surface-container-highest rounded-sm seat-base cursor-pointer"></div>
-                                    <div class="w-6 h-6 bg-surface-container-highest rounded-sm seat-base cursor-pointer"></div>
-                                </div>
-                            </div>
-                            <div class="flex items-center space-x-8 row-container">
-                                <span class="text-[10px] font-bold text-on-surface-variant w-4 text-center">C</span>
-                                <div class="seat-grid flex-1">
-                                    <div class="w-6 h-6 bg-surface-container-highest rounded-sm seat-base cursor-pointer"></div>
-                                    <div class="w-6 h-6 bg-surface-container-highest rounded-sm seat-base cursor-pointer"></div>
-                                    <div class="col-span-1"></div>
-                                    <div class="w-6 h-6 bg-surface-container border border-outline-variant rounded-sm"></div>
-                                    <div class="w-6 h-6 bg-surface-container border border-outline-variant rounded-sm"></div>
-                                    <div class="w-6 h-6 bg-surface-container border border-outline-variant rounded-sm"></div>
-                                    <div class="w-6 h-6 bg-surface-container-highest rounded-sm seat-base cursor-pointer"></div>
-                                    <div class="w-6 h-6 bg-surface-container-highest rounded-sm seat-base cursor-pointer"></div>
-                                    <div class="w-6 h-6 bg-surface-container-highest rounded-sm seat-base cursor-pointer"></div>
-                                    <div class="w-6 h-6 bg-surface-container-highest rounded-sm seat-base cursor-pointer"></div>
-                                    <div class="w-6 h-6 bg-surface-container-highest rounded-sm seat-base cursor-pointer"></div>
-                                    <div class="w-6 h-6 bg-surface-container-highest rounded-sm seat-base cursor-pointer"></div>
-                                    <div class="col-span-1"></div>
-                                    <div class="w-6 h-6 bg-surface-container-highest rounded-sm seat-base cursor-pointer"></div>
-                                    <div class="w-6 h-6 bg-surface-container-highest rounded-sm seat-base cursor-pointer"></div>
-                                </div>
-                            </div>
-                            <div class="flex items-center space-x-8 row-container">
-                                <span class="text-[10px] font-bold text-on-surface-variant w-4 text-center">D</span>
-                                <div class="seat-grid flex-1">
-                                    <div class="w-6 h-6 bg-surface-container-highest rounded-sm seat-base cursor-pointer"></div>
-                                    <div class="w-6 h-6 bg-surface-container-highest rounded-sm seat-base cursor-pointer"></div>
-                                    <div class="col-span-1"></div>
-                                    <div class="w-6 h-6 bg-surface-container-highest rounded-sm seat-base cursor-pointer"></div>
-                                    <div class="w-6 h-6 bg-surface-container-highest rounded-sm seat-base cursor-pointer"></div>
-                                    <div class="w-6 h-6 bg-surface-container-highest rounded-sm seat-base cursor-pointer"></div>
-                                    <div class="w-6 h-6 bg-surface-container-highest rounded-sm seat-base cursor-pointer"></div>
-                                    <div class="w-6 h-6 bg-surface-container-highest rounded-sm seat-base cursor-pointer"></div>
-                                    <div class="w-6 h-6 bg-surface-container-highest rounded-sm seat-base cursor-pointer"></div>
-                                    <div class="w-6 h-6 bg-surface-container-highest rounded-sm seat-base cursor-pointer"></div>
-                                    <div class="w-6 h-6 bg-surface-container-highest rounded-sm seat-base cursor-pointer"></div>
-                                    <div class="w-6 h-6 bg-surface-container-highest rounded-sm seat-base cursor-pointer"></div>
-                                    <div class="col-span-1"></div>
-                                    <div class="w-6 h-6 bg-surface-container-highest rounded-sm seat-base cursor-pointer"></div>
-                                    <div class="w-6 h-6 bg-surface-container-highest rounded-sm seat-base cursor-pointer"></div>
-                                </div>
-                            </div>
-                            <div class="flex items-center space-x-8 pt-8 row-container">
-                                <span class="text-[10px] font-bold text-on-surface-variant w-4 text-center">E</span>
-                                <div class="seat-grid flex-1">
-                                    <div class="w-6 h-6 border-2 border-primary rounded-sm bg-white hover:bg-primary/10 seat-base cursor-pointer transition-all"></div>
-                                    <div class="w-6 h-6 border-2 border-primary rounded-sm bg-white hover:bg-primary/10 seat-base cursor-pointer transition-all"></div>
-                                    <div class="col-span-1"></div>
-                                    <div class="w-6 h-6 border-2 border-primary rounded-sm bg-white hover:bg-primary/10 seat-base cursor-pointer transition-all"></div>
-                                    <div class="w-6 h-6 border-2 border-primary rounded-sm bg-white hover:bg-primary/10 seat-base cursor-pointer transition-all"></div>
-                                    <div class="w-6 h-6 border-2 border-primary rounded-sm bg-white hover:bg-primary/10 seat-base cursor-pointer transition-all"></div>
-                                    <div class="w-6 h-6 border-2 border-primary rounded-sm bg-white hover:bg-primary/10 seat-base cursor-pointer transition-all"></div>
-                                    <div class="w-6 h-6 border-2 border-primary rounded-sm bg-white hover:bg-primary/10 seat-base cursor-pointer transition-all"></div>
-                                    <div class="w-6 h-6 border-2 border-primary rounded-sm bg-white hover:bg-primary/10 seat-base cursor-pointer transition-all"></div>
-                                    <div class="w-6 h-6 border-2 border-primary rounded-sm bg-white hover:bg-primary/10 seat-base cursor-pointer transition-all"></div>
-                                    <div class="w-6 h-6 border-2 border-primary rounded-sm bg-white hover:bg-primary/10 seat-base cursor-pointer transition-all"></div>
-                                    <div class="w-6 h-6 border-2 border-primary rounded-sm bg-white hover:bg-primary/10 seat-base cursor-pointer transition-all"></div>
-                                    <div class="col-span-1"></div>
-                                    <div class="w-6 h-6 border-2 border-primary rounded-sm bg-white hover:bg-primary/10 seat-base cursor-pointer transition-all"></div>
-                                    <div class="w-6 h-6 border-2 border-primary rounded-sm bg-white hover:bg-primary/10 seat-base cursor-pointer transition-all"></div>
-                                </div>
-                            </div>
-                            <div class="flex items-center space-x-8 row-container">
-                                <span class="text-[10px] font-bold text-on-surface-variant w-4 text-center">F</span>
-                                <div class="seat-grid flex-1">
-                                    <div class="w-6 h-6 bg-surface-container-highest rounded-sm seat-base cursor-pointer"></div>
-                                    <div class="w-6 h-6 bg-surface-container-highest rounded-sm seat-base cursor-pointer"></div>
-                                    <div class="col-span-1"></div>
-                                    <div class="w-6 h-6 bg-surface-container-highest rounded-sm seat-base cursor-pointer"></div>
-                                    <div class="w-6 h-6 bg-surface-container-highest rounded-sm seat-base cursor-pointer"></div>
-                                    <div class="w-6 h-6 bg-surface-container-highest rounded-sm seat-base cursor-pointer"></div>
-                                    <div class="w-6 h-6 bg-surface-container-highest rounded-sm seat-base cursor-pointer"></div>
-                                    <div class="w-6 h-6 bg-surface-container-highest rounded-sm seat-base cursor-pointer"></div>
-                                    <div class="w-6 h-6 bg-surface-container-highest rounded-sm seat-base cursor-pointer"></div>
-                                    <div class="w-6 h-6 bg-surface-container-highest rounded-sm seat-base cursor-pointer"></div>
-                                    <div class="w-6 h-6 bg-surface-container-highest rounded-sm seat-base cursor-pointer"></div>
-                                    <div class="w-6 h-6 bg-surface-container-highest rounded-sm seat-base cursor-pointer"></div>
-                                    <div class="col-span-1"></div>
-                                    <div class="w-6 h-6 bg-surface-container-highest rounded-sm seat-base cursor-pointer"></div>
-                                    <div class="w-6 h-6 bg-surface-container-highest rounded-sm seat-base cursor-pointer"></div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                <div class="legend">
+                    <div class="legend-item"><span class="legend-dot standard"></span> Standard</div>
+                    <div class="legend-item"><span class="legend-dot premium"></span> Premium</div>
+                    <div class="legend-item"><span class="legend-dot recliner"></span> Recliner</div>
+                    <div class="legend-item"><span class="legend-dot vip"></span> VIP</div>
+                    <div class="legend-item"><span class="legend-dot selected"></span> Selected</div>
+                    <div class="legend-item"><span class="legend-dot reserved"></span> Reserved</div>
+                </div>
+            </div>
+            <div class="screen-wrap">
+                <div class="cinema-screen"></div>
+                <p class="screen-label">Cinema Screen</p>
+            </div>
+            <%-- Seat grid rendered dynamically by JS --%>
+            <div class="seat-map">
+                <div class="seat-rows-container" id="seatContainer">
+                    <p style="color:#999; text-align:center; padding:40px;">Select a showtime to view the seat layout.</p>
                 </div>
             </div>
         </section>
 
-        <!-- Right Sidebar: Order Summary Form -->
-        <form id="bookingForm" action="${pageContext.request.contextPath}/bookTicket" method="post" class="w-[420px] bg-surface-container-low border-l border-outline-variant flex flex-col z-10">
-            <!-- Hidden Fields for Booking -->
+        <%-- ===== RIGHT: BOOKING PANEL ===== --%>
+        <form id="bookingForm" action="${pageContext.request.contextPath}/bookTicket" method="post" class="booking-panel" onsubmit="return validateBookingBeforeSubmit(event);">
             <input type="hidden" name="movieId" value="${movie.movieId}">
             <input type="hidden" name="finalShowTime" id="finalShowTimeInput" value="">
             <input type="hidden" name="numberOfSeats" id="numberOfSeatsInput" value="0">
             <input type="hidden" name="selectedSeatIds" id="selectedSeatIdsInput" value="">
-            
-            <div class="p-8 space-y-8 flex-1 overflow-y-auto custom-scrollbar">
-                <!-- Data Error/Success -->
-                <c:if test="${not empty error}">
-                    <div class="bg-red-100 text-red-800 p-3 rounded text-sm font-bold">${error}</div>
-                </c:if>
+            <div class="panel-body">
+                <c:if test="${not empty error}"><div class="booking-error">${error}</div></c:if>
 
-                <!-- Date Selection -->
-                <section>
-                    <h3 class="text-xs font-bold text-on-surface-variant uppercase tracking-widest mb-4">Date</h3>
-                    <div id="dateContainer" class="flex flex-wrap gap-3">
-                        <!-- Dates rendered here dynamically -->
-                        <span class="text-xs text-on-surface-variant">Loading dates...</span>
-                    </div>
-                </section>
-
-                <!-- Showtime Selection -->
-                <section>
-                    <h3 class="text-xs font-bold text-on-surface-variant uppercase tracking-widest mb-4">Showtime</h3>
-                    <div id="timeContainer" class="flex flex-wrap gap-2">
-                        <!-- Times rendered here dynamically -->
-                        <span class="text-xs text-on-surface-variant">Select a date first</span>
-                    </div>
-                </section>
-
-                <!-- Order Summary Detail -->
-                <section class="bg-white border border-outline-variant rounded p-6 space-y-4">
-                    <h3 class="text-xs font-bold text-on-surface-variant uppercase tracking-widest">Order Summary</h3>
-                    <div class="flex justify-between items-start">
-                        <div class="flex items-center space-x-4">
-                            <div class="w-16 h-20 bg-surface-container rounded overflow-hidden relative border border-outline-variant">
-                                <img class="w-full h-full object-cover" src="${pageContext.request.contextPath}/images/${movie.posterImage}" alt="${movie.title}"/>
-                            </div>
-                            <div>
-                                <p class="text-sm font-bold text-secondary">${movie.title}</p>
-                                <p class="text-xs text-on-surface-variant">${movie.language} • ${movie.duration} min</p>
-                            </div>
-                        </div>
-                        <div class="text-right">
-                            <p class="text-xs font-bold text-primary uppercase tracking-tighter" id="summaryHallName">Select Hall</p>
-                        </div>
-                    </div>
-                    
-                    <div class="pt-4 border-t border-outline-variant space-y-3">
-                        <div class="flex justify-between text-sm">
-                            <span class="text-on-surface-variant">Selected Seats (<span id="seatCountLabel">0</span>)</span>
-                            <span class="font-bold text-secondary text-right" id="seatIdsLabel" style="word-break: break-all;">None</span>
-                        </div>
-                        <div class="flex justify-between text-sm">
-                            <span class="text-on-surface-variant">Ticket Price</span>
-                            <span class="font-bold text-secondary">Rs. <span id="unitPriceLabel">${standardPrice}</span></span>
-                        </div>
-                        <div class="flex justify-between text-sm text-primary font-bold">
-                            <span>Selected Showtime</span>
-                            <span id="selectedShowtimeLabel" class="text-right">Pick a time</span>
-                        </div>
-                    </div>
-                </section>
-            </div>
-
-            <!-- Footer CTA -->
-            <div class="p-8 bg-white border-t border-outline-variant">
-                <div class="flex justify-between items-center mb-6">
-                    <div>
-                        <p class="text-xs font-bold text-on-surface-variant uppercase tracking-widest">Total Payable</p>
-                        <p class="text-3xl font-black font-epilogue text-primary">Rs. <span id="totalPriceLabel">0.00</span></p>
-                    </div>
-                    <div class="text-right">
-                        <p class="text-[10px] text-on-surface-variant uppercase">Includes Tax</p>
-                    </div>
+                <div><span class="panel-label">Select Date</span>
+                    <div class="date-row" id="dateContainer"><span class="no-showtimes-msg">Loading...</span></div>
                 </div>
-                <!-- Submit visually disabled if invalid -->
-                <button type="submit" id="submitBtn" class="w-full bg-surface-container-highest text-on-surface-variant py-4 rounded font-black font-epilogue tracking-tight text-lg shadow transition-all cursor-not-allowed">
-                    BOOK TICKETS
-                </button>
+                <div><span class="panel-label">Select Showtime</span>
+                    <div class="time-row" id="timeContainer"><span class="no-showtimes-msg">Pick a date first</span></div>
+                </div>
+
+                <div class="summary-card">
+                    <h3>Order Summary</h3>
+                    <div class="movie-thumb-row">
+                        <div class="movie-thumb"><img src="${pageContext.request.contextPath}/images/${movie.posterImage}" alt="${movie.title}"></div>
+                        <div class="movie-meta">
+                            <p>${movie.title}</p>
+                            <span>${movie.language} - ${movie.duration} min</span><br>
+                            <span class="summary-hall" id="summaryHallName">Select Hall</span>
+                        </div>
+                    </div>
+                    <hr class="summary-divider">
+                    <div class="summary-row"><span class="lbl">Seats (<span id="seatCountLabel">0</span>)</span><span class="val" id="seatIdsLabel">None</span></div>
+                    <div class="summary-row"><span class="lbl">Standard Price</span><span class="val">Rs. ${standardPrice}</span></div>
+                    <div class="summary-row"><span class="lbl highlight" style="color:#dc143c;font-weight:700;">Showtime</span><span class="val highlight" id="selectedShowtimeLabel">Pick a time</span></div>
+                </div>
+            </div>
+            <div class="panel-footer">
+                <div class="total-row">
+                    <div><div class="total-label">Total Payable</div><div class="total-amount">Rs. <span id="totalPriceLabel">0.00</span></div></div>
+                    <small style="color:#999;font-size:10px;">Includes Tax</small>
+                </div>
+                <button type="submit" id="submitBtn" class="btn-book" disabled>Book Tickets</button>
             </div>
         </form>
-    </main>
+    </div>
 
     <script>
-        // Constants & Data
-        const standardPrice = ${standardPrice}; // Default price injected from backend
-        // showTimesJson contains objects: { date: "YYYY-MM-DD", time: "18:00", hall: "Grand Hall 04" }
-        const rawShowTimes = ${showTimesJson != null ? showTimesJson : '[]'};
-        // bookedSeatsData maps finalShowTime to an array string of seats e.g. {"2026-10-24 14:30 - Grand Hall 01": "B10, B11"}
+        // ===========================
+        // SERVER DATA
+        // ===========================
+        const prices = {
+            standard: ${standardPrice},
+            premium:  ${premiumPrice},
+            recliner: ${reclinerPrice},
+            vip:      ${vipPrice}
+        };
+        const rawShowTimes    = ${showTimesJson != null ? showTimesJson : '[]'};
         const bookedSeatsData = ${bookedSeatsJson != null ? bookedSeatsJson : '{}'};
-        
+        const hallConfigs     = ${hallConfigsJson != null ? hallConfigsJson : '{}'};
+
         const movieStartDateStr = "${movie.startDate}";
-        const movieEndDateStr = "${movie.endDate}";
-        
-        let selectedSeatsMap = new Set();
-        let currentSelectedDate = null;
-        let currentSelectedTimeObj = null;
+        const movieEndDateStr   = "${movie.endDate}";
 
-        // Group showtimes by Date: { "YYYY-MM-DD": [ { time: "18:00", hall: "..." } ] }
-        const showTimesGrouped = {};
-        rawShowTimes.forEach(st => {
-            if (!showTimesGrouped[st.date]) showTimesGrouped[st.date] = [];
-            showTimesGrouped[st.date].push(st);
-        });
+        let selectedSeats = new Map(); // seatId -> seatType (standard/premium/recliner/vip)
+        let currentDate = null;
+        let currentTime = null;
 
-        // Generate dates directly from the movie's start AND end dates bounds
+        // Group showtimes by date
+        const stGrouped = {};
+        rawShowTimes.forEach(st => { if (!stGrouped[st.date]) stGrouped[st.date] = []; stGrouped[st.date].push(st); });
+
+        // Date range — only show today and future dates
         const sortedDates = [];
         if (movieStartDateStr && movieEndDateStr) {
-            let start = new Date(movieStartDateStr);
-            let end = new Date(movieEndDateStr);
-            while(start <= end) {
-                sortedDates.push(start.toISOString().split('T')[0]);
-                start.setDate(start.getDate() + 1);
+            // Use local date string (YYYY-MM-DD) to avoid UTC timezone shift issues
+            const now = new Date();
+            const todayStr = now.getFullYear() + '-'
+                + String(now.getMonth()+1).padStart(2,'0') + '-'
+                + String(now.getDate()).padStart(2,'0');
+
+            let s = new Date(movieStartDateStr), e = new Date(movieEndDateStr);
+            while (s <= e) {
+                const ds = s.toISOString().split('T')[0];
+                if (ds >= todayStr) sortedDates.push(ds); // skip past dates
+                s.setDate(s.getDate() + 1);
             }
-        } else {
-            // fallback if dates are somehow missing
-            sortedDates = Object.keys(showTimesGrouped).sort();
         }
 
-        // Elements
-        const dateContainer = document.getElementById('dateContainer');
-        const timeContainer = document.getElementById('timeContainer');
-        
-        // Initializer
-        function init() {
-            initSeatGrid();
-            renderDates();
-            if (sortedDates.length > 0) {
-                selectDate(sortedDates[0]);
+        // ===========================
+        // DYNAMIC SEAT GRID
+        // ===========================
+        function buildSeatGrid(hallName) {
+            const container = document.getElementById('seatContainer');
+
+            // Fuzzy lookup: normalize both the requested hall name and config keys
+            // so "audi01", "Audi 01", "audi 01" etc. all match
+            function normalize(s) { return s.toLowerCase().replace(/\s+/g, ''); }
+            let config = hallConfigs[hallName]; // try exact match first
+            if (!config) {
+                // try normalized match
+                const normalizedName = normalize(hallName);
+                for (const key in hallConfigs) {
+                    if (normalize(key) === normalizedName) { config = hallConfigs[key]; break; }
+                }
             }
-            updateSummary();
-        }
+            if (!config) {
+                // Still not found - use a sensible default layout so booking still works
+                config = { seatsPerRow: 12, standardRows: 'A,B,C,D', premiumRows: 'E', reclinerRows: '', vipRows: 'F' };
+            }
 
-        // Initialize seat interaction
-        function initSeatGrid() {
-            const rows = document.querySelectorAll('.row-container');
-            rows.forEach(row => {
-                const rowLabel = row.querySelector('span').innerText.trim();
-                let seatIdx = 1;
-                const seats = row.querySelectorAll('.w-6.h-6');
-                seats.forEach(seat => {
-                    // Skip gaps and reserved
-                    if (seat.classList.contains('col-span-1')) return;
-                    if (!seat.classList.contains('cursor-pointer')) return;
+            container.innerHTML = '';
+            const spr = config.seatsPerRow;
+            const types = [
+                { rows: config.standardRows, cls: 'standard' },
+                { rows: config.premiumRows,  cls: 'premium' },
+                { rows: config.reclinerRows, cls: 'recliner' },
+                { rows: config.vipRows,      cls: 'vip' }
+            ];
 
-                    const seatId = rowLabel + seatIdx;
-                    seat.dataset.id = seatId;
-                    
-                    // Add click handler
-                    seat.addEventListener('click', function() {
-                        // Skip if it is officially reserved (locked out)
-                        if(this.classList.contains('locked-reserved')) return;
-                        
-                        if (selectedSeatsMap.has(seatId)) {
-                            selectedSeatsMap.delete(seatId);
-                            this.classList.remove('bg-primary', 'shadow-sm', 'text-white', 'selected-seat');
-                            
-                            // Restore base colors depending on row layout
-                            if (seatId.startsWith('E')) {
-                                this.classList.add('bg-white', 'border-2', 'border-primary', 'hover:bg-primary/10');
+            let isFirst = true;
+            types.forEach(type => {
+                if (!type.rows || type.rows.trim() === '') return;
+                const rowLetters = type.rows.split(',').map(r => r.trim()).filter(r => r);
+                if (rowLetters.length === 0) return;
+
+                // Add gap between seat type sections
+                if (!isFirst) {
+                    const gap = document.createElement('div');
+                    gap.className = 'row-type-separator';
+                    container.appendChild(gap);
+                }
+                isFirst = false;
+
+                rowLetters.forEach(letter => {
+                    const rowDiv = document.createElement('div');
+                    rowDiv.className = 'seat-row row-container';
+                    rowDiv.dataset.type = type.cls;
+
+                    const label = document.createElement('span');
+                    label.className = 'row-label';
+                    label.textContent = letter;
+                    rowDiv.appendChild(label);
+
+                    const seatsDiv = document.createElement('div');
+                    seatsDiv.className = 'seats-in-row';
+
+                    for (let i = 1; i <= spr; i++) {
+                        const seat = document.createElement('div');
+                        seat.className = 'seat ' + type.cls;
+                        const seatId = letter + i;
+                        seat.dataset.id = seatId;
+                        seat.dataset.type = type.cls;
+                        seat.title = seatId + ' (' + type.cls + ')';
+                        seat.addEventListener('click', function() {
+                            if (this.classList.contains('reserved')) return;
+                            if (selectedSeats.has(seatId)) {
+                                selectedSeats.delete(seatId);
+                                this.classList.remove('selected');
                             } else {
-                                this.classList.add('bg-surface-container-highest', 'hover:bg-primary/20');
+                                if (selectedSeats.size >= 10) { alert('Maximum 10 seats per booking.'); return; }
+                                selectedSeats.set(seatId, type.cls);
+                                this.classList.add('selected');
                             }
-                        } else {
-                            if (selectedSeatsMap.size >= 10) {
-                                alert("You can select maximum 10 seats per booking.");
-                                return;
-                            }
-                            selectedSeatsMap.add(seatId);
-                            
-                            // Strip all base colors and apply vibrant active selection colors
-                            this.classList.remove('bg-surface-container-highest', 'bg-white', 'border-2', 'border-primary', 'hover:bg-primary/10', 'hover:bg-primary/20');
-                            this.classList.add('bg-primary', 'shadow-sm', 'text-white', 'selected-seat');
-                        }
-                        updateSummary();
-                    });
-                    seatIdx++;
+                            updateSummary();
+                        });
+                        seatsDiv.appendChild(seat);
+                    }
+                    rowDiv.appendChild(seatsDiv);
+                    container.appendChild(rowDiv);
                 });
             });
         }
 
-        // Render Dates
+        // ===========================
+        // DATES
+        // ===========================
         function renderDates() {
-            if (sortedDates.length === 0) {
-                dateContainer.innerHTML = '<span class="text-xs text-on-surface-variant font-bold">No upcoming showtimes available.</span>';
-                return;
-            }
-            
-            dateContainer.innerHTML = '';
-            sortedDates.forEach(dateStr => {
-                const dateObj = new Date(dateStr);
-                const day = dateObj.getDate();
-                const monthName = dateObj.toLocaleString('en-US', { month: 'short' });
-                const dayName = dateObj.toLocaleString('en-US', { weekday: 'short' });
-
-                const dateEl = document.createElement('div');
-                // Using dataset for active state logic
-                dateEl.dataset.date = dateStr;
-                dateEl.className = 'date-btn flex flex-col items-center bg-white border border-outline-variant text-on-surface rounded w-14 py-3 cursor-pointer hover:bg-surface-container-high transition-colors';
-                dateEl.innerHTML = `
-                    <span class="text-[10px] font-bold uppercase">\${monthName}</span>
-                    <span class="text-xl font-black font-epilogue">\${day}</span>
-                    <span class="text-[10px] font-bold uppercase">\${dayName}</span>
-                `;
-                dateEl.onclick = () => selectDate(dateStr);
-                dateContainer.appendChild(dateEl);
+            const c = document.getElementById('dateContainer');
+            if (!sortedDates.length) { c.innerHTML = '<span class="no-showtimes-msg">No upcoming dates.</span>'; return; }
+            c.innerHTML = '';
+            sortedDates.forEach(ds => {
+                const d = new Date(ds), el = document.createElement('div');
+                el.className = 'date-btn'; el.dataset.date = ds;
+                el.innerHTML = '<span class="d-month">'+d.toLocaleString('en-US',{month:'short'})+'</span>'
+                    +'<span class="d-day">'+d.getDate()+'</span>'
+                    +'<span class="d-name">'+d.toLocaleString('en-US',{weekday:'short'})+'</span>';
+                el.onclick = () => selectDate(ds);
+                c.appendChild(el);
             });
         }
 
-        function selectDate(dateStr) {
-            currentSelectedDate = dateStr;
-            currentSelectedTimeObj = null;
-
-            // Update UI Active State
-            document.querySelectorAll('.date-btn').forEach(el => {
-                if (el.dataset.date === dateStr) {
-                    el.className = 'date-btn flex flex-col items-center bg-primary text-white rounded w-14 py-3 cursor-pointer transition-colors';
-                } else {
-                    el.className = 'date-btn flex flex-col items-center bg-white border border-outline-variant text-on-surface rounded w-14 py-3 cursor-pointer hover:bg-surface-container-high transition-colors';
-                }
-            });
-
-            renderTimes(dateStr);
-            updateSummary();
+        function selectDate(ds) {
+            currentDate = ds; currentTime = null;
+            selectedSeats.clear();
+            document.querySelectorAll('.date-btn').forEach(el => el.classList.toggle('active', el.dataset.date===ds));
+            renderTimes(ds); updateSummary();
         }
 
-        function renderTimes(dateStr) {
-            timeContainer.innerHTML = '';
-            const times = showTimesGrouped[dateStr];
-            if (!times || times.length === 0) {
-                timeContainer.innerHTML = '<span class="text-[11px] font-bold text-on-surface-variant uppercase bg-surface-container py-1 px-3 rounded shadow-sm border border-outline-variant">No showtimes scheduled for this date.</span>';
-                
-                // Clear any leftover references
-                document.getElementById('selectedHallLabel').innerText = "Select Hall";
-                // Lock out the UI grid visually
-                document.getElementById('seatContainer').style.opacity = '0.5';
-                document.getElementById('seatContainer').style.pointerEvents = 'none';
+        // ===========================
+        // TIMES
+        // ===========================
+        function renderTimes(ds) {
+            const c = document.getElementById('timeContainer');
+            const times = stGrouped[ds];
+            if (!times || !times.length) {
+                c.innerHTML = '<span class="no-showtimes-msg">No showtimes for this date.</span>';
+                document.getElementById('seatContainer').innerHTML = '<p style="color:#999;text-align:center;padding:40px;">No showtimes available.</p>';
                 return;
             }
-            
-            // Re-enable grid
-            document.getElementById('seatContainer').style.opacity = '1';
-            document.getElementById('seatContainer').style.pointerEvents = 'auto';
-
-            // Sort times sequentially
+            c.innerHTML = '';
             times.sort((a,b) => a.time.localeCompare(b.time));
 
-            times.forEach((st, idx) => {
-                const btn = document.createElement('div');
-                btn.className = 'flex flex-col gap-1';
-                
-                const timeBtn = document.createElement('button');
-                timeBtn.type = 'button';
-                timeBtn.className = 'time-btn bg-white border border-outline-variant py-2 px-4 rounded text-sm font-bold text-on-surface hover:bg-primary hover:text-white hover:border-primary transition-all';
-                timeBtn.innerHTML = st.time;
-                
-                // Keep reference to object
-                timeBtn.onclick = () => selectTime(timeBtn, st);
-                
-                const hallLabel = document.createElement('span');
-                hallLabel.className = 'text-[10px] text-center font-bold text-on-surface-variant';
-                hallLabel.innerText = st.hall;
+            // Check if this date is today — if so, apply 15-min cutoff
+            const now = new Date();
+            const todayStr = now.getFullYear() + '-'
+                + String(now.getMonth()+1).padStart(2,'0') + '-'
+                + String(now.getDate()).padStart(2,'0');
+            const isToday = (ds === todayStr);
 
-                // Auto-select first time
-                if(idx === 0 && !currentSelectedTimeObj) {
-                    selectTime(timeBtn, st);
+            let firstAvailable = null;
+            times.forEach((st, i) => {
+                // For today's date, check if showtime has passed (including 15-min buffer)
+                let expired = false;
+                if (isToday) {
+                    const [h, m] = st.time.split(':').map(Number);
+                    const showMs = new Date(now.getFullYear(), now.getMonth(), now.getDate(), h, m).getTime();
+                    const cutoffMs = showMs - 15 * 60 * 1000; // 15 min before
+                    if (now.getTime() >= cutoffMs) expired = true;
                 }
 
-                btn.appendChild(timeBtn);
-                btn.appendChild(hallLabel);
-                timeContainer.appendChild(btn);
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.innerText = st.time + ' (' + st.hall + ')';
+                if (expired) {
+                    btn.className = 'time-btn expired';
+                    btn.disabled = true;
+                    btn.title = 'Booking closed for this showtime';
+                } else {
+                    btn.className = 'time-btn';
+                    btn.onclick = () => selectTime(btn, st);
+                    if (!firstAvailable) firstAvailable = { btn, st };
+                }
+                c.appendChild(btn);
             });
+
+            if (firstAvailable) {
+                selectTime(firstAvailable.btn, firstAvailable.st);
+            } else {
+                c.innerHTML += '<span class="no-showtimes-msg" style="margin-top:8px;display:block;">All showtimes for today have passed.</span>';
+                document.getElementById('seatContainer').innerHTML = '<p style="color:#999;text-align:center;padding:40px;">No bookable showtimes available for this date.</p>';
+            }
         }
 
-        function selectTime(buttonEl, timeObj) {
-            currentSelectedTimeObj = timeObj;
-            
-            // Update UI
-            document.querySelectorAll('.time-btn').forEach(el => {
-                el.className = 'time-btn bg-white border border-outline-variant py-2 px-4 rounded text-sm font-bold text-on-surface hover:bg-primary hover:text-white hover:border-primary transition-all';
-            });
-            buttonEl.className = 'time-btn bg-primary border border-primary py-2 px-4 rounded text-sm font-bold text-white transition-all';
-
-            // Change Theater Title Layout
-            document.getElementById('selectedHallLabel').innerText = timeObj.hall;
-            
+        function selectTime(btn, st) {
+            currentTime = st;
+            selectedSeats.clear();
+            document.querySelectorAll('.time-btn').forEach(el => el.classList.remove('active'));
+            btn.classList.add('active');
+            document.getElementById('selectedHallLabel').innerText = st.hall;
+            buildSeatGrid(st.hall);
             checkReservations();
             updateSummary();
         }
 
-        // Apply visual lockout for already booked seats based on backend JSON
+        // ===========================
+        // RESERVATIONS
+        // ===========================
         function checkReservations() {
-            if (!currentSelectedTimeObj) return;
-
-            const finalShowTimeStr = `\${currentSelectedDate} \${currentSelectedTimeObj.time} - \${currentSelectedTimeObj.hall}`;
-            const reservedSeatString = bookedSeatsData[finalShowTimeStr];
-            
-            let reservedSet = new Set();
-            if (reservedSeatString) {
-                reservedSeatString.split(',').forEach(s => reservedSet.add(s.trim()));
-            }
-
-            // Loop through all seats in the grid
-            document.querySelectorAll('.w-6.h-6').forEach(seat => {
-                if(!seat.dataset.id) return; // skip placeholders
-
-                const sId = seat.dataset.id;
-                
-                if (reservedSet.has(sId)) {
-                    // This seat is officially BOOKED
-                    // Forcefully remove cursor hover logic
-                    seat.classList.replace('cursor-pointer', 'cursor-not-allowed');
-                    seat.classList.replace('bg-surface-container-highest', 'bg-surface-container'); 
-                    seat.classList.add('border', 'border-outline-variant', 'locked-reserved');
-                    
-                    // Clear user's local selection if it hits a conflict switch
-                    if(selectedSeatsMap.has(sId)) {
-                        selectedSeatsMap.delete(sId);
-                    }
-                    
-                    // Cleanup any red background
-                    seat.classList.remove('selected-seat', 'bg-primary');
-                    // Remove dynamic styling overrides from default Tailwind base
-                    seat.classList.remove('hover:bg-primary/20', 'hover:bg-primary/10', 'border-primary', 'border-2');
-                } else if (seat.classList.contains('locked-reserved')) {
-                    // This seat was locked for a DIFFERENT showtime, but is FREE for THIS showtime!
-                    // Reset its state completely
-                    seat.classList.replace('cursor-not-allowed', 'cursor-pointer');
-                    seat.classList.replace('bg-surface-container', 'bg-surface-container-highest');
-                    seat.classList.remove('border', 'border-outline-variant', 'locked-reserved');
-                    
-                    if (sId.startsWith('E')) { // Row E uses white special border
-                         seat.classList.add('hover:bg-primary/10', 'border-2', 'border-primary', 'bg-white');
-                         seat.classList.remove('bg-surface-container-highest');
-                    } else {
-                         seat.classList.add('hover:bg-primary/20');
-                    }
-                }
+            if (!currentTime) return;
+            const key = currentDate + ' ' + currentTime.time + ' - ' + currentTime.hall;
+            const reserved = bookedSeatsData[key];
+            const rSet = new Set();
+            if (reserved) reserved.split(',').forEach(s => rSet.add(s.trim()));
+            document.querySelectorAll('.seat[data-id]').forEach(seat => {
+                if (rSet.has(seat.dataset.id)) { seat.classList.add('reserved'); seat.classList.remove('selected'); selectedSeats.delete(seat.dataset.id); }
             });
         }
 
+        // ===========================
+        // SUMMARY
+        // ===========================
         function updateSummary() {
-            const count = selectedSeatsMap.size;
-            document.getElementById('seatCountLabel').innerText = count;
-            
-            const seatIdsArr = Array.from(selectedSeatsMap);
-            const seatIdsStr = seatIdsArr.length > 0 ? seatIdsArr.join(', ') : 'None';
-            document.getElementById('seatIdsLabel').innerText = seatIdsStr;
+            const count = selectedSeats.size;
+            const seatArr = Array.from(selectedSeats.keys());
 
-            const total = count * standardPrice;
+            document.getElementById('seatCountLabel').innerText = count;
+            document.getElementById('seatIdsLabel').innerText = seatArr.length ? seatArr.join(', ') : 'None';
+
+            // Calculate total with per-type pricing
+            let total = 0;
+            selectedSeats.forEach((type, id) => { total += (prices[type] || prices.standard); });
             document.getElementById('totalPriceLabel').innerText = total.toFixed(2);
 
-            const displayShowTime = currentSelectedTimeObj 
-                ? `\${currentSelectedDate} \${currentSelectedTimeObj.time}` 
-                : 'Pick a time';
-            document.getElementById('selectedShowtimeLabel').innerText = displayShowTime;
-            
-            document.getElementById('summaryHallName').innerText = currentSelectedTimeObj ? currentSelectedTimeObj.hall : "Select Hall";
+            document.getElementById('selectedShowtimeLabel').innerText = currentTime ? currentDate + ' ' + currentTime.time : 'Pick a time';
+            document.getElementById('summaryHallName').innerText = currentTime ? currentTime.hall : 'Select Hall';
 
-            // Bind hidden form values
             document.getElementById('numberOfSeatsInput').value = count;
-            document.getElementById('selectedSeatIdsInput').value = seatIdsStr;
+            document.getElementById('selectedSeatIdsInput').value = seatArr.join(', ');
+            if (currentTime) document.getElementById('finalShowTimeInput').value = currentDate + ' ' + currentTime.time + ' - ' + currentTime.hall;
+
+            const btn = document.getElementById('submitBtn');
+            if (count > 0 && currentTime) { btn.disabled = false; btn.classList.add('ready'); }
+            else { btn.disabled = true; btn.classList.remove('ready'); }
+        }
+
+        // ===========================
+        // BOOKING VALIDATION (REST API)
+        // ===========================
+        function validateBookingBeforeSubmit(event) {
+            event.preventDefault();
             
-            if(currentSelectedTimeObj) {
-                const combinedFinalShowTime = `\${currentSelectedDate} \${currentSelectedTimeObj.time} - \${currentSelectedTimeObj.hall}`;
-                document.getElementById('finalShowTimeInput').value = combinedFinalShowTime;
+            const movieId = document.querySelector('input[name="movieId"]').value;
+            const showTime = document.getElementById('finalShowTimeInput').value;
+            const seatIds = document.getElementById('selectedSeatIdsInput').value;
+            
+            if (!showTime || !seatIds || selectedSeats.size === 0) {
+                alert('Please select seats and showtime before booking.');
+                return false;
             }
-
-            // Enable/Disable Submit Button
-            const submitBtn = document.getElementById('submitBtn');
-            if (count > 0 && currentSelectedTimeObj) {
-                submitBtn.disabled = false;
-                submitBtn.className = "w-full bg-primary py-4 rounded text-white font-black font-epilogue tracking-tight text-lg shadow-lg hover:brightness-90 active:scale-[0.98] transition-all";
-            } else {
-                submitBtn.disabled = true;
-                submitBtn.className = "w-full bg-surface-container-highest border border-outline-variant text-on-surface-variant py-4 rounded font-black font-epilogue tracking-tight text-lg shadow transition-all cursor-not-allowed";
-            }
+            
+            const btn = document.getElementById('submitBtn');
+            btn.disabled = true;
+            btn.innerText = 'VALIDATING...';
+            
+            // Call REST API to validate booking
+            fetch('${pageContext.request.contextPath}/api/bookings/validate', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: 'movieId=' + movieId + '&showTime=' + encodeURIComponent(showTime) + '&seatIds=' + encodeURIComponent(seatIds)
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    // Validation passed - submit the form
+                    btn.innerText = 'BOOKING...';
+                    document.getElementById('bookingForm').submit();
+                } else {
+                    // Validation failed - show error
+                    alert('Booking validation failed: ' + data.error);
+                    btn.disabled = false;
+                    btn.innerText = 'BOOK TICKETS';
+                    btn.classList.add('ready');
+                    // Refresh seat availability
+                    if (currentTime) checkReservations();
+                }
+            })
+            .catch(err => {
+                console.error('Validation error:', err);
+                alert('Could not validate booking. Please try again.');
+                btn.disabled = false;
+                btn.innerText = 'BOOK TICKETS';
+                btn.classList.add('ready');
+            });
+            
+            return false;
         }
 
-        // Check if there are no dates at all, disable grid
-        if (sortedDates.length === 0) {
-            document.getElementById('seatContainer').style.opacity = '0.5';
-            document.getElementById('seatContainer').style.pointerEvents = 'none';
-        }
-
-        // Initialize App
-        window.onload = init;
+        // ===========================
+        // BOOT
+        // ===========================
+        window.onload = function() {
+            renderDates();
+            if (sortedDates.length > 0) selectDate(sortedDates[0]);
+            updateSummary();
+        };
     </script>
 </body>
 </html>

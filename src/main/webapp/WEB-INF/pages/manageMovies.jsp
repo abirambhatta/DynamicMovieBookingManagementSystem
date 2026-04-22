@@ -53,8 +53,9 @@
             <!-- Search and Filter Section -->
             <div style="margin: 20px 0; display: flex; gap: 10px; align-items: center;">
                 <input type="text" id="searchInput" placeholder="Search movies by title..." style="padding: 10px; border: 1px solid #ced4da; border-radius: 6px; flex: 1;">
-                <button onclick="searchMovies()" class="btn-primary" style="padding: 10px 20px;">Search</button>
-                <button onclick="clearSearch()" class="btn-secondary" style="padding: 10px 20px;">Clear</button>
+                <button onclick="searchMovies()" class="btn-primary" style="padding: 10px 20px; width: auto; flex: none; white-space: nowrap;">Search</button>
+                <button onclick="clearSearch()" class="btn-secondary" style="padding: 10px 20px; width: auto; flex: none; white-space: nowrap;">Clear</button>
+
             </div>
             
             <div id="addMovieForm" style="display:none;" class="form-container">
@@ -98,6 +99,26 @@
                         <input type="text" name="language" required>
                     </div>
                     <div class="form-group">
+                        <label>Movie Format:</label>
+                        <select name="format" required>
+                            <option value="2D">2D</option>
+                            <option value="3D">3D</option>
+                            <option value="IMAX">IMAX</option>
+                            <option value="4DX">4DX</option>
+                            <option value="IMAX 3D">IMAX 3D</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Age Rating:</label>
+                        <select name="ageRating" required>
+                            <option value="G">G — General Audiences</option>
+                            <option value="PG">PG — Parental Guidance</option>
+                            <option value="PG-13">PG-13 — Parents Strongly Cautioned</option>
+                            <option value="R">R — Restricted (18+)</option>
+                            <option value="NC-17">NC-17 — Adults Only</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
                         <label>Release Date:</label>
                         <input type="date" name="releaseDate" required>
                     </div>
@@ -126,11 +147,9 @@
                             <div id="hallSelection" style="display: none; margin-top: 20px;">
                                 <label style="font-weight: 500; margin-bottom: 10px; display: block;">Select Halls:</label>
                                 <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 20px;">
-                                    <div class="date-tab" onclick="toggleHall(this, 'audi01')">Audi 01</div>
-                                    <div class="date-tab" onclick="toggleHall(this, 'audi02')">Audi 02</div>
-                                    <div class="date-tab" onclick="toggleHall(this, 'audi03')">Audi 03</div>
-                                    <div class="date-tab" onclick="toggleHall(this, 'audi04')">Audi 04</div>
-                                    <div class="date-tab" onclick="toggleHall(this, 'audi05')">Audi 05</div>
+                                    <c:forEach var="hall" items="${availableHalls}">
+                                        <div class="date-tab" onclick="toggleHall(this, '${hall}')">${hall}</div>
+                                    </c:forEach>
                                 </div>
                             </div>
                             <div id="timeInputSections"></div>
@@ -184,6 +203,26 @@
                         <input type="text" name="language" id="editLanguage" required>
                     </div>
                     <div class="form-group">
+                        <label>Movie Format:</label>
+                        <select name="format" id="editFormat" required>
+                            <option value="2D">2D</option>
+                            <option value="3D">3D</option>
+                            <option value="IMAX">IMAX</option>
+                            <option value="4DX">4DX</option>
+                            <option value="IMAX 3D">IMAX 3D</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Age Rating:</label>
+                        <select name="ageRating" id="editAgeRating" required>
+                            <option value="G">G — General Audiences</option>
+                            <option value="PG">PG — Parental Guidance</option>
+                            <option value="PG-13">PG-13 — Parents Strongly Cautioned</option>
+                            <option value="R">R — Restricted (18+)</option>
+                            <option value="NC-17">NC-17 — Adults Only</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
                         <label>Release Date:</label>
                         <input type="date" name="releaseDate" id="editReleaseDate" required>
                     </div>
@@ -208,11 +247,9 @@
                             <div id="editHallSelection" style="display: none; margin-top: 20px;">
                                 <label style="font-weight: 500; margin-bottom: 10px; display: block;">Select Halls:</label>
                                 <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 20px;">
-                                    <div class="date-tab" data-hall="audi01" onclick="toggleEditHall(this, 'audi01')">Audi 01</div>
-                                    <div class="date-tab" data-hall="audi02" onclick="toggleEditHall(this, 'audi02')">Audi 02</div>
-                                    <div class="date-tab" data-hall="audi03" onclick="toggleEditHall(this, 'audi03')">Audi 03</div>
-                                    <div class="date-tab" data-hall="audi04" onclick="toggleEditHall(this, 'audi04')">Audi 04</div>
-                                    <div class="date-tab" data-hall="audi05" onclick="toggleEditHall(this, 'audi05')">Audi 05</div>
+                                    <c:forEach var="hall" items="${availableHalls}">
+                                        <div class="date-tab" data-hall="${hall}" onclick="toggleEditHall(this, '${hall}')">${hall}</div>
+                                    </c:forEach>
                                 </div>
                             </div>
                             <div id="editTimeInputSections"></div>
@@ -280,7 +317,7 @@
                     
                     // If editMovie is set, show the edit form automatically
                     <c:if test="${not empty editMovie}">
-                    showEditForm(${editMovie.movieId}, `${editMovie.title}`, `${editMovie.genre}`, `${editMovie.director}`, ${editMovie.duration}, `${editMovie.language}`, `${editMovie.description}`, `${editMovie.posterImage}`, `${editMovie.startDate}`, `${editMovie.endDate}`, `${editMovie.releaseDate}`);
+                    showEditForm(${editMovie.movieId}, `${editMovie.title}`, `${editMovie.genre}`, `${editMovie.director}`, ${editMovie.duration}, `${editMovie.language}`, `${editMovie.description}`, `${editMovie.posterImage}`, `${editMovie.startDate}`, `${editMovie.endDate}`, `${editMovie.releaseDate}`, `${editMovie.format}`, `${editMovie.ageRating}`);
                     </c:if>
                 });
                 
@@ -652,7 +689,7 @@
                 let selectedEditHalls = [];
                 let currentEditDate = null;
 
-                function showEditForm(movieId, title, genre, director, duration, language, description, posterImage, startDate, endDate, releaseDate) {
+                function showEditForm(movieId, title, genre, director, duration, language, description, posterImage, startDate, endDate, releaseDate, format, ageRating) {
                     console.log('Opening edit form for movie ID:', movieId);
                     
                     document.getElementById('editMovieId').value = movieId;
@@ -665,6 +702,12 @@
                     document.getElementById('editReleaseDate').value = releaseDate;
                     document.getElementById('editStartDate').value = startDate;
                     document.getElementById('editEndDate').value = endDate;
+                    
+                    // Populate format and age rating dropdowns
+                    var fmtSel = document.getElementById('editFormat');
+                    if (fmtSel && format) { fmtSel.value = format; }
+                    var ageSel = document.getElementById('editAgeRating');
+                    if (ageSel && ageRating) { ageSel.value = ageRating; }
                     
                     const posterImg = document.getElementById('posterImg');
                     posterImg.src = '${pageContext.request.contextPath}/images/' + posterImage;
@@ -780,7 +823,7 @@
                     if (editSchedule[currentEditDate] && editSchedule[currentEditDate].halls) {
                         Object.keys(editSchedule[currentEditDate].halls).forEach(h => {
                             if (editSchedule[currentEditDate].halls[h].length > 0) {
-                                const hallTab = document.querySelector(`#editHallSelection .date-tab[data-hall="${h}"]`);
+                                const hallTab = document.querySelector('#editHallSelection .date-tab[data-hall="' + h + '"]');
                                 if (hallTab) {
                                     toggleEditHall(hallTab, h);
                                 }
@@ -1039,6 +1082,8 @@
                             <th>Name</th>
                             <th>Director</th>
                             <th>Genre</th>
+                            <th>Format</th>
+                            <th>Rating</th>
                             <th>Language</th>
                             <th>Duration</th>
                             <th>Actions</th>
@@ -1053,6 +1098,12 @@
                                         <td>${movie.title}</td>
                                         <td>${movie.director}</td>
                                         <td>${movie.genre}</td>
+                                        <td>
+                                            <span style="background:#e8f4f8;color:#2980b9;padding:2px 8px;border-radius:12px;font-size:11px;font-weight:700;">${not empty movie.format ? movie.format : '2D'}</span>
+                                        </td>
+                                        <td>
+                                            <span style="background:#fdf2f8;color:#8e44ad;padding:2px 8px;border-radius:12px;font-size:11px;font-weight:700;">${not empty movie.ageRating ? movie.ageRating : 'PG'}</span>
+                                        </td>
                                         <td>${movie.language}</td>
                                         <td>${movie.duration} mins</td>
                                         <td>
@@ -1064,7 +1115,7 @@
                             </c:when>
                             <c:otherwise>
                                 <tr>
-                                    <td colspan="7">No movies found.</td>
+                                    <td colspan="9">No movies found.</td>
                                 </tr>
                             </c:otherwise>
                         </c:choose>

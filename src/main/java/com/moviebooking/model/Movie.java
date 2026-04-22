@@ -32,6 +32,10 @@ public class Movie {
     private String posterImage;
     // Movie rating out of 10
     private double rating;
+    // Movie format like 2D, 3D, IMAX
+    private String format;
+    // Age rating like G, PG, R
+    private String ageRating;
 
     // Empty constructor - used to create movie object and set values later
     public Movie() {}
@@ -39,7 +43,7 @@ public class Movie {
     // Constructor with all fields including start and end date
     // Used when adding a new movie with show dates
     public Movie(String title, String genre, String director, int duration, String language, 
-                 Date releaseDate, Date startDate, Date endDate, String description, String posterImage, double rating) {
+                 Date releaseDate, Date startDate, Date endDate, String description, String posterImage, double rating, String format, String ageRating) {
         this.title = title;
         this.genre = genre;
         this.director = director;
@@ -51,12 +55,14 @@ public class Movie {
         this.description = description;
         this.posterImage = posterImage;
         this.rating = rating;
+        this.format = format;
+        this.ageRating = ageRating;
     }
 
     // Constructor without start and end date
     // Used when updating a movie (dates may not change)
     public Movie(String title, String genre, String director, int duration, String language, 
-                 Date releaseDate, String description, String posterImage, double rating) {
+                 Date releaseDate, String description, String posterImage, double rating, String format, String ageRating) {
         this.title = title;
         this.genre = genre;
         this.director = director;
@@ -66,6 +72,8 @@ public class Movie {
         this.description = description;
         this.posterImage = posterImage;
         this.rating = rating;
+        this.format = format;
+        this.ageRating = ageRating;
     }
 
     // Getters and Setters - used to get and set each field value
@@ -105,4 +113,10 @@ public class Movie {
 
     public double getRating() { return rating; }
     public void setRating(double rating) { this.rating = rating; }
+
+    public String getFormat() { return format; }
+    public void setFormat(String format) { this.format = format; }
+
+    public String getAgeRating() { return ageRating; }
+    public void setAgeRating(String ageRating) { this.ageRating = ageRating; }
 }

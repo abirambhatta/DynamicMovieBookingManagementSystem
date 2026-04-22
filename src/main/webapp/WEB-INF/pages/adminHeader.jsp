@@ -16,6 +16,7 @@
             <a href="${pageContext.request.contextPath}/manageMovies" class="<%= currentPage.contains("/manageMovies") ? "active" : "" %>">Movies</a>
             <a href="${pageContext.request.contextPath}/manageUsers" class="<%= currentPage.contains("/manageUsers") ? "active" : "" %>">Users</a>
             <a href="${pageContext.request.contextPath}/manageBookings" class="<%= currentPage.contains("/manageBookings") ? "active" : "" %>">Bookings</a>
+            <a href="${pageContext.request.contextPath}/manageSettings" class="<%= currentPage.contains("/manageSettings") ? "active" : "" %>">Settings</a>
         </div>
         
         <div class="nav-actions">

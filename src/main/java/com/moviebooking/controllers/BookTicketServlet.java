@@ -1,8 +1,11 @@
 package com.moviebooking.controllers;
 
 import com.moviebooking.dao.BookingDao;
+import com.moviebooking.dao.GlobalSettingsDao;
+import com.moviebooking.dao.HallConfigDao;
 import com.moviebooking.dao.MovieDao;
 import com.moviebooking.model.Booking;
+import com.moviebooking.model.HallConfig;
 import com.moviebooking.model.Movie;
 import com.moviebooking.dao.ShowTimeDao;
 import com.moviebooking.model.ShowTime;
@@ -22,12 +25,8 @@ public class BookTicketServlet extends HttpServlet {
     private final MovieDao movieDao = new MovieDao();
     private final BookingDao bookingDao = new BookingDao();
     private final ShowTimeDao showTimeDao = new ShowTimeDao();
-    
-    // Seat prices for each type (in currency)
-    private static final double STANDARD_PRICE = 200.0;
-    private static final double PREMIUM_PRICE = 350.0;
-    private static final double RECLINER_PRICE = 500.0;
-    private static final double VIP_PRICE = 750.0;
+    private final GlobalSettingsDao settingsDao = new GlobalSettingsDao();
+    private final HallConfigDao hallConfigDao = new HallConfigDao();
 
     /**
      * Show the booking form page.
@@ -59,7 +58,7 @@ public class BookTicketServlet extends HttpServlet {
                     json.append("\"date\":\"").append(st.getShowDate().toString()).append("\",");
                     java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("HH:mm");
                     json.append("\"time\":\"").append(sdf.format(st.getShowTime())).append("\",");
-                    json.append("\"hall\":\"").append(st.getHall() != null ? st.getHall() : "Grand Hall 01").append("\"");
+                    json.append("\"hall\":\"").append(st.getHall() != null ? st.getHall() : "Audi 01").append("\"");
                     json.append("}");
                     if(i < showTimes.size() -1) json.append(",");
                 }
@@ -75,13 +74,36 @@ public class BookTicketServlet extends HttpServlet {
                 }
                 bookedSeatsJson.append("}");
                 
+                // Load dynamic prices from admin settings
+                double standardPrice = Double.parseDouble(settingsDao.getSetting("PRICE_STANDARD", "200.0"));
+                double premiumPrice  = Double.parseDouble(settingsDao.getSetting("PRICE_PREMIUM",  "350.0"));
+                double reclinerPrice = Double.parseDouble(settingsDao.getSetting("PRICE_RECLINER", "500.0"));
+                double vipPrice      = Double.parseDouble(settingsDao.getSetting("PRICE_VIP",      "750.0"));
+
+                // Build hall configs JSON for the seat grid
+                List<HallConfig> hallConfigs = hallConfigDao.getAllHallConfigs();
+                StringBuilder hcJson = new StringBuilder("{");
+                for (int h = 0; h < hallConfigs.size(); h++) {
+                    HallConfig hc = hallConfigs.get(h);
+                    hcJson.append("\"").append(hc.getHallName()).append("\":{")
+                        .append("\"seatsPerRow\":").append(hc.getSeatsPerRow()).append(",")
+                        .append("\"standardRows\":\"").append(hc.getStandardRows() != null ? hc.getStandardRows() : "").append("\",")
+                        .append("\"premiumRows\":\"").append(hc.getPremiumRows() != null ? hc.getPremiumRows() : "").append("\",")
+                        .append("\"reclinerRows\":\"").append(hc.getReclinerRows() != null ? hc.getReclinerRows() : "").append("\",")
+                        .append("\"vipRows\":\"").append(hc.getVipRows() != null ? hc.getVipRows() : "").append("\"")
+                        .append("}");
+                    if (h < hallConfigs.size() - 1) hcJson.append(",");
+                }
+                hcJson.append("}");
+
                 request.setAttribute("bookedSeatsJson", bookedSeatsJson.toString());
                 request.setAttribute("showTimesJson", json.toString());
+                request.setAttribute("hallConfigsJson", hcJson.toString());
                 request.setAttribute("movie", movie);
-                request.setAttribute("standardPrice", STANDARD_PRICE);
-                request.setAttribute("premiumPrice", PREMIUM_PRICE);
-                request.setAttribute("reclinerPrice", RECLINER_PRICE);
-                request.setAttribute("vipPrice", VIP_PRICE);
+                request.setAttribute("standardPrice", standardPrice);
+                request.setAttribute("premiumPrice", premiumPrice);
+                request.setAttribute("reclinerPrice", reclinerPrice);
+                request.setAttribute("vipPrice", vipPrice);
                 request.getRequestDispatcher("/WEB-INF/pages/bookTicket.jsp").forward(request, response);
             } else {
                 // If movie not found, go back to browse movies
@@ -109,36 +131,70 @@ public class BookTicketServlet extends HttpServlet {
 
         // Get user ID from session and form values
         int userId = (int) session.getAttribute("userId");
-        String movieIdParam = request.getParameter("movieId");
-        String finalShowTime = request.getParameter("finalShowTime");
-        String seatsParam = request.getParameter("numberOfSeats");
+        String movieIdParam    = request.getParameter("movieId");
+        String finalShowTime   = request.getParameter("finalShowTime");
+        String seatsParam      = request.getParameter("numberOfSeats");
         String selectedSeatIds = request.getParameter("selectedSeatIds");
 
+        // Basic validation before hitting the DB
+        if (finalShowTime == null || finalShowTime.trim().isEmpty()) {
+            request.setAttribute("error", "Please select a showtime before booking.");
+            doGet(request, response);
+            return;
+        }
+        if (seatsParam == null || seatsParam.trim().isEmpty() || "0".equals(seatsParam.trim())) {
+            request.setAttribute("error", "Please select at least one seat before booking.");
+            doGet(request, response);
+            return;
+        }
+
         try {
-            int movieId = Integer.parseInt(movieIdParam);
+            int movieId      = Integer.parseInt(movieIdParam);
             int numberOfSeats = Integer.parseInt(seatsParam);
-            
-            double pricePerSeat = STANDARD_PRICE;
-            double totalPrice = numberOfSeats * pricePerSeat;
-            
-            // Store specific seat ids into seatType column for the layout
-            String seatType = (selectedSeatIds != null && !selectedSeatIds.isEmpty()) ? selectedSeatIds : "Seats unselected";
 
-            // Create a new booking object and save it to the database
-            Booking booking = new Booking(userId, movieId, finalShowTime != null ? finalShowTime : "Not selected", numberOfSeats, seatType, totalPrice, "Confirmed");
-            boolean isBooked = bookingDao.createBooking(booking);
+            // Use standard price as base (per-seat-type pricing calculated client-side)
+            double pricePerSeat = Double.parseDouble(settingsDao.getSetting("PRICE_STANDARD", "200.0"));
+            double totalPrice   = numberOfSeats * pricePerSeat;
 
-            if (isBooked) {
-                // Booking successful - go to my bookings page with success message
-                response.sendRedirect(request.getContextPath() + "/myBookings?success=Booking successful");
+            // Store specific seat IDs in the seatType column (re-used as seat identifier store)
+            String seatType = (selectedSeatIds != null && !selectedSeatIds.trim().isEmpty())
+                    ? selectedSeatIds : "Not selected";
+
+            Booking booking = new Booking(userId, movieId, finalShowTime, numberOfSeats, seatType, totalPrice, "Confirmed");
+            int newBookingId = bookingDao.createBookingReturnId(booking);
+
+            if (newBookingId > 0) {
+                Movie movie   = movieDao.getMovieById(movieId);
+                String orderRef = "MBK-" + String.format("%05d", newBookingId);
+
+                request.setAttribute("bookingId",    newBookingId);
+                request.setAttribute("orderRef",     orderRef);
+                request.setAttribute("movie",        movie);
+                request.setAttribute("showTime",     finalShowTime);
+                request.setAttribute("seatIds",      seatType);
+                request.setAttribute("numberOfSeats", numberOfSeats);
+                request.setAttribute("totalPrice",   totalPrice);
+                request.setAttribute("userName",     session.getAttribute("userName"));
+                request.setAttribute("userEmail",    session.getAttribute("userEmail"));
+
+                request.getRequestDispatcher("/WEB-INF/pages/ticketConfirmation.jsp").forward(request, response);
             } else {
-                // Booking failed - show error on the booking page
-                request.setAttribute("error", "Booking failed. Please try again");
+                request.setAttribute("error", "Booking could not be saved. Please try again.");
                 doGet(request, response);
             }
         } catch (NumberFormatException e) {
-            // If form values are not valid numbers, show error
-            request.setAttribute("error", "Invalid input");
+            request.setAttribute("error", "Invalid form data. Please go back and try again.");
+            doGet(request, response);
+        } catch (RuntimeException e) {
+            // Log real DB error to server console — show clean message to user
+            System.err.println("[BookTicketServlet] Booking DB error: " + e.getMessage());
+            e.printStackTrace();
+            request.setAttribute("error", "Booking failed: " + e.getMessage());
+            doGet(request, response);
+        } catch (Exception e) {
+            System.err.println("[BookTicketServlet] Unexpected error: " + e.getMessage());
+            e.printStackTrace();
+            request.setAttribute("error", "Booking failed: " + e.getMessage());
             doGet(request, response);
         }
     }

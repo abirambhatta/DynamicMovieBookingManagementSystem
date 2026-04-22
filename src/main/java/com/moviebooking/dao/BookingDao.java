@@ -40,6 +40,39 @@ public class BookingDao {
     }
 
     /**
+     * Create a new booking and return its generated ID.
+     * @param booking the booking details
+     * @return generated bookingID or 0 if failed
+     */
+    public int createBookingReturnId(Booking booking) {
+        String query = "INSERT INTO bookings (user_id, movie_id, show_time, number_of_seats, seat_type, total_price, status) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(query, java.sql.Statement.RETURN_GENERATED_KEYS)) {
+            pstmt.setInt(1, booking.getUserId());
+            pstmt.setInt(2, booking.getMovieId());
+            pstmt.setString(3, booking.getShowTime());
+            pstmt.setInt(4, booking.getNumberOfSeats());
+            pstmt.setString(5, booking.getSeatType());
+            pstmt.setDouble(6, booking.getTotalPrice());
+            pstmt.setString(7, booking.getStatus());
+            
+            if (pstmt.executeUpdate() > 0) {
+                try (java.sql.ResultSet rs = pstmt.getGeneratedKeys()) {
+                    if (rs.next()) {
+                        return rs.getInt(1);
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            // Propagate the real error message so callers can display it
+            e.printStackTrace();
+            throw new RuntimeException("DB error saving booking: " + e.getMessage(), e);
+        }
+        return 0;
+    }
+
+
+    /**
      * Get all bookings for a specific user.
      * Used in the "My Bookings" page to show user's booking history.
      * @param userId the ID of the user
@@ -343,25 +376,130 @@ public class BookingDao {
     }
     
     /**
-     * Get how many bookings each seat type has.
+     * Get how many seats of each type (Standard, Premium, Recliner, VIP) have been booked.
+     * Uses hall configurations from database to determine seat types dynamically.
      * Used to show seat type chart on admin dashboard.
-     * @return list of arrays: [seat type, booking count, total seats]
+     * @return list of arrays: [seat type name, total seat count]
      */
     public List<Object[]> getSeatDistribution() {
         List<Object[]> seatData = new ArrayList<>();
-        // Group bookings by seat type and count them
-        String query = "SELECT seat_type, COUNT(*) as booking_count, SUM(number_of_seats) as total_seats " +
-                      "FROM bookings GROUP BY seat_type ORDER BY booking_count DESC";
-        try (Connection conn = DBConnection.getConnection();
-             Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery(query)) {
-            while (rs.next()) {
-                Object[] row = new Object[3];
-                row[0] = rs.getString("seat_type");
-                row[1] = rs.getInt("booking_count");
-                row[2] = rs.getInt("total_seats");
+        
+        // Count seats by type
+        int standardCount = 0;
+        int premiumCount = 0;
+        int reclinerCount = 0;
+        int vipCount = 0;
+        
+        try (Connection conn = DBConnection.getConnection()) {
+            // First, load all hall configurations to build a map of row -> seat type
+            java.util.Map<String, String> rowToTypeMap = new java.util.HashMap<>();
+            
+            String hallConfigQuery = "SELECT hall_name, standard_rows, premium_rows, recliner_rows, vip_rows FROM hall_config";
+            try (Statement stmt = conn.createStatement();
+                 ResultSet rs = stmt.executeQuery(hallConfigQuery)) {
+                
+                while (rs.next()) {
+                    String standardRows = rs.getString("standard_rows");
+                    String premiumRows = rs.getString("premium_rows");
+                    String reclinerRows = rs.getString("recliner_rows");
+                    String vipRows = rs.getString("vip_rows");
+                    
+                    // Parse and map each row letter to its type
+                    if (standardRows != null && !standardRows.trim().isEmpty()) {
+                        for (String row : standardRows.split(",")) {
+                            rowToTypeMap.put(row.trim().toUpperCase(), "Standard");
+                        }
+                    }
+                    if (premiumRows != null && !premiumRows.trim().isEmpty()) {
+                        for (String row : premiumRows.split(",")) {
+                            rowToTypeMap.put(row.trim().toUpperCase(), "Premium");
+                        }
+                    }
+                    if (reclinerRows != null && !reclinerRows.trim().isEmpty()) {
+                        for (String row : reclinerRows.split(",")) {
+                            rowToTypeMap.put(row.trim().toUpperCase(), "Recliner");
+                        }
+                    }
+                    if (vipRows != null && !vipRows.trim().isEmpty()) {
+                        for (String row : vipRows.split(",")) {
+                            rowToTypeMap.put(row.trim().toUpperCase(), "VIP");
+                        }
+                    }
+                }
+            }
+            
+            // Now get all bookings and categorize seats
+            String bookingQuery = "SELECT seat_type FROM bookings WHERE status = 'Confirmed'";
+            try (Statement stmt = conn.createStatement();
+                 ResultSet rs = stmt.executeQuery(bookingQuery)) {
+                
+                while (rs.next()) {
+                    String seatIds = rs.getString("seat_type");
+                    if (seatIds == null || seatIds.trim().isEmpty()) continue;
+                    
+                    // Split comma-separated seat IDs (e.g., "A1, B2, C3")
+                    String[] seats = seatIds.split(",");
+                    for (String seat : seats) {
+                        seat = seat.trim();
+                        if (seat.isEmpty()) continue;
+                        
+                        // Extract row letter (first character or characters before digits)
+                        String rowLetter = "";
+                        for (int i = 0; i < seat.length(); i++) {
+                            char c = seat.charAt(i);
+                            if (Character.isDigit(c)) break;
+                            rowLetter += c;
+                        }
+                        rowLetter = rowLetter.toUpperCase();
+                        
+                        // Look up seat type from hall config
+                        String seatType = rowToTypeMap.getOrDefault(rowLetter, "Standard");
+                        
+                        // Increment the appropriate counter
+                        switch (seatType) {
+                            case "Standard":
+                                standardCount++;
+                                break;
+                            case "Premium":
+                                premiumCount++;
+                                break;
+                            case "Recliner":
+                                reclinerCount++;
+                                break;
+                            case "VIP":
+                                vipCount++;
+                                break;
+                        }
+                    }
+                }
+            }
+            
+            // Add results only if there are bookings
+            if (standardCount > 0) {
+                Object[] row = new Object[2];
+                row[0] = "Standard";
+                row[1] = standardCount;
                 seatData.add(row);
             }
+            if (premiumCount > 0) {
+                Object[] row = new Object[2];
+                row[0] = "Premium";
+                row[1] = premiumCount;
+                seatData.add(row);
+            }
+            if (reclinerCount > 0) {
+                Object[] row = new Object[2];
+                row[0] = "Recliner";
+                row[1] = reclinerCount;
+                seatData.add(row);
+            }
+            if (vipCount > 0) {
+                Object[] row = new Object[2];
+                row[0] = "VIP";
+                row[1] = vipCount;
+                seatData.add(row);
+            }
+            
         } catch (SQLException e) {
             e.printStackTrace();
         }

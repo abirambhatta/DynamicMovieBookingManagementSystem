@@ -2,8 +2,11 @@ package com.moviebooking.controllers;
 
 import com.moviebooking.dao.MovieDao;
 import com.moviebooking.dao.ShowTimeDao;
+import com.moviebooking.dao.GlobalSettingsDao;
+import com.moviebooking.dao.HallConfigDao;
 import com.moviebooking.model.Movie;
 import com.moviebooking.model.ShowTime;
+import com.moviebooking.model.HallConfig;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.MultipartConfig;
 import jakarta.servlet.annotation.WebServlet;
@@ -27,6 +30,8 @@ import java.util.List;
 public class ManageMoviesServlet extends HttpServlet {
     private final MovieDao movieDao = new MovieDao();
     private final ShowTimeDao showTimeDao = new ShowTimeDao();
+    private final GlobalSettingsDao settingsDao = new GlobalSettingsDao();
+    private final HallConfigDao hallConfigDao = new HallConfigDao();
 
     /**
      * Show all movies page, or handle edit/delete actions.
@@ -62,6 +67,12 @@ public class ManageMoviesServlet extends HttpServlet {
             List<ShowTime> allShowTimes = showTimeDao.getAllShowTimes();
             System.out.println("Show times fetched: " + (allShowTimes != null ? allShowTimes.size() : "null"));
             request.setAttribute("allShowTimes", allShowTimes);
+            
+            // Load halls from hall_config table (includes newly added halls)
+            List<HallConfig> hallConfigs = hallConfigDao.getAllHallConfigs();
+            java.util.List<String> hallNames = new java.util.ArrayList<>();
+            for (HallConfig hc : hallConfigs) { hallNames.add(hc.getHallName()); }
+            request.setAttribute("availableHalls", hallNames);
             
             request.getRequestDispatcher("/WEB-INF/pages/manageMovies.jsp").forward(request, response);
         } catch (Exception e) {
@@ -120,7 +131,7 @@ public class ManageMoviesServlet extends HttpServlet {
             filePart.write(uploadPath + File.separator + fileName);
 
             // Create movie object and save to database
-            Movie movie = new Movie(title, genre, director, duration, language, releaseDate, startDate, endDate, description, fileName, 0.0);
+            Movie movie = new Movie(title, genre, director, duration, language, releaseDate, startDate, endDate, description, fileName, 0.0, format, ageRating);
             boolean isAdded = movieDao.addMovie(movie);
 
             if (isAdded) {
@@ -168,6 +179,8 @@ public class ManageMoviesServlet extends HttpServlet {
             int duration = Integer.parseInt(request.getParameter("duration"));
             String language = request.getParameter("language");
             String description = request.getParameter("description");
+            String format = request.getParameter("format");
+            String ageRating = request.getParameter("ageRating");
 
             Movie existingMovie = movieDao.getMovieById(movieId);
             String posterImage = existingMovie.getPosterImage();
@@ -186,7 +199,7 @@ public class ManageMoviesServlet extends HttpServlet {
             Movie movie = new Movie(title, genre, director, duration, language, 
                     existingMovie.getReleaseDate(), existingMovie.getStartDate(), 
                     existingMovie.getEndDate(), description, posterImage, 
-                    existingMovie.getRating());
+                    existingMovie.getRating(), format, ageRating);
             movie.setMovieId(movieId);
             boolean isUpdated = movieDao.updateMovie(movie);
 

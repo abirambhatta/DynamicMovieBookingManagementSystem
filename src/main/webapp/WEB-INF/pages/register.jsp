@@ -220,6 +220,52 @@
             font-size: 14px;
         }
         
+        /* Password strength indicator */
+        .password-strength {
+            margin-top: 8px;
+            font-size: 12px;
+        }
+        .password-requirements {
+            margin-top: 8px;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+        .requirement {
+            margin: 4px 0;
+            color: #6c757d;
+        }
+        .requirement.valid {
+            color: #28a745;
+        }
+        .requirement.valid::before {
+            content: '✓ ';
+            font-weight: bold;
+        }
+        .requirement.invalid::before {
+            content: '✗ ';
+            font-weight: bold;
+        }
+        .strength-bar {
+            height: 4px;
+            background: #e9ecef;
+            border-radius: 2px;
+            margin-top: 8px;
+            overflow: hidden;
+        }
+        .strength-bar-fill {
+            height: 100%;
+            width: 0;
+            transition: all 0.3s;
+        }
+        .strength-weak { background: #dc3545; width: 33%; }
+        .strength-medium { background: #ffc107; width: 66%; }
+        .strength-strong { background: #28a745; width: 100%; }
+        
+        /* Remove text cursor from labels and non-input elements */
+        .register-logo-section, .logo-content, .tagline, .benefits-list, label, .form-subtitle, .links { user-select: none; cursor: default; }
+        
         /* Responsive design */
         @media (max-width: 768px) {
             .register-container {
@@ -310,6 +356,16 @@
                     <div class="form-group">
                         <label for="password">Password</label>
                         <input type="password" id="password" name="password" placeholder="Enter your password" required>
+                        <div class="password-requirements" id="passwordRequirements" style="display:none;">
+                            <div class="requirement" id="req-length">At least 8 characters</div>
+                            <div class="requirement" id="req-uppercase">One uppercase letter (A-Z)</div>
+                            <div class="requirement" id="req-lowercase">One lowercase letter (a-z)</div>
+                            <div class="requirement" id="req-number">One number (0-9)</div>
+                            <div class="requirement" id="req-special">One special character (!@#$%^&*)</div>
+                        </div>
+                        <div class="strength-bar">
+                            <div class="strength-bar-fill" id="strengthBar"></div>
+                        </div>
                     </div>
                     
                     <!-- Confirm password input field -->
@@ -329,5 +385,80 @@
             </div>
         </div>
     </div>
+
+    <script>
+        // Password strength validation
+        const passwordInput = document.getElementById('password');
+        const confirmPasswordInput = document.getElementById('confirmPassword');
+        const requirementsDiv = document.getElementById('passwordRequirements');
+        const strengthBar = document.getElementById('strengthBar');
+        
+        const requirements = {
+            length: { regex: /.{8,}/, element: document.getElementById('req-length') },
+            uppercase: { regex: /[A-Z]/, element: document.getElementById('req-uppercase') },
+            lowercase: { regex: /[a-z]/, element: document.getElementById('req-lowercase') },
+            number: { regex: /[0-9]/, element: document.getElementById('req-number') },
+            special: { regex: /[!@#$%^&*(),.?":{}|<>]/, element: document.getElementById('req-special') }
+        };
+
+        passwordInput.addEventListener('focus', function() {
+            requirementsDiv.style.display = 'block';
+        });
+
+        passwordInput.addEventListener('input', function() {
+            const password = this.value;
+            let validCount = 0;
+
+            // Check each requirement
+            for (let key in requirements) {
+                const req = requirements[key];
+                if (req.regex.test(password)) {
+                    req.element.classList.add('valid');
+                    req.element.classList.remove('invalid');
+                    validCount++;
+                } else {
+                    req.element.classList.remove('valid');
+                    req.element.classList.add('invalid');
+                }
+            }
+
+            // Update strength bar
+            strengthBar.className = 'strength-bar-fill';
+            if (validCount <= 2) {
+                strengthBar.classList.add('strength-weak');
+            } else if (validCount <= 4) {
+                strengthBar.classList.add('strength-medium');
+            } else {
+                strengthBar.classList.add('strength-strong');
+            }
+        });
+
+        // Form validation on submit
+        document.querySelector('form').addEventListener('submit', function(e) {
+            const password = passwordInput.value;
+            const confirmPassword = confirmPasswordInput.value;
+
+            // Check all requirements
+            let allValid = true;
+            for (let key in requirements) {
+                if (!requirements[key].regex.test(password)) {
+                    allValid = false;
+                    break;
+                }
+            }
+
+            if (!allValid) {
+                e.preventDefault();
+                alert('Password must meet all requirements:\n- At least 8 characters\n- One uppercase letter\n- One lowercase letter\n- One number\n- One special character');
+                return false;
+            }
+
+            if (password !== confirmPassword) {
+                e.preventDefault();
+                alert('Passwords do not match!');
+                return false;
+            }
+        });
+    </script>
 </body>
 </html>

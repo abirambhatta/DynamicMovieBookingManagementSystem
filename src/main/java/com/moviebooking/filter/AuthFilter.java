@@ -8,7 +8,7 @@ import java.io.IOException;
 // This filter runs before the listed pages are accessed
 // It checks if the user is logged in and has the right role
 @WebFilter({"/userHome", "/browseMovies", "/movieDetails", "/bookTicket", "/myBookings", "/userProfile", 
-            "/adminHome", "/manageMovies", "/manageUsers", "/manageBookings"})
+            "/adminHome", "/manageMovies", "/manageUsers", "/manageBookings", "/manageSettings"})
 /**
  * This filter checks if user is logged in.
  * Redirects to login page if user is not logged in or has wrong role.
@@ -35,9 +35,8 @@ public class AuthFilter implements Filter {
         boolean isUserPage = uri.contains("/userHome") || uri.contains("/browseMovies") || 
                              uri.contains("/movieDetails") || uri.contains("/bookTicket") || 
                              uri.contains("/myBookings") || uri.contains("/userProfile");
-        // Check if the page is an admin page (admin only pages)
         boolean isAdminPage = uri.contains("/adminHome") || uri.contains("/manageMovies") || 
-                              uri.contains("/manageUsers") || uri.contains("/manageBookings");
+                              uri.contains("/manageUsers") || uri.contains("/manageBookings") || uri.contains("/manageSettings");
 
         // If no session exists or no user is logged in, go to login page
         if (session == null || session.getAttribute("user") == null) {
