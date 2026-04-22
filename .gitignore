@@ -47,3 +47,11 @@ Thumbs.db
 
 # Keep library JARs
 !src/main/webapp/WEB-INF/lib/*.jar
+
+# Exclude extra documentation files (keep only README.md)
+BUG_FIXES_SUMMARY.md
+MOVIE_STATUS_EXPLANATION.md
+USER_MANAGEMENT_IMPROVEMENTS.md
+
+# Exclude stitch folder
+stitch_cinebook_management_system/
