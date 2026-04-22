@@ -8,6 +8,13 @@
     <title>Manage Movies - MovieMint Admin</title>
     <link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath}/css/style.css">
     <style>
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; margin-bottom: 30px; }
+        .stat-card { background: white; padding: 24px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); border-left: 4px solid #dc143c; }
+        .stat-card h3 { margin: 0 0 8px 0; font-size: 14px; color: #6c757d; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; }
+        .stat-card .stat-value { font-size: 32px; font-weight: 700; color: #2c3e50; margin: 0; }
+        .stat-card.now-showing { border-left-color: #2ecc71; }
+        .stat-card.upcoming { border-left-color: #3498db; }
+        .stat-card.showtimes { border-left-color: #f39c12; }
         .btn-edit, .btn-delete { min-width: 80px; padding: 8px 16px; font-size: 13px; display: inline-block; text-align: center; }
         .schedule-container { border: 1px solid #e9ecef; border-radius: 8px; padding: 20px; margin-top: 10px; background: #f8f9fa; }
         .date-tabs { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
@@ -38,6 +45,26 @@
         <div class="main-content">
             <h1>Manage Movies</h1>
             
+            <!-- Statistics Cards -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h3>Total Movies</h3>
+                    <p class="stat-value">${totalMovies}</p>
+                </div>
+                <div class="stat-card now-showing">
+                    <h3>Now Showing</h3>
+                    <p class="stat-value">${nowShowing}</p>
+                </div>
+                <div class="stat-card upcoming">
+                    <h3>Upcoming</h3>
+                    <p class="stat-value">${upcoming}</p>
+                </div>
+                <div class="stat-card showtimes">
+                    <h3>Total Showtimes</h3>
+                    <p class="stat-value">${totalShowTimes}</p>
+                </div>
+            </div>
+            
             <c:if test="${not empty param.success}">
                 <p class="success-message">${param.success}</p>
             </c:if>
@@ -50,12 +77,57 @@
                 <button onclick="showAddForm()" class="btn-primary">Add New Movie</button>
             </div>
             
-            <!-- Search and Filter Section -->
-            <div style="margin: 20px 0; display: flex; gap: 10px; align-items: center;">
-                <input type="text" id="searchInput" placeholder="Search movies by title..." style="padding: 10px; border: 1px solid #ced4da; border-radius: 6px; flex: 1;">
-                <button onclick="searchMovies()" class="btn-primary" style="padding: 10px 20px; width: auto; flex: none; white-space: nowrap;">Search</button>
-                <button onclick="clearSearch()" class="btn-secondary" style="padding: 10px 20px; width: auto; flex: none; white-space: nowrap;">Clear</button>
-
+            <!-- Filter Bar -->
+            <div style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); margin: 20px 0;">
+                <!-- Search Section -->
+                <div style="margin-bottom: 16px;">
+                    <form action="${pageContext.request.contextPath}/manageMovies" method="get" style="display: flex; gap: 8px;">
+                        <input type="text" name="search" id="searchInput" placeholder="Search by title, genre, or director..." value="${param.search}" style="flex: 1; padding: 10px 14px; border: 1px solid #ced4da; border-radius: 6px; font-size: 15px;">
+                        <button type="submit" style="padding: 10px 20px; background: #dc143c; color: white; border: none; border-radius: 6px; font-size: 14px; font-weight: 500; cursor: pointer; white-space: nowrap;">Search</button>
+                    </form>
+                </div>
+                
+                <div style="width: 100%; height: 1px; background: #e9ecef; margin: 16px 0;"></div>
+                
+                <!-- Filter Section -->
+                <form action="${pageContext.request.contextPath}/manageMovies" method="get" style="display: flex; gap: 12px; flex-wrap: wrap; align-items: flex-end;">
+                    <div style="display: flex; flex-direction: column; gap: 6px;">
+                        <label style="font-size: 13px; font-weight: 600; color: #495057;">Status</label>
+                        <select name="status" style="padding: 10px 14px; border: 1px solid #ced4da; border-radius: 6px; font-size: 14px; cursor: pointer; background: white; min-width: 150px;">
+                            <option value="" ${empty param.status ? 'selected' : ''}>All Movies</option>
+                            <option value="showing" ${param.status == 'showing' ? 'selected' : ''}>Now Showing</option>
+                            <option value="upcoming" ${param.status == 'upcoming' ? 'selected' : ''}>Upcoming</option>
+                            <option value="ended" ${param.status == 'ended' ? 'selected' : ''}>Ended</option>
+                        </select>
+                    </div>
+                    
+                    <div style="display: flex; flex-direction: column; gap: 6px;">
+                        <label style="font-size: 13px; font-weight: 600; color: #495057;">Genre</label>
+                        <select name="genre" style="padding: 10px 14px; border: 1px solid #ced4da; border-radius: 6px; font-size: 14px; cursor: pointer; background: white; min-width: 150px;">
+                            <option value="all" ${param.genre == 'all' || empty param.genre ? 'selected' : ''}>All Genres</option>
+                            <c:forEach var="g" items="${genres}">
+                                <option value="${g}" ${param.genre == g ? 'selected' : ''}>${g}</option>
+                            </c:forEach>
+                        </select>
+                    </div>
+                    
+                    <div style="display: flex; flex-direction: column; gap: 6px;">
+                        <label style="font-size: 13px; font-weight: 600; color: #495057;">Language</label>
+                        <select name="language" style="padding: 10px 14px; border: 1px solid #ced4da; border-radius: 6px; font-size: 14px; cursor: pointer; background: white; min-width: 150px;">
+                            <option value="all" ${param.language == 'all' || empty param.language ? 'selected' : ''}>All Languages</option>
+                            <c:forEach var="lang" items="${languages}">
+                                <option value="${lang}" ${param.language == lang ? 'selected' : ''}>${lang}</option>
+                            </c:forEach>
+                        </select>
+                    </div>
+                    
+                    <div style="display: flex; gap: 8px; align-items: flex-end;">
+                        <button type="submit" style="padding: 10px 20px; background: #dc143c; color: white; border: none; border-radius: 6px; font-size: 14px; font-weight: 500; cursor: pointer; white-space: nowrap; height: 42px;">Apply Filters</button>
+                        <c:if test="${not empty param.search || not empty param.status || not empty param.genre || not empty param.language}">
+                            <a href="${pageContext.request.contextPath}/manageMovies" style="padding: 10px 20px; background: #6c757d; color: white; border: none; border-radius: 6px; font-size: 14px; font-weight: 500; cursor: pointer; white-space: nowrap; text-decoration: none; display: inline-block; height: 42px; line-height: 22px;">Clear All</a>
+                        </c:if>
+                    </div>
+                </form>
             </div>
             
             <div id="addMovieForm" style="display:none;" class="form-container">

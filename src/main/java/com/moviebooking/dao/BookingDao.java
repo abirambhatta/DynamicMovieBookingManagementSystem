@@ -542,6 +542,149 @@ public class BookingDao {
         }
         return 0;
     }
+    
+    public int getConfirmedBookings() {
+        String query = "SELECT COUNT(*) FROM bookings WHERE status = 'Confirmed'";
+        try (Connection conn = DBConnection.getConnection();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(query)) {
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+    
+    public int getCancelledBookings() {
+        String query = "SELECT COUNT(*) FROM bookings WHERE status = 'Cancelled'";
+        try (Connection conn = DBConnection.getConnection();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(query)) {
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+    
+    public int getTodayBookings() {
+        String query = "SELECT COUNT(*) FROM bookings WHERE DATE(booking_date) = CURDATE()";
+        try (Connection conn = DBConnection.getConnection();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(query)) {
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+    
+    public List<Booking> searchBookings(String keyword) {
+        List<Booking> bookings = new ArrayList<>();
+        String query = "SELECT b.*, m.title as movie_title, u.full_name as user_name FROM bookings b " +
+                      "JOIN movies m ON b.movie_id = m.movie_id JOIN users u ON b.user_id = u.user_id " +
+                      "WHERE u.full_name LIKE ? OR m.title LIKE ? OR b.booking_id LIKE ? " +
+                      "ORDER BY b.booking_date DESC";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(query)) {
+            String searchPattern = "%" + keyword + "%";
+            pstmt.setString(1, searchPattern);
+            pstmt.setString(2, searchPattern);
+            pstmt.setString(3, searchPattern);
+            ResultSet rs = pstmt.executeQuery();
+            while (rs.next()) {
+                Booking booking = new Booking();
+                booking.setBookingId(rs.getInt("booking_id"));
+                booking.setUserId(rs.getInt("user_id"));
+                booking.setMovieId(rs.getInt("movie_id"));
+                booking.setShowTime(rs.getString("show_time"));
+                booking.setNumberOfSeats(rs.getInt("number_of_seats"));
+                booking.setSeatType(rs.getString("seat_type"));
+                booking.setTotalPrice(rs.getDouble("total_price"));
+                booking.setStatus(rs.getString("status"));
+                booking.setBookingDate(rs.getTimestamp("booking_date"));
+                booking.setMovieTitle(rs.getString("movie_title"));
+                booking.setUserName(rs.getString("user_name"));
+                bookings.add(booking);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return bookings;
+    }
+    
+    public List<Booking> getBookingsByFilter(String period, String status, String startDate, String endDate) {
+        List<Booking> bookings = new ArrayList<>();
+        StringBuilder query = new StringBuilder(
+            "SELECT b.*, m.title as movie_title, u.full_name as user_name FROM bookings b " +
+            "JOIN movies m ON b.movie_id = m.movie_id JOIN users u ON b.user_id = u.user_id WHERE 1=1"
+        );
+        
+        // Add period filter (quick filters)
+        if ("today".equals(period)) {
+            query.append(" AND DATE(b.booking_date) = CURDATE()");
+        } else if ("week".equals(period)) {
+            query.append(" AND b.booking_date >= DATE_SUB(CURDATE(), INTERVAL 7 DAY)");
+        } else if ("month".equals(period)) {
+            query.append(" AND b.booking_date >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)");
+        }
+        // Add custom date range filter
+        else if (startDate != null && !startDate.isEmpty() && endDate != null && !endDate.isEmpty()) {
+            query.append(" AND DATE(b.booking_date) BETWEEN ? AND ?");
+        }
+        
+        // Add status filter
+        boolean hasStatusFilter = status != null && !status.isEmpty() && !"all".equals(status);
+        if (hasStatusFilter) {
+            query.append(" AND b.status = ?");
+        }
+        
+        query.append(" ORDER BY b.booking_date DESC");
+        
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(query.toString())) {
+            
+            int paramIndex = 1;
+            
+            // Set date range parameters if custom range is used
+            if (startDate != null && !startDate.isEmpty() && endDate != null && !endDate.isEmpty() 
+                && period == null) {
+                pstmt.setString(paramIndex++, startDate);
+                pstmt.setString(paramIndex++, endDate);
+            }
+            
+            // Set status parameter
+            if (hasStatusFilter) {
+                pstmt.setString(paramIndex, status);
+            }
+            
+            ResultSet rs = pstmt.executeQuery();
+            while (rs.next()) {
+                Booking booking = new Booking();
+                booking.setBookingId(rs.getInt("booking_id"));
+                booking.setUserId(rs.getInt("user_id"));
+                booking.setMovieId(rs.getInt("movie_id"));
+                booking.setShowTime(rs.getString("show_time"));
+                booking.setNumberOfSeats(rs.getInt("number_of_seats"));
+                booking.setSeatType(rs.getString("seat_type"));
+                booking.setTotalPrice(rs.getDouble("total_price"));
+                booking.setStatus(rs.getString("status"));
+                booking.setBookingDate(rs.getTimestamp("booking_date"));
+                booking.setMovieTitle(rs.getString("movie_title"));
+                booking.setUserName(rs.getString("user_name"));
+                bookings.add(booking);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return bookings;
+    }
 
     public List<Booking> getRecentBookings(int limit) {
         List<Booking> bookings = new ArrayList<>();

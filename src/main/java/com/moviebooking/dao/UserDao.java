@@ -33,6 +33,16 @@ public class UserDao {
             return false;
         }
     }
+    
+    /**
+     * Create a new user (admin function).
+     * Same as registerUser but clearer name for admin context.
+     * @param user the user object with name, email, phone, password, role
+     * @return true if user was created, false if it failed
+     */
+    public boolean createUser(User user) {
+        return registerUser(user);
+    }
 
     /**
      * Check if email and password match a user in the database (login check).
@@ -105,13 +115,16 @@ public class UserDao {
     }
 
     /**
-     * Get all users from the database with their booking count.
+     * Get all users from the database with their booking count and total spent.
      * Used on the admin manage users page.
      * @return list of all users, sorted by newest first
      */
     public List<User> getAllUsers() {
         List<User> users = new ArrayList<>();
-        String query = "SELECT u.*, (SELECT COUNT(*) FROM bookings b WHERE b.user_id = u.user_id) as booking_count FROM users u ORDER BY u.user_id DESC";
+        String query = "SELECT u.*, " +
+                      "(SELECT COUNT(*) FROM bookings b WHERE b.user_id = u.user_id) as booking_count, " +
+                      "(SELECT COALESCE(SUM(b.total_price), 0) FROM bookings b WHERE b.user_id = u.user_id) as total_spent " +
+                      "FROM users u ORDER BY u.user_id DESC";
         try (Connection conn = DBConnection.getConnection();
              Statement stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery(query)) {
@@ -124,6 +137,7 @@ public class UserDao {
                 user.setRole(rs.getString("role"));
                 user.setRegistrationDate(rs.getTimestamp("created_at"));
                 user.setBookingCount(rs.getInt("booking_count"));
+                user.setTotalSpent(rs.getDouble("total_spent"));
                 users.add(user);
             }
         } catch (SQLException e) {
@@ -185,19 +199,20 @@ public class UserDao {
     }
 
     /**
-     * Update user's name, email, and phone in the database.
-     * Used when user edits their profile.
+     * Update user's name, email, phone, and role in the database.
+     * Used when admin edits a user or user edits their profile.
      * @param user the user object with updated values
      * @return true if updated, false if failed
      */
     public boolean updateUser(User user) {
-        String query = "UPDATE users SET full_name = ?, email = ?, phone = ? WHERE user_id = ?";
+        String query = "UPDATE users SET full_name = ?, email = ?, phone = ?, role = ? WHERE user_id = ?";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(query)) {
             pstmt.setString(1, user.getFullName());
             pstmt.setString(2, user.getEmail());
             pstmt.setString(3, user.getPhone());
-            pstmt.setInt(4, user.getUserId());
+            pstmt.setString(4, user.getRole());
+            pstmt.setInt(5, user.getUserId());
             return pstmt.executeUpdate() > 0;
         } catch (SQLException e) {
             e.printStackTrace();
@@ -255,5 +270,122 @@ public class UserDao {
             e.printStackTrace();
         }
         return 0;
+    }
+    
+    /**
+     * Count how many admin users exist in the system.
+     * @return number of admin users
+     */
+    public int countAdmins() {
+        String query = "SELECT COUNT(*) FROM users WHERE role = 'admin'";
+        try (Connection conn = DBConnection.getConnection();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(query)) {
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+    
+    /**
+     * Count users registered in the last 30 days.
+     * @return number of new users this month
+     */
+    public int getNewUsersThisMonth() {
+        String query = "SELECT COUNT(*) FROM users WHERE created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY)";
+        try (Connection conn = DBConnection.getConnection();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(query)) {
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+    
+    /**
+     * Count users who made at least one booking in the last 30 days.
+     * @return number of active users
+     */
+    public int getActiveUsers() {
+        String query = "SELECT COUNT(DISTINCT user_id) FROM bookings WHERE booking_date >= DATE_SUB(NOW(), INTERVAL 30 DAY)";
+        try (Connection conn = DBConnection.getConnection();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(query)) {
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+    
+    public List<User> getUsersByFilter(String role, String period, String startDate, String endDate) {
+        List<User> users = new ArrayList<>();
+        StringBuilder query = new StringBuilder(
+            "SELECT u.*, " +
+            "(SELECT COUNT(*) FROM bookings b WHERE b.user_id = u.user_id) as booking_count, " +
+            "(SELECT COALESCE(SUM(b.total_price), 0) FROM bookings b WHERE b.user_id = u.user_id) as total_spent " +
+            "FROM users u WHERE 1=1"
+        );
+        
+        // Add role filter
+        if (role != null && !role.isEmpty() && !"all".equals(role)) {
+            query.append(" AND u.role = ?");
+        }
+        
+        // Add period filter
+        if ("today".equals(period)) {
+            query.append(" AND DATE(u.created_at) = CURDATE()");
+        } else if ("week".equals(period)) {
+            query.append(" AND u.created_at >= DATE_SUB(NOW(), INTERVAL 7 DAY)");
+        } else if ("month".equals(period)) {
+            query.append(" AND u.created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY)");
+        }
+        // Add custom date range
+        else if (startDate != null && !startDate.isEmpty() && endDate != null && !endDate.isEmpty()) {
+            query.append(" AND DATE(u.created_at) BETWEEN ? AND ?");
+        }
+        
+        query.append(" ORDER BY u.user_id DESC");
+        
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(query.toString())) {
+            
+            int paramIndex = 1;
+            
+            if (role != null && !role.isEmpty() && !"all".equals(role)) {
+                pstmt.setString(paramIndex++, role);
+            }
+            
+            if (startDate != null && !startDate.isEmpty() && endDate != null && !endDate.isEmpty() 
+                && period == null) {
+                pstmt.setString(paramIndex++, startDate);
+                pstmt.setString(paramIndex++, endDate);
+            }
+            
+            ResultSet rs = pstmt.executeQuery();
+            while (rs.next()) {
+                User user = new User();
+                user.setUserId(rs.getInt("user_id"));
+                user.setFullName(rs.getString("full_name"));
+                user.setEmail(rs.getString("email"));
+                user.setPhone(rs.getString("phone"));
+                user.setRole(rs.getString("role"));
+                user.setRegistrationDate(rs.getTimestamp("created_at"));
+                user.setBookingCount(rs.getInt("booking_count"));
+                user.setTotalSpent(rs.getDouble("total_spent"));
+                users.add(user);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return users;
     }
 }

@@ -43,32 +43,64 @@ public class ManageMoviesServlet extends HttpServlet {
             String action = request.getParameter("action");
 
             if ("delete".equals(action)) {
-                // Handle delete movie
                 handleDelete(request, response);
                 return;
             } else if ("edit".equals(action)) {
-                // Handle edit - get the movie to edit and pass it to the page
                 int id = Integer.parseInt(request.getParameter("id"));
                 Movie movie = movieDao.getMovieById(id);
                 request.setAttribute("editMovie", movie);
                 
-                // Get show times for this specific movie
                 List<ShowTime> movieShowTimes = showTimeDao.getShowTimesByMovie(id);
                 System.out.println("Show times for movie " + id + ": " + (movieShowTimes != null ? movieShowTimes.size() : "null"));
                 request.setAttribute("movieShowTimes", movieShowTimes);
             }
 
-            // Get all movies and show the manage movies page
-            List<Movie> movies = movieDao.getAllMovies();
+            // Get statistics
+            int totalMovies = movieDao.getTotalMovies();
+            int nowShowing = movieDao.getNowShowingMovies();
+            int upcoming = movieDao.getUpcomingMovies();
+            int totalShowTimes = movieDao.getTotalShowTimes();
+            
+            request.setAttribute("totalMovies", totalMovies);
+            request.setAttribute("nowShowing", nowShowing);
+            request.setAttribute("upcoming", upcoming);
+            request.setAttribute("totalShowTimes", totalShowTimes);
+
+            // Get filter parameters
+            String search = request.getParameter("search");
+            String status = request.getParameter("status");
+            String genre = request.getParameter("genre");
+            String language = request.getParameter("language");
+            
+            List<Movie> movies;
+            
+            // Apply search if provided
+            if (search != null && !search.trim().isEmpty()) {
+                movies = movieDao.searchMovies(search.trim());
+            }
+            // Apply filters if provided
+            else if ((status != null && !status.isEmpty()) || (genre != null && !genre.isEmpty()) 
+                    || (language != null && !language.isEmpty())) {
+                movies = movieDao.getMoviesByFilter(status, genre, language);
+            }
+            // Otherwise get all movies
+            else {
+                movies = movieDao.getAllMovies();
+            }
+            
+            // Get distinct genres and languages for filter dropdowns
+            List<String> genres = movieDao.getAllGenres();
+            List<String> languages = movieDao.getAllLanguages();
+            
+            request.setAttribute("genres", genres);
+            request.setAttribute("languages", languages);
             System.out.println("Movies fetched: " + (movies != null ? movies.size() : "null"));
             request.setAttribute("movies", movies);
             
-            // Get all show times for all movies
             List<ShowTime> allShowTimes = showTimeDao.getAllShowTimes();
             System.out.println("Show times fetched: " + (allShowTimes != null ? allShowTimes.size() : "null"));
             request.setAttribute("allShowTimes", allShowTimes);
             
-            // Load halls from hall_config table (includes newly added halls)
             List<HallConfig> hallConfigs = hallConfigDao.getAllHallConfigs();
             java.util.List<String> hallNames = new java.util.ArrayList<>();
             for (HallConfig hc : hallConfigs) { hallNames.add(hc.getHallName()); }
@@ -118,6 +150,8 @@ public class ManageMoviesServlet extends HttpServlet {
             Date startDate = Date.valueOf(request.getParameter("startDate"));
             Date endDate = Date.valueOf(request.getParameter("endDate"));
             String description = request.getParameter("description");
+            String format = request.getParameter("format");
+            String ageRating = request.getParameter("ageRating");
             
             // Handle poster image file upload
             Part filePart = request.getPart("posterImage");

@@ -261,4 +261,138 @@ public class MovieDao {
         }
         return 0;
     }
+    
+    public int getNowShowingMovies() {
+        String query = "SELECT COUNT(*) FROM movies WHERE CURDATE() BETWEEN start_date AND end_date";
+        try (Connection conn = DBConnection.getConnection();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(query)) {
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+    
+    public int getUpcomingMovies() {
+        String query = "SELECT COUNT(*) FROM movies WHERE start_date > CURDATE()";
+        try (Connection conn = DBConnection.getConnection();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(query)) {
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+    
+    public int getTotalShowTimes() {
+        String query = "SELECT COUNT(*) FROM show_times";
+        try (Connection conn = DBConnection.getConnection();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(query)) {
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+    
+    public List<Movie> getMoviesByFilter(String status, String genre, String language) {
+        List<Movie> movies = new ArrayList<>();
+        StringBuilder query = new StringBuilder("SELECT * FROM movies WHERE 1=1");
+        
+        // Add status filter (now showing, upcoming, ended)
+        if ("showing".equals(status)) {
+            query.append(" AND CURDATE() BETWEEN start_date AND end_date");
+        } else if ("upcoming".equals(status)) {
+            query.append(" AND start_date > CURDATE()");
+        } else if ("ended".equals(status)) {
+            query.append(" AND end_date < CURDATE()");
+        }
+        
+        // Add genre filter
+        if (genre != null && !genre.isEmpty() && !"all".equals(genre)) {
+            query.append(" AND genre = ?");
+        }
+        
+        // Add language filter
+        if (language != null && !language.isEmpty() && !"all".equals(language)) {
+            query.append(" AND language = ?");
+        }
+        
+        query.append(" ORDER BY release_date DESC");
+        
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(query.toString())) {
+            
+            int paramIndex = 1;
+            
+            if (genre != null && !genre.isEmpty() && !"all".equals(genre)) {
+                pstmt.setString(paramIndex++, genre);
+            }
+            
+            if (language != null && !language.isEmpty() && !"all".equals(language)) {
+                pstmt.setString(paramIndex, language);
+            }
+            
+            ResultSet rs = pstmt.executeQuery();
+            while (rs.next()) {
+                Movie movie = new Movie();
+                movie.setMovieId(rs.getInt("movie_id"));
+                movie.setTitle(rs.getString("title"));
+                movie.setGenre(rs.getString("genre"));
+                movie.setDirector(rs.getString("director"));
+                movie.setDuration(rs.getInt("duration"));
+                movie.setLanguage(rs.getString("language"));
+                movie.setReleaseDate(rs.getDate("release_date"));
+                movie.setStartDate(rs.getDate("start_date"));
+                movie.setEndDate(rs.getDate("end_date"));
+                movie.setDescription(rs.getString("description"));
+                movie.setPosterImage(rs.getString("poster_image"));
+                movie.setFormat(rs.getString("format"));
+                movie.setAgeRating(rs.getString("age_rating"));
+                movies.add(movie);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return movies;
+    }
+    
+    public List<String> getAllGenres() {
+        List<String> genres = new ArrayList<>();
+        String query = "SELECT DISTINCT genre FROM movies ORDER BY genre";
+        try (Connection conn = DBConnection.getConnection();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(query)) {
+            while (rs.next()) {
+                genres.add(rs.getString("genre"));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return genres;
+    }
+    
+    public List<String> getAllLanguages() {
+        List<String> languages = new ArrayList<>();
+        String query = "SELECT DISTINCT language FROM movies ORDER BY language";
+        try (Connection conn = DBConnection.getConnection();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(query)) {
+            while (rs.next()) {
+                languages.add(rs.getString("language"));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return languages;
+    }
 }

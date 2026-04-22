@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>User Management | CinemaDirector Admin</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Manrope:wght@600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "tertiary-fixed": "#95f2f1",
+                    "secondary-container": "#dfe0e0",
+                    "primary-container": "#dc143c",
+                    "on-primary-container": "#fff1f0",
+                    "secondary-fixed-dim": "#c6c6c7",
+                    "on-tertiary": "#ffffff",
+                    "secondary": "#5d5f5f",
+                    "on-error": "#ffffff",
+                    "surface-container-lowest": "#ffffff",
+                    "surface-bright": "#f6faff",
+                    "surface-variant": "#dbe4ed",
+                    "on-secondary-container": "#616363",
+                    "on-secondary-fixed-variant": "#454747",
+                    "on-background": "#141d23",
+                    "surface-container-highest": "#dbe4ed",
+                    "primary": "#b1002c",
+                    "on-tertiary-fixed-variant": "#004f4f",
+                    "tertiary-container": "#007d7d",
+                    "surface-container": "#e6eff8",
+                    "on-tertiary-fixed": "#002020",
+                    "primary-fixed": "#ffdad9",
+                    "on-primary": "#ffffff",
+                    "tertiary": "#006262",
+                    "outline-variant": "#e6bdbc",
+                    "on-surface-variant": "#5c3f3f",
+                    "inverse-on-surface": "#e9f2fb",
+                    "on-surface": "#141d23",
+                    "on-primary-fixed": "#40000a",
+                    "secondary-fixed": "#e2e2e2",
+                    "outline": "#916f6e",
+                    "surface-container-low": "#ecf5fe",
+                    "tertiary-fixed-dim": "#78d6d5",
+                    "surface-tint": "#bf0030",
+                    "background": "#f6faff",
+                    "on-secondary-fixed": "#1a1c1c",
+                    "inverse-surface": "#293138",
+                    "inverse-primary": "#ffb3b3",
+                    "primary-fixed-dim": "#ffb3b3",
+                    "error-container": "#ffdad6",
+                    "on-primary-fixed-variant": "#920022",
+                    "surface": "#f6faff",
+                    "surface-dim": "#d2dbe4",
+                    "surface-container-high": "#e0e9f2",
+                    "on-tertiary-container": "#c9fffe",
+                    "on-error-container": "#93000a",
+                    "error": "#ba1a1a",
+                    "on-secondary": "#ffffff"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "fontFamily": {
+                    "headline": ["Manrope"],
+                    "body": ["Inter"],
+                    "label": ["Inter"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .headlines\:font-\['Manrope'\] { font-family: 'Manrope', sans-serif; }
+    </style>
+</head>
+<body class="bg-surface font-body text-on-surface antialiased">
+<!-- SideNavBar Anchor -->
+<!-- Main Content Canvas -->
+<main class="min-h-screen">
+<!-- TopNavBar Anchor (Execution for Admin View) -->
+<header class="bg-[#f6faff]/80 dark:bg-[#141d23]/80 backdrop-blur-md flex justify-between items-center px-8 py-4 w-full sticky top-0 z-30">
+<div class="flex items-center gap-6">
+<h2 class="text-2xl font-bold headlines:font-['Manrope'] text-on-surface">User Directory</h2>
+<div class="hidden md:flex items-center bg-surface-container-low px-4 py-2 rounded-full border-none">
+<span class="material-symbols-outlined text-secondary text-sm">search</span>
+<input class="bg-transparent border-none focus:ring-0 text-sm w-64 placeholder:text-secondary/60" placeholder="Search administrators, staff, or customers..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<button class="p-2 text-secondary hover:bg-surface-container-high rounded-full transition-colors relative">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-2 right-2 w-2 h-2 bg-primary rounded-full"></span>
+</button>
+<div class="flex items-center gap-3 pl-4 border-l border-secondary-container">
+<div class="text-right hidden sm:block">
+<p class="text-sm font-bold headlines:font-['Manrope']">Julian Vane</p>
+<p class="text-[10px] uppercase tracking-tighter text-secondary font-bold">Head of Operations</p>
+</div>
+<img alt="User Profile Avatar" class="w-10 h-10 rounded-full object-cover border-2 border-primary-container/20" data-alt="close-up portrait of a professional man in a tailored dark suit against a neutral studio background, cinematic lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCvZP2HWZqqgxBRlKFaSu8iMRUN728m8GC24rRjlZ2bBDns2NWZNE7lBZc-oVzC7_Tm9pMD_cqcjsMakRDUa_5M9fWG88cD6j3smCCSVBJcjdpC3RwB2hUlL4u_c_LrwAT58qJsKm8r80saB6giMvM30DqI3s9kdWcIV6UqKcjNb9Yc3NNQNAB7g6_15PRSWpdSCWc6l2CrqqfENak_KZ4NMpMYWL72O3kbxx4sGtP_Z0mPHhtTjbBNIqbEDwG0DkG-y2ke80tz6Q"/>
+</div>
+</div>
+</header>
+<div class="p-8">
+<!-- Stats Bento Grid -->
+<div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-10">
+<div class="bg-surface-container-low p-6 rounded-xl border-none">
+<p class="text-xs font-bold text-secondary uppercase tracking-widest mb-2">Total Users</p>
+<h3 class="text-4xl font-bold headlines:font-['Manrope'] text-on-surface leading-none">1,284</h3>
+<div class="mt-4 flex items-center text-xs font-bold text-primary">
+<span class="material-symbols-outlined text-sm mr-1">trending_up</span>
+                        +12% from last month
+                    </div>
+</div>
+<div class="bg-surface-container-low p-6 rounded-xl border-none">
+<p class="text-xs font-bold text-secondary uppercase tracking-widest mb-2">Active Staff</p>
+<h3 class="text-4xl font-bold headlines:font-['Manrope'] text-on-surface leading-none">42</h3>
+<div class="mt-4 flex items-center text-xs font-bold text-secondary">
+<span class="material-symbols-outlined text-sm mr-1">schedule</span>
+                        Across 8 locations
+                    </div>
+</div>
+<div class="bg-surface-container-low p-6 rounded-xl border-none">
+<p class="text-xs font-bold text-secondary uppercase tracking-widest mb-2">Locked Accounts</p>
+<h3 class="text-4xl font-bold headlines:font-['Manrope'] text-primary leading-none">7</h3>
+<div class="mt-4 flex items-center text-xs font-bold text-secondary">
+<span class="material-symbols-outlined text-sm mr-1">security</span>
+                        Requires manual review
+                    </div>
+</div>
+<div class="bg-primary p-6 rounded-xl border-none flex flex-col justify-between">
+<div>
+<p class="text-xs font-bold text-white/70 uppercase tracking-widest mb-2">New Registrations</p>
+<h3 class="text-4xl font-bold headlines:font-['Manrope'] text-white leading-none">156</h3>
+</div>
+<button class="mt-4 text-xs font-bold text-white flex items-center group">
+                        View Details <span class="material-symbols-outlined text-sm ml-1 group-hover:translate-x-1 transition-transform">arrow_forward</span>
+</button>
+</div>
+</div>
+<!-- User Table Section -->
+<div class="bg-surface-container-low rounded-xl overflow-hidden">
+<div class="px-8 py-6 flex justify-between items-center bg-surface-container-high/30">
+<div class="flex gap-4">
+<button class="px-4 py-2 bg-surface-container-highest rounded-md text-sm font-bold headlines:font-['Manrope'] border-b-2 border-primary text-primary">All Users</button>
+<button class="px-4 py-2 hover:bg-surface-container-highest rounded-md text-sm font-medium text-secondary transition-colors">Staff Only</button>
+<button class="px-4 py-2 hover:bg-surface-container-highest rounded-md text-sm font-medium text-secondary transition-colors">Customers</button>
+</div>
+<div class="flex gap-2">
+<button class="px-4 py-2 bg-surface-container-highest text-on-surface rounded-md text-sm font-bold flex items-center gap-2 hover:bg-secondary-container transition-colors">
+<span class="material-symbols-outlined text-lg">filter_list</span>
+                            Filter
+                        </button>
+<button class="px-4 py-2 bg-primary text-white rounded-md text-sm font-bold uppercase tracking-wider flex items-center gap-2 hover:bg-primary-container transition-shadow">
+<span class="material-symbols-outlined text-lg">person_add</span>
+                            Add New User
+                        </button>
+</div>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="border-b border-secondary-container/20">
+<th class="px-8 py-4 text-[11px] font-bold text-secondary uppercase tracking-[0.2em] headlines:font-['Manrope']">User Identity</th>
+<th class="px-8 py-4 text-[11px] font-bold text-secondary uppercase tracking-[0.2em] headlines:font-['Manrope']">Role</th>
+<th class="px-8 py-4 text-[11px] font-bold text-secondary uppercase tracking-[0.2em] headlines:font-['Manrope'] border-b-2 border-primary active-sort">Account Status</th>
+<th class="px-8 py-4 text-[11px] font-bold text-secondary uppercase tracking-[0.2em] headlines:font-['Manrope'] text-right">Actions</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-secondary-container/10">
+<!-- User Row 1 -->
+<tr class="hover:bg-surface-container-highest/40 transition-colors group">
+<td class="px-8 py-5">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-md bg-primary-container/10 flex items-center justify-center text-primary font-bold headlines:font-['Manrope']">
+                                            SA
+                                        </div>
+<div>
+<p class="font-bold text-on-surface">Sarah Abrams</p>
+<p class="text-xs text-secondary">sarah.a@cinemadirector.com</p>
+</div>
+</div>
+</td>
+<td class="px-8 py-5">
+<span class="px-2.5 py-1 rounded-md bg-secondary-container text-on-secondary-container text-[10px] font-bold uppercase tracking-wider">Theater Manager</span>
+</td>
+<td class="px-8 py-5">
+<div class="flex items-center gap-2 text-emerald-600 font-bold text-xs uppercase tracking-tighter">
+<span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                                        Active
+                                    </div>
+</td>
+<td class="px-8 py-5 text-right">
+<div class="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="p-2 hover:bg-primary/10 text-primary rounded-md transition-colors" title="Edit Profile">
+<span class="material-symbols-outlined text-lg">edit_note</span>
+</button>
+<button class="p-2 hover:bg-secondary/10 text-secondary rounded-md transition-colors" title="Lock Account">
+<span class="material-symbols-outlined text-lg">lock</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- User Row 2 -->
+<tr class="bg-surface/30 hover:bg-surface-container-highest/40 transition-colors group">
+<td class="px-8 py-5">
+<div class="flex items-center gap-4">
+<img alt="User" class="w-10 h-10 rounded-md object-cover" data-alt="portrait of a focused professional with short hair wearing a minimalist white shirt, cool morning light" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD0NYJ6hUPveGqHis2RsCnrzcBqVJbVYX1cEJOnJz4JboM2si5wKzfQZAdwEPzdlnhY1bV_Y_Yt6rwkP_nn6-rcDNwyJZt9oJpyITL1Q9RID24deUtxpw16OraAQv2RcyZn8gi1M9U-O2pXOBlWluh_37iYP-bp-aTyCIzmXrNbJkr9G94Xeh6KoGjzmQtIlQQ-ejqYif3ZsicMJ77jlGNvbW5L9zSxTEyoKX4zf-JiwoAvYwhw5r2jPQKTyNfLuKh4xSbYHkuV5w"/>
+<div>
+<p class="font-bold text-on-surface">Mark Richardson</p>
+<p class="text-xs text-secondary">m.richardson@cinemadirector.com</p>
+</div>
+</div>
+</td>
+<td class="px-8 py-5">
+<span class="px-2.5 py-1 rounded-md bg-primary/10 text-primary text-[10px] font-bold uppercase tracking-wider">Super Admin</span>
+</td>
+<td class="px-8 py-5">
+<div class="flex items-center gap-2 text-emerald-600 font-bold text-xs uppercase tracking-tighter">
+<span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                                        Active
+                                    </div>
+</td>
+<td class="px-8 py-5 text-right">
+<div class="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="p-2 hover:bg-primary/10 text-primary rounded-md transition-colors">
+<span class="material-symbols-outlined text-lg">edit_note</span>
+</button>
+<button class="p-2 hover:bg-secondary/10 text-secondary rounded-md transition-colors">
+<span class="material-symbols-outlined text-lg">lock</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- User Row 3 (Locked State) -->
+<tr class="hover:bg-surface-container-highest/40 transition-colors group">
+<td class="px-8 py-5">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-md bg-secondary-container flex items-center justify-center text-secondary font-bold headlines:font-['Manrope']">
+                                            DL
+                                        </div>
+<div>
+<p class="font-bold text-on-surface">David Lee</p>
+<p class="text-xs text-secondary">dlee99@gmail.com</p>
+</div>
+</div>
+</td>
+<td class="px-8 py-5">
+<span class="px-2.5 py-1 rounded-md bg-secondary-container text-on-secondary-container text-[10px] font-bold uppercase tracking-wider">Customer</span>
+</td>
+<td class="px-8 py-5">
+<div class="flex items-center gap-2 text-primary font-bold text-xs uppercase tracking-tighter">
+<span class="w-2 h-2 rounded-full bg-primary"></span>
+                                        Locked
+                                    </div>
+</td>
+<td class="px-8 py-5 text-right">
+<div class="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="p-2 hover:bg-primary/10 text-primary rounded-md transition-colors">
+<span class="material-symbols-outlined text-lg">edit_note</span>
+</button>
+<button class="p-2 bg-primary/10 text-primary rounded-md transition-colors" title="Unlock Account">
+<span class="material-symbols-outlined text-lg" style="font-variation-settings: 'FILL' 1;">lock_open</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- User Row 4 -->
+<tr class="bg-surface/30 hover:bg-surface-container-highest/40 transition-colors group">
+<td class="px-8 py-5">
+<div class="flex items-center gap-4">
+<img alt="User" class="w-10 h-10 rounded-md object-cover" data-alt="portrait of a confident woman in a modern workspace, high-end editorial style, natural lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB1LSVvl5KRL_riLFbhwWqxAvgO219fuCGzCKiLtcq-YUsyBA9op1XDhqjzK1nHPG4D2wEmBJriSaHpeYR0b17uUMvcNJ_n0Q3J2qPdjQYX4mvDAXbe06jhEjZvePRjeiPzG4TzOdobLbfV3hl1PsHWEKJSMYIbEaTMbBpYpfx_IyOjEY5wX3k_l6SeKMUlw3plMij8j_HPHY6YjZXfYXybnziew0gKWMvuardVCtHUv_yOX3tlDgmWYPJb-2T-gpUhh-uBMwKtDw"/>
+<div>
+<p class="font-bold text-on-surface">Elena Rodriguez</p>
+<p class="text-xs text-secondary">elena.rod@cinemadirector.com</p>
+</div>
+</div>
+</td>
+<td class="px-8 py-5">
+<span class="px-2.5 py-1 rounded-md bg-secondary-container text-on-secondary-container text-[10px] font-bold uppercase tracking-wider">Ticketing Staff</span>
+</td>
+<td class="px-8 py-5">
+<div class="flex items-center gap-2 text-emerald-600 font-bold text-xs uppercase tracking-tighter">
+<span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                                        Active
+                                    </div>
+</td>
+<td class="px-8 py-5 text-right">
+<div class="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="p-2 hover:bg-primary/10 text-primary rounded-md transition-colors">
+<span class="material-symbols-outlined text-lg">edit_note</span>
+</button>
+<button class="p-2 hover:bg-secondary/10 text-secondary rounded-md transition-colors">
+<span class="material-symbols-outlined text-lg">lock</span>
+</button>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="px-8 py-4 bg-surface-container-high/30 flex justify-between items-center">
+<p class="text-xs font-bold text-secondary tracking-widest uppercase">Showing 4 of 1,284 users</p>
+<div class="flex gap-2">
+<button class="w-8 h-8 flex items-center justify-center rounded bg-surface-container-highest text-secondary hover:bg-secondary-container transition-colors">
+<span class="material-symbols-outlined text-sm">chevron_left</span>
+</button>
+<button class="w-8 h-8 flex items-center justify-center rounded bg-primary text-white font-bold text-xs">1</button>
+<button class="w-8 h-8 flex items-center justify-center rounded bg-surface-container-highest text-secondary hover:bg-secondary-container transition-colors font-bold text-xs">2</button>
+<button class="w-8 h-8 flex items-center justify-center rounded bg-surface-container-highest text-secondary hover:bg-secondary-container transition-colors font-bold text-xs">3</button>
+<button class="w-8 h-8 flex items-center justify-center rounded bg-surface-container-highest text-secondary hover:bg-secondary-container transition-colors">
+<span class="material-symbols-outlined text-sm">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Contextual FAB (Hidden on lists by rule, but included for system compliance - actually hidden as per instruction for user settings/details type pages) -->
+</body></html>

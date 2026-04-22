@@ -23,17 +23,47 @@ public class ManageBookingsServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) 
             throws ServletException, IOException {
-        // Check if the action is "delete"
         String action = request.getParameter("action");
 
         if ("delete".equals(action)) {
-            // Handle delete booking
             handleDelete(request, response);
             return;
         }
 
-        // Get all bookings from database and show the manage bookings page
-        List<Booking> bookings = bookingDao.getAllBookings();
+        // Get statistics
+        int totalBookings = bookingDao.getTotalBookings();
+        int confirmedBookings = bookingDao.getConfirmedBookings();
+        int cancelledBookings = bookingDao.getCancelledBookings();
+        int todayBookings = bookingDao.getTodayBookings();
+        
+        request.setAttribute("totalBookings", totalBookings);
+        request.setAttribute("confirmedBookings", confirmedBookings);
+        request.setAttribute("cancelledBookings", cancelledBookings);
+        request.setAttribute("todayBookings", todayBookings);
+
+        // Get filter parameters
+        String search = request.getParameter("search");
+        String period = request.getParameter("period");
+        String status = request.getParameter("status");
+        String startDate = request.getParameter("startDate");
+        String endDate = request.getParameter("endDate");
+        
+        List<Booking> bookings;
+        
+        // Apply search if provided
+        if (search != null && !search.trim().isEmpty()) {
+            bookings = bookingDao.searchBookings(search.trim());
+        }
+        // Apply filters if provided
+        else if ((period != null && !period.isEmpty()) || (status != null && !status.isEmpty()) 
+                || (startDate != null && !startDate.isEmpty()) || (endDate != null && !endDate.isEmpty())) {
+            bookings = bookingDao.getBookingsByFilter(period, status, startDate, endDate);
+        }
+        // Otherwise get all bookings
+        else {
+            bookings = bookingDao.getAllBookings();
+        }
+        
         request.setAttribute("bookings", bookings);
         request.getRequestDispatcher("/WEB-INF/pages/manageBookings.jsp").forward(request, response);
     }

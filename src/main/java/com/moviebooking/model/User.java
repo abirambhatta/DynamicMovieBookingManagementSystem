@@ -9,6 +9,7 @@ public class User {
     private String role;
     private java.sql.Timestamp registrationDate;
     private int bookingCount;
+    private double totalSpent;
 
     public User() {}
 
@@ -43,4 +44,7 @@ public class User {
 
     public int getBookingCount() { return bookingCount; }
     public void setBookingCount(int bookingCount) { this.bookingCount = bookingCount; }
+    
+    public double getTotalSpent() { return totalSpent; }
+    public void setTotalSpent(double totalSpent) { this.totalSpent = totalSpent; }
 }

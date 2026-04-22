@@ -1,5 +1,6 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <!DOCTYPE html>
 <html>
 <head>
@@ -7,6 +8,35 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Manage Bookings - MovieMint Admin</title>
     <link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath}/css/style.css">
+    <style>
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; margin-bottom: 30px; }
+        .stat-card { background: white; padding: 24px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); border-left: 4px solid #dc143c; }
+        .stat-card h3 { margin: 0 0 8px 0; font-size: 14px; color: #6c757d; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; }
+        .stat-card .stat-value { font-size: 32px; font-weight: 700; color: #2c3e50; margin: 0; }
+        .stat-card.confirmed { border-left-color: #2ecc71; }
+        .stat-card.cancelled { border-left-color: #e74c3c; }
+        .stat-card.today { border-left-color: #3498db; }
+        .status-badge { padding: 4px 10px; border-radius: 12px; font-size: 12px; font-weight: 600; text-transform: uppercase; }
+        .status-badge.confirmed { background: #d4edda; color: #155724; }
+        .status-badge.cancelled { background: #f8d7da; color: #721c24; }
+        .status-badge.completed { background: #d1ecf1; color: #0c5460; }
+        .filter-bar { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); margin-bottom: 24px; }
+        .search-section { margin-bottom: 20px; }
+        .search-form { display: flex; gap: 8px; }
+        .search-form input { flex: 1; padding: 10px 14px; border: 1px solid #ced4da; border-radius: 6px; font-size: 15px; }
+        .search-form input:focus { outline: none; border-color: #dc143c; box-shadow: 0 0 0 3px rgba(220, 20, 60, 0.1); }
+        .filters-section { display: flex; gap: 12px; flex-wrap: wrap; align-items: flex-end; }
+        .filter-group { display: flex; flex-direction: column; gap: 6px; }
+        .filter-group label { font-size: 13px; font-weight: 600; color: #495057; }
+        .filter-group select, .filter-group input[type="date"] { padding: 10px 14px; border: 1px solid #ced4da; border-radius: 6px; font-size: 14px; cursor: pointer; background: white; min-width: 150px; }
+        .filter-group select:focus, .filter-group input[type="date"]:focus { outline: none; border-color: #dc143c; box-shadow: 0 0 0 3px rgba(220, 20, 60, 0.1); }
+        .filter-actions { display: flex; gap: 8px; align-items: flex-end; }
+        .btn-filter { padding: 10px 20px; background: #dc143c; color: white; border: none; border-radius: 6px; font-size: 14px; font-weight: 500; cursor: pointer; white-space: nowrap; height: 42px; }
+        .btn-filter:hover { background: #b8102f; }
+        .btn-clear { padding: 10px 20px; background: #6c757d; color: white; border: none; border-radius: 6px; font-size: 14px; font-weight: 500; cursor: pointer; white-space: nowrap; text-decoration: none; display: inline-block; height: 42px; line-height: 22px; }
+        .btn-clear:hover { background: #5a6268; }
+        .divider { width: 100%; height: 1px; background: #e9ecef; margin: 16px 0; }
+    </style>
 </head>
 <body>
     <!-- Check if user is admin, if not redirect to login page -->
@@ -21,26 +51,107 @@
         <div class="main-content">
             <h1>Manage Bookings</h1>
             
-            <!-- Show success message if action was successful -->
+            <!-- Statistics Cards -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h3>Total Bookings</h3>
+                    <p class="stat-value">${totalBookings}</p>
+                </div>
+                <div class="stat-card confirmed">
+                    <h3>Confirmed</h3>
+                    <p class="stat-value">${confirmedBookings}</p>
+                </div>
+                <div class="stat-card cancelled">
+                    <h3>Cancelled</h3>
+                    <p class="stat-value">${cancelledBookings}</p>
+                </div>
+                <div class="stat-card today">
+                    <h3>Today's Bookings</h3>
+                    <p class="stat-value">${todayBookings}</p>
+                </div>
+            </div>
+            
             <c:if test="${not empty param.success}">
                 <div class="success-message">${param.success}</div>
             </c:if>
             
-            <!-- Show error message if action failed -->
             <c:if test="${not empty param.error}">
                 <div class="error-message">${param.error}</div>
             </c:if>
             
-            <!-- Search section -->
-            <div class="search-section">
-                <!-- Search form to find bookings by user or movie name -->
-                <form action="${pageContext.request.contextPath}/manageBookings" method="get">
-                    <!-- Search input field -->
-                    <input type="text" name="search" placeholder="Search by user or movie...">
-                    <!-- Search button -->
-                    <button type="submit" class="btn-search">Search</button>
+            <!-- Filter Bar -->
+            <div class="filter-bar">
+                <!-- Search Section -->
+                <div class="search-section">
+                    <form action="${pageContext.request.contextPath}/manageBookings" method="get" class="search-form">
+                        <input type="text" name="search" placeholder="Search by user, movie, or booking ID..." value="${param.search}">
+                        <button type="submit" class="btn-filter">Search</button>
+                    </form>
+                </div>
+                
+                <div class="divider"></div>
+                
+                <!-- Filter Section -->
+                <form action="${pageContext.request.contextPath}/manageBookings" method="get" class="filters-section">
+                    <div class="filter-group">
+                        <label>Quick Filter</label>
+                        <select name="period" id="periodSelect" onchange="handlePeriodChange()">
+                            <option value="" ${empty param.period ? 'selected' : ''}>All Time</option>
+                            <option value="today" ${param.period == 'today' ? 'selected' : ''}>Today</option>
+                            <option value="week" ${param.period == 'week' ? 'selected' : ''}>This Week</option>
+                            <option value="month" ${param.period == 'month' ? 'selected' : ''}>This Month</option>
+                            <option value="custom" ${param.period == 'custom' ? 'selected' : ''}>Custom Range</option>
+                        </select>
+                    </div>
+                    
+                    <div class="filter-group" id="startDateGroup" style="display: ${param.period == 'custom' ? 'flex' : 'none'};">
+                        <label>Start Date</label>
+                        <input type="date" name="startDate" id="startDate" value="${param.startDate}">
+                    </div>
+                    
+                    <div class="filter-group" id="endDateGroup" style="display: ${param.period == 'custom' ? 'flex' : 'none'};">
+                        <label>End Date</label>
+                        <input type="date" name="endDate" id="endDate" value="${param.endDate}">
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label>Status</label>
+                        <select name="status">
+                            <option value="all" ${param.status == 'all' || empty param.status ? 'selected' : ''}>All Status</option>
+                            <option value="Confirmed" ${param.status == 'Confirmed' ? 'selected' : ''}>Confirmed</option>
+                            <option value="Cancelled" ${param.status == 'Cancelled' ? 'selected' : ''}>Cancelled</option>
+                            <option value="Completed" ${param.status == 'Completed' ? 'selected' : ''}>Completed</option>
+                        </select>
+                    </div>
+                    
+                    <div class="filter-actions">
+                        <button type="submit" class="btn-filter">Apply Filters</button>
+                        <c:if test="${not empty param.search || not empty param.period || not empty param.status || not empty param.startDate}">
+                            <a href="${pageContext.request.contextPath}/manageBookings" class="btn-clear">Clear All</a>
+                        </c:if>
+                    </div>
                 </form>
             </div>
+            
+            <script>
+                function handlePeriodChange() {
+                    const period = document.getElementById('periodSelect').value;
+                    const startDateGroup = document.getElementById('startDateGroup');
+                    const endDateGroup = document.getElementById('endDateGroup');
+                    
+                    if (period === 'custom') {
+                        startDateGroup.style.display = 'flex';
+                        endDateGroup.style.display = 'flex';
+                    } else {
+                        startDateGroup.style.display = 'none';
+                        endDateGroup.style.display = 'none';
+                        // Auto-submit for quick filters
+                        if (period !== '') {
+                            document.querySelector('.filters-section').submit();
+                        }
+                    }
+                }
+            </script>
             
             <!-- Bookings table -->
             <div class="table-container">
@@ -67,41 +178,26 @@
                                 <!-- Loop through each booking -->
                                 <c:forEach var="booking" items="${bookings}">
                                     <tr>
-                                        <!-- Booking ID -->
                                         <td>${booking.bookingId}</td>
-                                        <!-- User name who made the booking -->
                                         <td>${booking.userName}</td>
-                                        <!-- Movie title -->
                                         <td>${booking.movieTitle}</td>
-                                        <!-- Date when booking was made -->
-                                        <td>${booking.bookingDate}</td>
-                                        <!-- Show time for the movie -->
+                                        <td><fmt:formatDate value="${booking.bookingDate}" pattern="MMM dd, yyyy HH:mm"/></td>
                                         <td>${booking.showTime}</td>
-                                        <!-- Number of seats booked -->
                                         <td>${booking.numberOfSeats}</td>
-                                        <!-- Total price paid -->
-                                        <td>Rs. ${booking.totalPrice}</td>
-                                        <!-- Current booking status -->
-                                        <td>${booking.status}</td>
-                                        <!-- Action buttons -->
+                                        <td>Rs. <fmt:formatNumber value="${booking.totalPrice}" pattern="#,##0.00"/></td>
                                         <td>
-                                            <!-- Form to update booking status -->
+                                            <span class="status-badge ${booking.status.toLowerCase()}">${booking.status}</span>
+                                        </td>
+                                        <td>
                                             <form action="${pageContext.request.contextPath}/manageBookings" method="post" style="display:inline;">
-                                                <!-- Hidden field for action type -->
                                                 <input type="hidden" name="action" value="updateStatus">
-                                                <!-- Hidden field for booking ID -->
                                                 <input type="hidden" name="bookingId" value="${booking.bookingId}">
-                                                <!-- Dropdown to change booking status -->
                                                 <select name="status" onchange="this.form.submit()">
-                                                    <!-- Confirmed status option -->
                                                     <option value="Confirmed" ${booking.status == 'Confirmed' ? 'selected' : ''}>Confirmed</option>
-                                                    <!-- Cancelled status option -->
                                                     <option value="Cancelled" ${booking.status == 'Cancelled' ? 'selected' : ''}>Cancelled</option>
-                                                    <!-- Completed status option -->
                                                     <option value="Completed" ${booking.status == 'Completed' ? 'selected' : ''}>Completed</option>
                                                 </select>
                                             </form>
-                                            <!-- Delete button with confirmation -->
                                             <a href="${pageContext.request.contextPath}/manageBookings?action=delete&id=${booking.bookingId}" class="btn-delete" onclick="return confirm('Delete this booking?')">Delete</a>
                                         </td>
                                     </tr>

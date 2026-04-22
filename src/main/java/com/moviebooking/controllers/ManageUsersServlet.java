@@ -32,19 +32,48 @@ public class ManageUsersServlet extends HttpServlet {
             handleDelete(request, response);
             return;
         }
-
-        // Get all users from database
-        List<User> users = userDao.getAllUsers();
         
-        // Get search and sort parameters from URL
+        // Handle change role action
+        if ("changeRole".equals(action)) {
+            handleChangeRole(request, response);
+            return;
+        }
+
+        // Get statistics
+        int totalUsers = userDao.getTotalUsers();
+        int totalAdmins = userDao.countAdmins();
+        int newUsersThisMonth = userDao.getNewUsersThisMonth();
+        int activeUsers = userDao.getActiveUsers();
+        
+        request.setAttribute("totalUsers", totalUsers);
+        request.setAttribute("totalAdmins", totalAdmins);
+        request.setAttribute("newUsersThisMonth", newUsersThisMonth);
+        request.setAttribute("activeUsers", activeUsers);
+
+        // Get filter parameters
         String search = request.getParameter("search");
         String sort = request.getParameter("sort");
+        String role = request.getParameter("role");
+        String period = request.getParameter("period");
+        String startDate = request.getParameter("startDate");
+        String endDate = request.getParameter("endDate");
+        
+        List<User> users;
+        
+        // Apply filters if provided
+        if ((role != null && !role.isEmpty() && !"all".equals(role)) 
+            || (period != null && !period.isEmpty()) 
+            || (startDate != null && !startDate.isEmpty())) {
+            users = userDao.getUsersByFilter(role, period, startDate, endDate);
+        } else {
+            users = userDao.getAllUsers();
+        }
         
         if (search != null && !search.trim().isEmpty()) {
             // If user searched something, sort by name first then use binary search
             selectionSortByName(users);
             users = binarySearch(users, search.trim().toLowerCase());
-        } else if (sort != null) {
+        } else if (sort != null && !sort.isEmpty()) {
             // If user chose a sort option, sort the list
             if ("name".equals(sort)) {
                 selectionSortByName(users);        // Sort A to Z by name
@@ -196,13 +225,28 @@ public class ManageUsersServlet extends HttpServlet {
 
     /**
      * Handle deleting a user from the system.
-     * Gets the user ID from URL and removes them from database.
+     * Prevents deleting the last admin to avoid lockout.
      */
     private void handleDelete(HttpServletRequest request, HttpServletResponse response) 
             throws ServletException, IOException {
         try {
-            // Get user ID from URL and delete the user
             int userId = Integer.parseInt(request.getParameter("id"));
+            User user = userDao.getUserById(userId);
+            
+            if (user == null) {
+                response.sendRedirect(request.getContextPath() + "/manageUsers?error=User not found");
+                return;
+            }
+            
+            // Prevent deleting the last admin
+            if ("admin".equals(user.getRole())) {
+                int adminCount = userDao.countAdmins();
+                if (adminCount <= 1) {
+                    response.sendRedirect(request.getContextPath() + "/manageUsers?error=Cannot delete the last admin");
+                    return;
+                }
+            }
+            
             boolean isDeleted = userDao.deleteUser(userId);
 
             if (isDeleted) {
@@ -212,6 +256,50 @@ public class ManageUsersServlet extends HttpServlet {
             }
         } catch (Exception e) {
             response.sendRedirect(request.getContextPath() + "/manageUsers?error=Invalid user ID");
+        }
+    }
+    
+    /**
+     * Handle changing a user's role.
+     * Prevents demoting the last admin to avoid lockout.
+     */
+    private void handleChangeRole(HttpServletRequest request, HttpServletResponse response) 
+            throws ServletException, IOException {
+        try {
+            int userId = Integer.parseInt(request.getParameter("id"));
+            String newRole = request.getParameter("role");
+            
+            if (newRole == null || (!"user".equals(newRole) && !"admin".equals(newRole))) {
+                response.sendRedirect(request.getContextPath() + "/manageUsers?error=Invalid role");
+                return;
+            }
+            
+            User user = userDao.getUserById(userId);
+            if (user == null) {
+                response.sendRedirect(request.getContextPath() + "/manageUsers?error=User not found");
+                return;
+            }
+            
+            // Prevent demoting the last admin
+            if ("admin".equals(user.getRole()) && "user".equals(newRole)) {
+                int adminCount = userDao.countAdmins();
+                if (adminCount <= 1) {
+                    response.sendRedirect(request.getContextPath() + "/manageUsers?error=Cannot demote the last admin");
+                    return;
+                }
+            }
+            
+            user.setRole(newRole);
+            boolean updated = userDao.updateUser(user);
+            
+            if (updated) {
+                response.sendRedirect(request.getContextPath() + "/manageUsers?success=Role changed successfully");
+            } else {
+                response.sendRedirect(request.getContextPath() + "/manageUsers?error=Failed to change role");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            response.sendRedirect(request.getContextPath() + "/manageUsers?error=Error changing role");
         }
     }
 }
