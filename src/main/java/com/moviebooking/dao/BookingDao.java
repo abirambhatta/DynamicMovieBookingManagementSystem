@@ -715,4 +715,35 @@ public class BookingDao {
         }
         return bookings;
     }
+    
+    public int getBookingsCountByPeriod(String period, String startDate, String endDate) {
+        StringBuilder query = new StringBuilder("SELECT COUNT(*) FROM bookings WHERE 1=1");
+        
+        if ("day".equals(period)) {
+            query.append(" AND DATE(booking_date) = CURDATE()");
+        } else if ("week".equals(period)) {
+            query.append(" AND booking_date >= DATE_SUB(CURDATE(), INTERVAL 7 DAY)");
+        } else if ("month".equals(period)) {
+            query.append(" AND booking_date >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)");
+        } else if ("custom".equals(period) && startDate != null && !startDate.isEmpty() && endDate != null && !endDate.isEmpty()) {
+            query.append(" AND DATE(booking_date) BETWEEN ? AND ?");
+        }
+        
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(query.toString())) {
+            
+            if ("custom".equals(period) && startDate != null && !startDate.isEmpty() && endDate != null && !endDate.isEmpty()) {
+                pstmt.setString(1, startDate);
+                pstmt.setString(2, endDate);
+            }
+            
+            ResultSet rs = pstmt.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
 }

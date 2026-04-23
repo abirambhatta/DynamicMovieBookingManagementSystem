@@ -10,6 +10,7 @@ public class User {
     private java.sql.Timestamp registrationDate;
     private int bookingCount;
     private double totalSpent;
+    private boolean isActive; // Active if admin or has bookings in last 30 days
 
     public User() {}
 
@@ -47,4 +48,7 @@ public class User {
     
     public double getTotalSpent() { return totalSpent; }
     public void setTotalSpent(double totalSpent) { this.totalSpent = totalSpent; }
+    
+    public boolean isActive() { return isActive; }
+    public void setActive(boolean active) { isActive = active; }
 }

@@ -2,242 +2,286 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <!DOCTYPE html>
-<html>
+<html class="light" lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Manage Users - MovieMint Admin</title>
-    <link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath}/css/style.css">
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Manage Users | CinemaDirector Admin</title>
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/style.css">
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "tertiary-fixed": "#95f2f1",
+                        "secondary-container": "#dfe0e0",
+                        "primary-container": "#dc143c",
+                        "on-primary-container": "#fff1f0",
+                        "secondary-fixed-dim": "#c6c6c7",
+                        "on-tertiary": "#ffffff",
+                        "secondary": "#5d5f5f",
+                        "on-error": "#ffffff",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-bright": "#f6faff",
+                        "surface-variant": "#dbe4ed",
+                        "on-secondary-container": "#616363",
+                        "on-secondary-fixed-variant": "#454747",
+                        "on-background": "#141d23",
+                        "surface-container-highest": "#dbe4ed",
+                        "primary": "#b1002c",
+                        "on-tertiary-fixed-variant": "#004f4f",
+                        "tertiary-container": "#007d7d",
+                        "surface-container": "#e6eff8",
+                        "on-tertiary-fixed": "#002020",
+                        "primary-fixed": "#ffdad9",
+                        "on-primary": "#ffffff",
+                        "tertiary": "#006262",
+                        "outline-variant": "#e6bdbc",
+                        "on-surface-variant": "#5c3f3f",
+                        "inverse-on-surface": "#e9f2fb",
+                        "on-surface": "#141d23",
+                        "on-primary-fixed": "#40000a",
+                        "secondary-fixed": "#e2e2e2",
+                        "outline": "#916f6e",
+                        "surface-container-low": "#ecf5fe",
+                        "tertiary-fixed-dim": "#78d6d5",
+                        "surface-tint": "#bf0030",
+                        "background": "#f6faff",
+                        "on-secondary-fixed": "#1a1c1c",
+                        "inverse-surface": "#293138",
+                        "inverse-primary": "#ffb3b3",
+                        "primary-fixed-dim": "#ffb3b3",
+                        "error-container": "#ffdad6",
+                        "on-primary-fixed-variant": "#920022",
+                        "surface": "#f6faff",
+                        "surface-dim": "#d2dbe4",
+                        "surface-container-high": "#e0e9f2",
+                        "on-tertiary-container": "#c9fffe",
+                        "on-error-container": "#93000a",
+                        "error": "#ba1a1a",
+                        "on-secondary": "#ffffff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "fontFamily": {
+                        "headline": ["Manrope"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    }
+                },
+            },
+        }
+    </script>
     <style>
-        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; margin-bottom: 30px; }
-        .stat-card { background: white; padding: 24px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); border-left: 4px solid #dc143c; }
-        .stat-card h3 { margin: 0 0 8px 0; font-size: 14px; color: #6c757d; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; }
-        .stat-card .stat-value { font-size: 32px; font-weight: 700; color: #2c3e50; margin: 0; }
-        .stat-card.admins { border-left-color: #e74c3c; }
-        .stat-card.new-users { border-left-color: #3498db; }
-        .stat-card.active { border-left-color: #2ecc71; }
-        .action-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; gap: 16px; flex-wrap: wrap; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
-        .search-section { flex: 1; min-width: 300px; margin-bottom: 16px; }
-        .search-form { display: flex; gap: 8px; }
-        .search-form input { flex: 1; min-width: 250px; padding: 10px 14px; border: 1px solid #ced4da; border-radius: 6px; font-size: 15px; }
-        .search-form input:focus { outline: none; border-color: #dc143c; box-shadow: 0 0 0 3px rgba(220, 20, 60, 0.1); }
-        .divider { width: 100%; height: 1px; background: #e9ecef; margin: 0; }
-        .filters-section { display: flex; gap: 12px; flex-wrap: wrap; align-items: flex-end; width: 100%; margin-top: 16px; }
-        .filter-group { display: flex; flex-direction: column; gap: 6px; }
-        .filter-group label { font-size: 13px; font-weight: 600; color: #495057; }
-        .filter-group select, .filter-group input[type="date"] { padding: 10px 14px; border: 1px solid #ced4da; border-radius: 6px; font-size: 14px; cursor: pointer; background: white; min-width: 150px; }
-        .filter-group select:focus, .filter-group input[type="date"]:focus { outline: none; border-color: #dc143c; box-shadow: 0 0 0 3px rgba(220, 20, 60, 0.1); }
-        .filter-actions { display: flex; gap: 8px; align-items: flex-end; }
-        .btn-filter { padding: 10px 20px; background: #dc143c; color: white; border: none; border-radius: 6px; font-size: 14px; font-weight: 500; cursor: pointer; white-space: nowrap; height: 42px; }
-        .btn-filter:hover { background: #b8102f; }
-        .btn-clear-filter { padding: 10px 20px; background: #6c757d; color: white; border: none; border-radius: 6px; font-size: 14px; font-weight: 500; cursor: pointer; white-space: nowrap; text-decoration: none; display: inline-block; height: 42px; line-height: 22px; }
-        .btn-clear-filter:hover { background: #5a6268; }
-        .sort-options { display: flex; gap: 8px; flex-wrap: wrap; }
-        .btn-sort { padding: 10px 16px; background: white; color: #6c757d; border: 1px solid #ced4da; border-radius: 6px; text-decoration: none; font-size: 14px; font-weight: 500; transition: all 0.2s; user-select: none; }
-        .btn-sort:hover { background: #f8f9fa; border-color: #adb5bd; color: #495057; }
-        .btn-sort.active { background: #dc143c; color: white; border-color: #dc143c; }
-        .role-select { padding: 6px 10px; border: 1px solid #ced4da; border-radius: 4px; font-size: 13px; cursor: pointer; background: white; transition: all 0.2s; }
-        .role-select:hover { border-color: #dc143c; }
-        .role-select:focus { outline: none; border-color: #dc143c; box-shadow: 0 0 0 3px rgba(220, 20, 60, 0.1); }
-        .role-badge { padding: 4px 10px; border-radius: 12px; font-size: 12px; font-weight: 600; text-transform: uppercase; }
-        .role-badge.admin { background: #fde8e8; color: #c0392b; }
-        .role-badge.user { background: #e8f4f8; color: #2980b9; }
-        .status-badge { padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: 600; text-transform: uppercase; }
-        .status-badge.active { background: #d4edda; color: #155724; }
-        .status-badge.inactive { background: #f8d7da; color: #721c24; }
-        .table-actions { display: flex; gap: 6px; align-items: center; }
-        .btn-view { padding: 6px 12px; background: #3498db; color: white; border: none; border-radius: 4px; font-size: 13px; cursor: pointer; text-decoration: none; display: inline-block; }
-        .btn-view:hover { background: #2980b9; }
-        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); }
-        .modal-content { background: white; margin: 5% auto; padding: 0; border-radius: 12px; width: 90%; max-width: 600px; box-shadow: 0 4px 20px rgba(0,0,0,0.3); }
-        .modal-header { padding: 20px 24px; border-bottom: 1px solid #dee2e6; display: flex; justify-content: space-between; align-items: center; }
-        .modal-header h2 { margin: 0; font-size: 20px; color: #2c3e50; }
-        .modal-close { font-size: 28px; font-weight: 300; color: #adb5bd; cursor: pointer; border: none; background: none; }
-        .modal-close:hover { color: #495057; }
-        .modal-body { padding: 24px; max-height: 60vh; overflow-y: auto; }
-        .detail-row { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #f1f3f5; }
-        .detail-row:last-child { border-bottom: none; }
-        .detail-label { font-weight: 600; color: #6c757d; }
-        .detail-value { color: #2c3e50; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .headlines\:font-\['Manrope'\] { font-family: 'Manrope', sans-serif; }
     </style>
 </head>
-<body>
-    <!-- Check if user is admin, if not redirect to login page -->
+<body style="background-color: #f8f9fa; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; color: #212529;">
     <c:if test="${empty user || user.role != 'admin'}">
         <c:redirect url="login"/>
     </c:if>
-    
-    <div class="dashboard">
-        <!-- Include header navigation for admin -->
-        <jsp:include page="adminHeader.jsp" />
+
+    <jsp:include page="adminHeader.jsp" />
+
+    <div class="main-content">
+    <main class="min-h-screen p-8">
+        <div class="flex justify-between items-end mb-10">
+            <div>
+                <h1 class="text-3xl font-bold tracking-tight" style="color: #212529;">User Directory</h1>
+                <p class="mt-1" style="color: #6c757d;">Manage administrators, staff, and customers.</p>
+            </div>
+        </div>
+
+        <!-- Stats Bento Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-10">
+            <div class="p-6 rounded-xl" style="background-color: white; border: 1px solid #e9ecef; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                <p class="text-xs font-bold uppercase tracking-widest mb-2" style="color: #6c757d;">Total Users</p>
+                <h3 class="text-4xl font-bold leading-none" style="color: #212529;">${totalUsers}</h3>
+                <div class="mt-4 flex items-center text-xs font-bold" style="color: #dc143c;">
+                    <span class="material-symbols-outlined text-sm mr-1">group</span>
+                    Registered members
+                </div>
+            </div>
+            <div class="p-6 rounded-xl" style="background-color: white; border: 1px solid #e9ecef; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                <p class="text-xs font-bold uppercase tracking-widest mb-2" style="color: #6c757d;">Admins</p>
+                <h3 class="text-4xl font-bold leading-none" style="color: #212529;">${totalAdmins}</h3>
+                <div class="mt-4 flex items-center text-xs font-bold" style="color: #6c757d;">
+                    <span class="material-symbols-outlined text-sm mr-1">admin_panel_settings</span>
+                    System administrators
+                </div>
+            </div>
+            <div class="p-6 rounded-xl" style="background-color: white; border: 1px solid #e9ecef; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                <p class="text-xs font-bold uppercase tracking-widest mb-2" style="color: #6c757d;">Active Users</p>
+                <h3 class="text-4xl font-bold leading-none" style="color: #212529;">${activeUsers}</h3>
+                <div class="mt-4 flex items-center text-xs font-bold" style="color: #28a745;">
+                    <span class="material-symbols-outlined text-sm mr-1">check_circle</span>
+                    With recent bookings
+                </div>
+            </div>
+            <div class="p-6 rounded-xl flex flex-col justify-between" style="background-color: #dc143c; color: white;">
+                <div>
+                    <p class="text-xs font-bold uppercase tracking-widest mb-2" style="opacity: 0.9;">New Registrations</p>
+                    <h3 class="text-4xl font-bold leading-none">${newUsersThisMonth}</h3>
+                </div>
+                <div class="mt-4 text-xs font-bold flex items-center" style="opacity: 0.9;">
+                    <span class="material-symbols-outlined text-sm mr-1">trending_up</span> This month
+                </div>
+            </div>
+        </div>
+
+        <c:if test="${not empty param.success}">
+            <div class="p-4 rounded-lg mb-6 font-semibold" style="background-color: #d4edda; color: #155724; border-left: 4px solid #28a745;">
+                ${param.success}
+            </div>
+        </c:if>
         
-        <div class="main-content">
-            <h1>Manage Users</h1>
-            
-            <!-- Statistics Cards -->
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <h3>Total Users</h3>
-                    <p class="stat-value">${totalUsers}</p>
-                </div>
-                <div class="stat-card admins">
-                    <h3>Admins</h3>
-                    <p class="stat-value">${totalAdmins}</p>
-                </div>
-                <div class="stat-card new-users">
-                    <h3>New This Month</h3>
-                    <p class="stat-value">${newUsersThisMonth}</p>
-                </div>
-                <div class="stat-card active">
-                    <h3>Active Users</h3>
-                    <p class="stat-value">${activeUsers}</p>
-                </div>
+        <c:if test="${not empty param.error}">
+            <div class="p-4 rounded-lg mb-6 font-semibold" style="background-color: #f8d7da; color: #721c24; border-left: 4px solid #dc3545;">
+                ${param.error}
             </div>
-            
-            <!-- Show success message if action was successful -->
-            <c:if test="${not empty param.success}">
-                <div class="success-message">${param.success}</div>
-            </c:if>
-            
-            <!-- Show error message if action failed -->
-            <c:if test="${not empty param.error}">
-                <div class="error-message">${param.error}</div>
-            </c:if>
-            
-            <!-- Action bar with search and filters -->
-            <div class="action-bar">
-                <!-- Search section -->
-                <div class="search-section">
-                    <form action="${pageContext.request.contextPath}/manageUsers" method="get" class="search-form">
-                        <input type="text" name="search" placeholder="Search by name or email..." value="${param.search}">
-                        <button type="submit" class="btn-filter">Search</button>
-                        <c:if test="${not empty param.search}">
-                            <a href="${pageContext.request.contextPath}/manageUsers" class="btn-secondary" style="padding: 10px 16px; margin: 0;">Clear</a>
-                        </c:if>
-                    </form>
+        </c:if>
+
+        <!-- Search and Filters -->
+        <div class="p-6 rounded-xl mb-6" style="background-color: white; border: 1px solid #e9ecef; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+            <form action="${pageContext.request.contextPath}/manageUsers" method="get" class="flex flex-col md:flex-row gap-4 items-end">
+                <div class="flex-1 w-full relative">
+                    <label class="text-[10px] font-bold uppercase tracking-widest mb-1 block" style="color: #6c757d;">Search Users</label>
+                    <div class="relative">
+                        <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-lg" style="color: #6c757d;">search</span>
+                        <input type="text" name="search" placeholder="Search by name or email..." value="${param.search}" class="w-full pl-10 pr-4 py-3 rounded-lg text-sm" style="background-color: white; border: 1px solid #ced4da;" onfocus="this.style.borderColor='#dc143c'; this.style.boxShadow='0 0 0 3px rgba(220, 20, 60, 0.1)';" onblur="this.style.borderColor='#ced4da'; this.style.boxShadow='none';">
+                    </div>
                 </div>
                 
-                <div class="divider"></div>
-                
-                <!-- Filter and Sort Section -->
-                <form action="${pageContext.request.contextPath}/manageUsers" method="get" class="filters-section">
-                    <div class="filter-group">
-                        <label>Role</label>
-                        <select name="role" id="roleSelect">
-                            <option value="all" ${param.role == 'all' || empty param.role ? 'selected' : ''}>All Roles</option>
-                            <option value="admin" ${param.role == 'admin' ? 'selected' : ''}>Admin Only</option>
-                            <option value="user" ${param.role == 'user' ? 'selected' : ''}>User Only</option>
-                        </select>
-                    </div>
-                    
-                    <div class="filter-group">
-                        <label>Registration Period</label>
-                        <select name="period" id="periodSelect" onchange="handlePeriodChange()">
-                            <option value="" ${empty param.period ? 'selected' : ''}>All Time</option>
-                            <option value="today" ${param.period == 'today' ? 'selected' : ''}>Today</option>
-                            <option value="week" ${param.period == 'week' ? 'selected' : ''}>This Week</option>
-                            <option value="month" ${param.period == 'month' ? 'selected' : ''}>This Month</option>
-                            <option value="custom" ${param.period == 'custom' ? 'selected' : ''}>Custom Range</option>
-                        </select>
-                    </div>
-                    
-                    <div class="filter-group" id="startDateGroup" style="display: ${param.period == 'custom' ? 'flex' : 'none'};">
-                        <label>Start Date</label>
-                        <input type="date" name="startDate" id="startDate" value="${param.startDate}">
-                    </div>
-                    
-                    <div class="filter-group" id="endDateGroup" style="display: ${param.period == 'custom' ? 'flex' : 'none'};">
-                        <label>End Date</label>
-                        <input type="date" name="endDate" id="endDate" value="${param.endDate}">
-                    </div>
-                    
-                    <div class="filter-group">
-                        <label>Sort By</label>
-                        <select name="sort">
-                            <option value="" ${empty param.sort ? 'selected' : ''}>Default</option>
-                            <option value="name" ${param.sort == 'name' ? 'selected' : ''}>Name (A-Z)</option>
-                            <option value="bookings" ${param.sort == 'bookings' ? 'selected' : ''}>Most Bookings</option>
-                        </select>
-                    </div>
-                    
-                    <div class="filter-actions">
-                        <button type="submit" class="btn-filter">Apply Filters</button>
-                        <c:if test="${not empty param.role || not empty param.period || not empty param.sort || not empty param.startDate}">
-                            <a href="${pageContext.request.contextPath}/manageUsers" class="btn-clear-filter">Clear All</a>
-                        </c:if>
-                    </div>
-                </form>
-            </div>
-            
-            <script>
-                function handlePeriodChange() {
-                    const period = document.getElementById('periodSelect').value;
-                    const startDateGroup = document.getElementById('startDateGroup');
-                    const endDateGroup = document.getElementById('endDateGroup');
-                    
-                    if (period === 'custom') {
-                        startDateGroup.style.display = 'flex';
-                        endDateGroup.style.display = 'flex';
-                    } else {
-                        startDateGroup.style.display = 'none';
-                        endDateGroup.style.display = 'none';
-                    }
-                }
-            </script>
-            
-            <!-- Users table -->
-            <div class="table-container">
-                <table class="data-table">
-                    <!-- Table header -->
+                <div class="w-full md:w-auto">
+                    <label class="text-[10px] font-bold uppercase tracking-widest mb-1 block" style="color: #6c757d;">Role Filter</label>
+                    <select name="role" class="w-full py-3 px-4 pr-8 rounded-lg text-sm cursor-pointer" style="background-color: white; border: 1px solid #ced4da;">
+                        <option value="all" ${param.role == 'all' || empty param.role ? 'selected' : ''}>All Roles</option>
+                        <option value="admin" ${param.role == 'admin' ? 'selected' : ''}>Admin Only</option>
+                        <option value="user" ${param.role == 'user' ? 'selected' : ''}>User Only</option>
+                    </select>
+                </div>
+
+                <div class="w-full md:w-auto">
+                    <label class="text-[10px] font-bold uppercase tracking-widest mb-1 block" style="color: #6c757d;">Sort By</label>
+                    <select name="sort" class="w-full py-3 px-4 pr-8 rounded-lg text-sm cursor-pointer" style="background-color: white; border: 1px solid #ced4da;">
+                        <option value="" ${empty param.sort ? 'selected' : ''}>Default</option>
+                        <option value="name" ${param.sort == 'name' ? 'selected' : ''}>Name (A-Z)</option>
+                        <option value="bookings" ${param.sort == 'bookings' ? 'selected' : ''}>Most Bookings</option>
+                    </select>
+                </div>
+
+                <div class="flex gap-2 w-full md:w-auto mt-4 md:mt-0">
+                    <button type="submit" class="px-6 py-3 rounded-lg text-[11px] font-bold uppercase tracking-widest w-full md:w-auto" style="background-color: #dc143c; color: white;" onmouseover="this.style.backgroundColor='#b71c1c';" onmouseout="this.style.backgroundColor='#dc143c';">Search</button>
+                    <c:if test="${not empty param.search || not empty param.role || not empty param.sort}">
+                        <a href="${pageContext.request.contextPath}/manageUsers" class="px-6 py-3 rounded-lg text-[11px] font-bold uppercase tracking-widest flex items-center justify-center w-full md:w-auto" style="background-color: #f8f9fa; color: #212529; border: 1px solid #ced4da;">Clear</a>
+                    </c:if>
+                </div>
+            </form>
+        </div>
+
+        <!-- User Table Section -->
+        <div class="rounded-xl overflow-hidden" style="background-color: white; border: 1px solid #e9ecef; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse min-w-[800px]">
                     <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Full Name</th>
-                            <th>Email</th>
-                            <th>Role</th>
-                            <th>Phone</th>
-                            <th>Registered</th>
-                            <th>Bookings</th>
-                            <th>Total Spent</th>
-                            <th>Status</th>
-                            <th>Actions</th>
+                        <tr style="background-color: #dc143c; color: white;">
+                            <th class="px-6 py-4 text-[11px] font-bold uppercase tracking-[0.1em]">User Identity</th>
+                            <th class="px-6 py-4 text-[11px] font-bold uppercase tracking-[0.1em]">Contact & Date</th>
+                            <th class="px-6 py-4 text-[11px] font-bold uppercase tracking-[0.1em]">Activity</th>
+                            <th class="px-6 py-4 text-[11px] font-bold uppercase tracking-[0.1em]">Status & Role</th>
+                            <th class="px-6 py-4 text-[11px] font-bold uppercase tracking-[0.1em] text-right">Actions</th>
                         </tr>
                     </thead>
-                    <!-- Table body -->
-                    <tbody>
-                        <!-- Check if users list has data -->
+                    <tbody style="border-top: 1px solid #e9ecef;">
                         <c:choose>
                             <c:when test="${not empty users}">
-                                <!-- Loop through each user -->
                                 <c:forEach var="u" items="${users}">
-                                    <tr>
-                                        <td>${u.userId}</td>
-                                        <td>${u.fullName}</td>
-                                        <td>${u.email}</td>
-                                        <td><span class="role-badge ${u.role}">${u.role}</span></td>
-                                        <td>${u.phone}</td>
-                                        <td><fmt:formatDate value="${u.registrationDate}" pattern="MMM dd, yyyy"/></td>
-                                        <td>${u.bookingCount}</td>
-                                        <td>Rs. <fmt:formatNumber value="${u.totalSpent}" pattern="#,##0.00"/></td>
-                                        <td>
-                                            <c:choose>
-                                                <c:when test="${u.bookingCount > 0}">
-                                                    <span class="status-badge active">Active</span>
-                                                </c:when>
-                                                <c:otherwise>
-                                                    <span class="status-badge inactive">Inactive</span>
-                                                </c:otherwise>
-                                            </c:choose>
+                                    <tr style="border-bottom: 1px solid #e9ecef;" onmouseover="this.style.backgroundColor='#f8f9fa';" onmouseout="this.style.backgroundColor='white';">
+                                        <td class="px-6 py-4">
+                                            <div class="flex items-center gap-4">
+                                                <div class="w-10 h-10 rounded-md flex items-center justify-center font-bold shrink-0" style="background-color: rgba(220, 20, 60, 0.1); color: #dc143c;">
+                                                    <c:choose>
+                                                        <c:when test="${u.fullName.length() >= 2}">
+                                                            ${u.fullName.substring(0, 2).toUpperCase()}
+                                                        </c:when>
+                                                        <c:otherwise>
+                                                            ${u.fullName.toUpperCase()}
+                                                        </c:otherwise>
+                                                    </c:choose>
+                                                </div>
+                                                <div class="min-w-0">
+                                                    <p class="font-bold truncate" style="color: #212529;">${u.fullName}</p>
+                                                    <p class="text-xs truncate" style="color: #6c757d;">ID: ${u.userId}</p>
+                                                </div>
+                                            </div>
                                         </td>
-                                        <td>
-                                            <div class="table-actions">
-                                                <button onclick="viewUserDetails(${u.userId}, '${u.fullName}', '${u.email}', '${u.phone}', '${u.role}', '<fmt:formatDate value="${u.registrationDate}" pattern="MMM dd, yyyy"/>', ${u.bookingCount}, ${u.totalSpent})" class="btn-view">View</button>
-                                                <select onchange="changeRole(${u.userId}, this.value, '${u.fullName}')" class="role-select">
-                                                    <option value="">Change Role</option>
-                                                    <option value="user" ${u.role == 'user' ? 'disabled' : ''}>Make User</option>
-                                                    <option value="admin" ${u.role == 'admin' ? 'disabled' : ''}>Make Admin</option>
-                                                </select>
-                                                <a href="${pageContext.request.contextPath}/manageUsers?action=delete&id=${u.userId}" class="btn-delete" onclick="return confirm('Are you sure you want to delete ${u.fullName}?')">Delete</a>
+                                        <td class="px-6 py-4">
+                                            <p class="text-sm font-medium truncate" style="color: #212529;">${u.email}</p>
+                                            <p class="text-xs mt-0.5" style="color: #6c757d;">${u.phone}</p>
+                                            <p class="text-[10px] mt-1 uppercase tracking-wider" style="color: #6c757d;">Joined: <fmt:formatDate value="${u.registrationDate}" pattern="MMM dd, yyyy"/></p>
+                                        </td>
+                                        <td class="px-6 py-4">
+                                            <p class="text-sm font-bold" style="color: #212529;">${u.bookingCount} Bookings</p>
+                                            <p class="text-xs mt-0.5 font-medium" style="color: #6c757d;">Rs. <fmt:formatNumber value="${u.totalSpent}" pattern="#,##0.00"/></p>
+                                        </td>
+                                        <td class="px-6 py-4">
+                                            <div class="flex flex-col gap-2 items-start">
+                                                <c:choose>
+                                                    <c:when test="${u.role == 'admin'}">
+                                                        <span class="px-2.5 py-1 rounded text-[10px] font-bold uppercase tracking-wider" style="background-color: rgba(220, 20, 60, 0.1); color: #dc143c; border: 1px solid rgba(220, 20, 60, 0.2);">Admin</span>
+                                                    </c:when>
+                                                    <c:otherwise>
+                                                        <span class="px-2.5 py-1 rounded text-[10px] font-bold uppercase tracking-wider" style="background-color: #f8f9fa; color: #6c757d; border: 1px solid #e9ecef;">User</span>
+                                                    </c:otherwise>
+                                                </c:choose>
+                                                <c:choose>
+                                                    <c:when test="${u.active}">
+                                                        <div class="flex items-center gap-1.5 font-bold text-[10px] uppercase tracking-wider" style="color: #28a745;">
+                                                            <span class="w-1.5 h-1.5 rounded-full" style="background-color: #28a745;"></span> Active
+                                                        </div>
+                                                    </c:when>
+                                                    <c:otherwise>
+                                                        <div class="flex items-center gap-1.5 font-bold text-[10px] uppercase tracking-wider" style="color: #6c757d;">
+                                                            <span class="w-1.5 h-1.5 rounded-full" style="background-color: #6c757d;"></span> Inactive
+                                                        </div>
+                                                    </c:otherwise>
+                                                </c:choose>
+                                            </div>
+                                        </td>
+                                        <td class="px-6 py-4 text-right">
+                                            <div class="flex justify-end gap-2">
+                                                <div class="relative inline-block text-left group/dropdown">
+                                                    <button class="p-2 rounded-md flex items-center justify-center" style="background-color: white; color: #6c757d; border: 1px solid #ced4da;" onmouseover="this.style.borderColor='#dc143c'; this.style.color='#dc143c';" onmouseout="this.style.borderColor='#ced4da'; this.style.color='#6c757d';">
+                                                        <span class="material-symbols-outlined text-[18px]">manage_accounts</span>
+                                                    </button>
+                                                    <div class="absolute right-0 bottom-full mb-2 w-32 rounded-md overflow-hidden hidden group-hover/dropdown:block z-10" style="background-color: white; border: 1px solid #e9ecef; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
+                                                        <c:if test="${u.role != 'admin'}">
+                                                            <a href="${pageContext.request.contextPath}/manageUsers?action=changeRole&id=${u.userId}&role=admin" onclick="return confirm('Make ${u.fullName} an Admin?')" class="block px-4 py-2 text-[11px] font-bold uppercase tracking-wider text-left" style="color: #212529;" onmouseover="this.style.backgroundColor='#f8f9fa';" onmouseout="this.style.backgroundColor='white';">Make Admin</a>
+                                                        </c:if>
+                                                        <c:if test="${u.role != 'user'}">
+                                                            <a href="${pageContext.request.contextPath}/manageUsers?action=changeRole&id=${u.userId}&role=user" onclick="return confirm('Make ${u.fullName} a User?')" class="block px-4 py-2 text-[11px] font-bold uppercase tracking-wider text-left" style="color: #212529;" onmouseover="this.style.backgroundColor='#f8f9fa';" onmouseout="this.style.backgroundColor='white';">Make User</a>
+                                                        </c:if>
+                                                    </div>
+                                                </div>
+                                                
+                                                <button onclick="viewUserDetails(${u.userId}, '${u.fullName.replace("'", "\\'")}', '${u.email}', '${u.phone}', '${u.role}', '<fmt:formatDate value="${u.registrationDate}" pattern="MMM dd, yyyy"/>', ${u.bookingCount}, ${u.totalSpent})" class="p-2 rounded-md flex items-center justify-center" style="background-color: white; color: #6c757d; border: 1px solid #ced4da;" onmouseover="this.style.borderColor='#dc143c'; this.style.color='#dc143c';" onmouseout="this.style.borderColor='#ced4da'; this.style.color='#6c757d';">
+                                                    <span class="material-symbols-outlined text-[18px]">visibility</span>
+                                                </button>
+                                                
+                                                <a href="${pageContext.request.contextPath}/manageUsers?action=delete&id=${u.userId}" onclick="return confirm('Are you sure you want to delete ${u.fullName.replace("'", "\\'")}?')" class="p-2 rounded-md flex items-center justify-center" style="background-color: white; color: #dc3545; border: 1px solid rgba(220, 53, 69, 0.2);" onmouseover="this.style.backgroundColor='#dc3545'; this.style.color='white';" onmouseout="this.style.backgroundColor='white'; this.style.color='#dc3545';">
+                                                    <span class="material-symbols-outlined text-[18px]">delete</span>
+                                                </a>
                                             </div>
                                         </td>
                                     </tr>
@@ -245,7 +289,10 @@
                             </c:when>
                             <c:otherwise>
                                 <tr>
-                                    <td colspan="10">No users found.</td>
+                                    <td colspan="5" class="px-6 py-12 text-center" style="color: #6c757d;">
+                                        <span class="material-symbols-outlined text-4xl mb-2" style="opacity: 0.5;">person_search</span>
+                                        <p>No users found matching your criteria.</p>
+                                    </td>
                                 </tr>
                             </c:otherwise>
                         </c:choose>
@@ -253,85 +300,84 @@
                 </table>
             </div>
         </div>
+    </main>
     </div>
-    
-    <!-- User Details Modal -->
-    <div id="userModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>User Details</h2>
-                <button class="modal-close" onclick="closeModal()">&times;</button>
-            </div>
-            <div class="modal-body">
-                <div class="detail-row">
-                    <span class="detail-label">User ID:</span>
-                    <span class="detail-value" id="modal-userId"></span>
+
+    <!-- User Details Modal (Retained and styled) -->
+    <div id="userModal" class="hidden fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+        <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+            <div class="fixed inset-0 transition-opacity" style="background-color: rgba(0,0,0,0.5);" aria-hidden="true" onclick="closeModal()"></div>
+            <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+            
+            <div class="inline-block align-bottom rounded-xl text-left overflow-hidden transform transition-all sm:my-8 sm:align-middle sm:max-w-lg w-full" style="background-color: white; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
+                <div class="px-4 pt-5 pb-4 sm:p-6 sm:pb-4" style="background-color: white; border-bottom: 1px solid #e9ecef;">
+                    <div class="flex justify-between items-center mb-5">
+                        <h3 class="text-lg leading-6 font-bold" style="color: #212529;" id="modal-title">User Details</h3>
+                        <button onclick="closeModal()" style="color: #6c757d;" onmouseover="this.style.color='#212529';" onmouseout="this.style.color='#6c757d';">
+                            <span class="material-symbols-outlined">close</span>
+                        </button>
+                    </div>
+                    
+                    <div class="space-y-4">
+                        <div class="flex justify-between pb-3" style="border-bottom: 1px solid #f8f9fa;">
+                            <span class="text-[11px] font-bold uppercase tracking-widest" style="color: #6c757d;">User ID</span>
+                            <span class="font-semibold" style="color: #212529;" id="modal-userId"></span>
+                        </div>
+                        <div class="flex justify-between pb-3" style="border-bottom: 1px solid #f8f9fa;">
+                            <span class="text-[11px] font-bold uppercase tracking-widest" style="color: #6c757d;">Full Name</span>
+                            <span class="font-semibold" style="color: #212529;" id="modal-fullName"></span>
+                        </div>
+                        <div class="flex justify-between pb-3" style="border-bottom: 1px solid #f8f9fa;">
+                            <span class="text-[11px] font-bold uppercase tracking-widest" style="color: #6c757d;">Email</span>
+                            <span class="font-semibold" style="color: #212529;" id="modal-email"></span>
+                        </div>
+                        <div class="flex justify-between pb-3" style="border-bottom: 1px solid #f8f9fa;">
+                            <span class="text-[11px] font-bold uppercase tracking-widest" style="color: #6c757d;">Phone</span>
+                            <span class="font-semibold" style="color: #212529;" id="modal-phone"></span>
+                        </div>
+                        <div class="flex justify-between pb-3" style="border-bottom: 1px solid #f8f9fa;">
+                            <span class="text-[11px] font-bold uppercase tracking-widest" style="color: #6c757d;">Role</span>
+                            <span class="font-bold uppercase" style="color: #dc143c;" id="modal-role"></span>
+                        </div>
+                        <div class="flex justify-between pb-3" style="border-bottom: 1px solid #f8f9fa;">
+                            <span class="text-[11px] font-bold uppercase tracking-widest" style="color: #6c757d;">Registered</span>
+                            <span class="font-semibold" style="color: #212529;" id="modal-registered"></span>
+                        </div>
+                        <div class="flex justify-between pb-3" style="border-bottom: 1px solid #f8f9fa;">
+                            <span class="text-[11px] font-bold uppercase tracking-widest" style="color: #6c757d;">Total Bookings</span>
+                            <span class="font-semibold" style="color: #212529;" id="modal-bookings"></span>
+                        </div>
+                        <div class="flex justify-between pb-1">
+                            <span class="text-[11px] font-bold uppercase tracking-widest" style="color: #6c757d;">Total Spent</span>
+                            <span class="font-semibold" style="color: #212529;" id="modal-spent"></span>
+                        </div>
+                    </div>
                 </div>
-                <div class="detail-row">
-                    <span class="detail-label">Full Name:</span>
-                    <span class="detail-value" id="modal-fullName"></span>
-                </div>
-                <div class="detail-row">
-                    <span class="detail-label">Email:</span>
-                    <span class="detail-value" id="modal-email"></span>
-                </div>
-                <div class="detail-row">
-                    <span class="detail-label">Phone:</span>
-                    <span class="detail-value" id="modal-phone"></span>
-                </div>
-                <div class="detail-row">
-                    <span class="detail-label">Role:</span>
-                    <span class="detail-value" id="modal-role"></span>
-                </div>
-                <div class="detail-row">
-                    <span class="detail-label">Registered:</span>
-                    <span class="detail-value" id="modal-registered"></span>
-                </div>
-                <div class="detail-row">
-                    <span class="detail-label">Total Bookings:</span>
-                    <span class="detail-value" id="modal-bookings"></span>
-                </div>
-                <div class="detail-row">
-                    <span class="detail-label">Total Spent:</span>
-                    <span class="detail-value" id="modal-spent"></span>
+                <div class="px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse" style="background-color: #f8f9fa;">
+                    <button type="button" onclick="closeModal()" class="w-full inline-flex justify-center rounded-md px-4 py-2 text-base font-medium uppercase tracking-wider font-bold sm:ml-3 sm:w-auto sm:text-sm" style="background-color: #dc143c; color: white; border: none; box-shadow: 0 1px 3px rgba(0,0,0,0.1);" onmouseover="this.style.backgroundColor='#b71c1c';" onmouseout="this.style.backgroundColor='#dc143c';">
+                        Close
+                    </button>
                 </div>
             </div>
         </div>
     </div>
-    
+
     <script>
-        function changeRole(userId, newRole, userName) {
-            if (!newRole) return;
-            
-            const roleText = newRole === 'admin' ? 'Admin' : 'User';
-            if (confirm('Change ' + userName + ' to ' + roleText + '?')) {
-                window.location.href = '${pageContext.request.contextPath}/manageUsers?action=changeRole&id=' + userId + '&role=' + newRole;
-            } else {
-                event.target.value = '';
-            }
-        }
-        
         function viewUserDetails(userId, fullName, email, phone, role, registered, bookings, spent) {
             document.getElementById('modal-userId').textContent = userId;
             document.getElementById('modal-fullName').textContent = fullName;
             document.getElementById('modal-email').textContent = email;
             document.getElementById('modal-phone').textContent = phone;
-            document.getElementById('modal-role').textContent = role.toUpperCase();
+            document.getElementById('modal-role').textContent = role;
             document.getElementById('modal-registered').textContent = registered;
             document.getElementById('modal-bookings').textContent = bookings;
-            document.getElementById('modal-spent').textContent = 'Rs. ' + spent.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
-            document.getElementById('userModal').style.display = 'block';
+            document.getElementById('modal-spent').textContent = 'Rs. ' + parseFloat(spent).toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
+            
+            document.getElementById('userModal').classList.remove('hidden');
         }
         
         function closeModal() {
-            document.getElementById('userModal').style.display = 'none';
-        }
-        
-        window.onclick = function(event) {
-            const modal = document.getElementById('userModal');
-            if (event.target == modal) {
-                closeModal();
-            }
+            document.getElementById('userModal').classList.add('hidden');
         }
     </script>
 </body>

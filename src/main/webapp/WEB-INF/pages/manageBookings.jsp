@@ -8,7 +8,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Manage Bookings - MovieMint Admin</title>
     <link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath}/css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
     <style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
         .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; margin-bottom: 30px; }
         .stat-card { background: white; padding: 24px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); border-left: 4px solid #dc143c; }
         .stat-card h3 { margin: 0 0 8px 0; font-size: 14px; color: #6c757d; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; }
@@ -189,16 +193,20 @@
                                             <span class="status-badge ${booking.status.toLowerCase()}">${booking.status}</span>
                                         </td>
                                         <td>
-                                            <form action="${pageContext.request.contextPath}/manageBookings" method="post" style="display:inline;">
-                                                <input type="hidden" name="action" value="updateStatus">
-                                                <input type="hidden" name="bookingId" value="${booking.bookingId}">
-                                                <select name="status" onchange="this.form.submit()">
-                                                    <option value="Confirmed" ${booking.status == 'Confirmed' ? 'selected' : ''}>Confirmed</option>
-                                                    <option value="Cancelled" ${booking.status == 'Cancelled' ? 'selected' : ''}>Cancelled</option>
-                                                    <option value="Completed" ${booking.status == 'Completed' ? 'selected' : ''}>Completed</option>
-                                                </select>
-                                            </form>
-                                            <a href="${pageContext.request.contextPath}/manageBookings?action=delete&id=${booking.bookingId}" class="btn-delete" onclick="return confirm('Delete this booking?')">Delete</a>
+                                            <div style="display: flex; gap: 8px; align-items: center;">
+                                                <form action="${pageContext.request.contextPath}/manageBookings" method="post" style="display:inline;">
+                                                    <input type="hidden" name="action" value="updateStatus">
+                                                    <input type="hidden" name="bookingId" value="${booking.bookingId}">
+                                                    <select name="status" onchange="this.form.submit()" style="padding: 6px 10px; border: 1px solid #ced4da; border-radius: 4px; font-size: 13px; cursor: pointer;">
+                                                        <option value="Confirmed" ${booking.status == 'Confirmed' ? 'selected' : ''}>Confirmed</option>
+                                                        <option value="Cancelled" ${booking.status == 'Cancelled' ? 'selected' : ''}>Cancelled</option>
+                                                        <option value="Completed" ${booking.status == 'Completed' ? 'selected' : ''}>Completed</option>
+                                                    </select>
+                                                </form>
+                                                <a href="${pageContext.request.contextPath}/manageBookings?action=delete&id=${booking.bookingId}" onclick="return confirm('Delete this booking?')" style="padding: 6px 10px; background: white; color: #dc3545; border: 1px solid rgba(220, 53, 69, 0.2); border-radius: 4px; text-decoration: none; display: inline-flex; align-items: center; justify-center; transition: all 0.2s;" onmouseover="this.style.backgroundColor='#dc3545'; this.style.color='white';" onmouseout="this.style.backgroundColor='white'; this.style.color='#dc3545';" title="Delete Booking">
+                                                    <span class="material-symbols-outlined" style="font-size: 18px;">delete</span>
+                                                </a>
+                                            </div>
                                         </td>
                                     </tr>
                                 </c:forEach>

@@ -123,7 +123,8 @@ public class UserDao {
         List<User> users = new ArrayList<>();
         String query = "SELECT u.*, " +
                       "(SELECT COUNT(*) FROM bookings b WHERE b.user_id = u.user_id) as booking_count, " +
-                      "(SELECT COALESCE(SUM(b.total_price), 0) FROM bookings b WHERE b.user_id = u.user_id) as total_spent " +
+                      "(SELECT COALESCE(SUM(b.total_price), 0) FROM bookings b WHERE b.user_id = u.user_id) as total_spent, " +
+                      "(SELECT COUNT(*) FROM bookings b WHERE b.user_id = u.user_id AND b.booking_date >= DATE_SUB(NOW(), INTERVAL 30 DAY)) as recent_bookings " +
                       "FROM users u ORDER BY u.user_id DESC";
         try (Connection conn = DBConnection.getConnection();
              Statement stmt = conn.createStatement();
@@ -138,6 +139,12 @@ public class UserDao {
                 user.setRegistrationDate(rs.getTimestamp("created_at"));
                 user.setBookingCount(rs.getInt("booking_count"));
                 user.setTotalSpent(rs.getDouble("total_spent"));
+                
+                // Admins are always active, users are active if they have bookings in last 30 days
+                boolean isAdmin = "admin".equals(rs.getString("role"));
+                boolean hasRecentBookings = rs.getInt("recent_bookings") > 0;
+                user.setActive(isAdmin || hasRecentBookings);
+                
                 users.add(user);
             }
         } catch (SQLException e) {
@@ -331,7 +338,8 @@ public class UserDao {
         StringBuilder query = new StringBuilder(
             "SELECT u.*, " +
             "(SELECT COUNT(*) FROM bookings b WHERE b.user_id = u.user_id) as booking_count, " +
-            "(SELECT COALESCE(SUM(b.total_price), 0) FROM bookings b WHERE b.user_id = u.user_id) as total_spent " +
+            "(SELECT COALESCE(SUM(b.total_price), 0) FROM bookings b WHERE b.user_id = u.user_id) as total_spent, " +
+            "(SELECT COUNT(*) FROM bookings b WHERE b.user_id = u.user_id AND b.booking_date >= DATE_SUB(NOW(), INTERVAL 30 DAY)) as recent_bookings " +
             "FROM users u WHERE 1=1"
         );
         
@@ -381,6 +389,12 @@ public class UserDao {
                 user.setRegistrationDate(rs.getTimestamp("created_at"));
                 user.setBookingCount(rs.getInt("booking_count"));
                 user.setTotalSpent(rs.getDouble("total_spent"));
+                
+                // Admins are always active, users are active if they have bookings in last 30 days
+                boolean isAdmin = "admin".equals(rs.getString("role"));
+                boolean hasRecentBookings = rs.getInt("recent_bookings") > 0;
+                user.setActive(isAdmin || hasRecentBookings);
+                
                 users.add(user);
             }
         } catch (SQLException e) {

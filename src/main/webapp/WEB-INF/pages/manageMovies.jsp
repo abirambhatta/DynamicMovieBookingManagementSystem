@@ -7,7 +7,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Manage Movies - MovieMint Admin</title>
     <link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath}/css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
     <style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
         .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; margin-bottom: 30px; }
         .stat-card { background: white; padding: 24px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); border-left: 4px solid #dc143c; }
         .stat-card h3 { margin: 0 0 8px 0; font-size: 14px; color: #6c757d; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; }
@@ -1179,8 +1183,14 @@
                                         <td>${movie.language}</td>
                                         <td>${movie.duration} mins</td>
                                         <td>
-                                            <a href="${pageContext.request.contextPath}/manageMovies?action=edit&id=${movie.movieId}" class="btn-edit">Edit</a>
-                                            <a href="${pageContext.request.contextPath}/manageMovies?action=delete&id=${movie.movieId}" class="btn-delete" onclick="return confirm('Are you sure?')">Delete</a>
+                                            <div style="display: flex; gap: 8px; justify-content: flex-end;">
+                                                <a href="${pageContext.request.contextPath}/manageMovies?action=edit&id=${movie.movieId}" style="padding: 6px 10px; background: white; color: #ffc107; border: 1px solid rgba(255, 193, 7, 0.3); border-radius: 4px; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; transition: all 0.2s; min-width: 36px;" onmouseover="this.style.backgroundColor='#ffc107'; this.style.color='#212529';" onmouseout="this.style.backgroundColor='white'; this.style.color='#ffc107';" title="Edit Movie">
+                                                    <span class="material-symbols-outlined" style="font-size: 18px;">edit</span>
+                                                </a>
+                                                <a href="${pageContext.request.contextPath}/manageMovies?action=delete&id=${movie.movieId}" onclick="return confirm('Are you sure?')" style="padding: 6px 10px; background: white; color: #dc3545; border: 1px solid rgba(220, 53, 69, 0.2); border-radius: 4px; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; transition: all 0.2s; min-width: 36px;" onmouseover="this.style.backgroundColor='#dc3545'; this.style.color='white';" onmouseout="this.style.backgroundColor='white'; this.style.color='#dc3545';" title="Delete Movie">
+                                                    <span class="material-symbols-outlined" style="font-size: 18px;">delete</span>
+                                                </a>
+                                            </div>
                                         </td>
                                     </tr>
                                 </c:forEach>
