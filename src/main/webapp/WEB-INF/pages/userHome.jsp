@@ -131,10 +131,25 @@
                                         <c:set var="shows" value="${showTimesMap[movie.movieId]}" />
                                         <c:choose>
                                             <c:when test="${not empty shows}">
+                                                <jsp:useBean id="now" class="java.util.Date" />
+                                                <fmt:formatDate var="currentDate" value="${now}" pattern="yyyy-MM-dd" />
+                                                <fmt:formatDate var="currentTime" value="${now}" pattern="HH:mm:ss" />
+                                                
                                                 <c:forEach var="show" items="${shows}">
-                                                    <a href="${pageContext.request.contextPath}/bookTicket?movieId=${movie.movieId}&showId=${show.showTimeId}" class="block text-center border border-green-600/50 text-green-500 hover:bg-green-600/10 rounded py-2 text-[13px] font-medium transition-colors">
-                                                        ${show.showTime.toString().substring(0,5)}
-                                                    </a>
+                                                    <c:set var="isPast" value="${show.showDate < currentDate || (show.showDate == currentDate && show.showTime.toString() < currentTime)}" />
+                                                    
+                                                    <c:choose>
+                                                        <c:when test="${isPast}">
+                                                            <span class="block text-center border border-red-500/30 text-red-400 bg-red-500/5 cursor-not-allowed rounded py-2 text-[13px] font-medium opacity-60" title="This show has already started">
+                                                                ${show.showTime.toString().substring(0,5)}
+                                                            </span>
+                                                        </c:when>
+                                                        <c:otherwise>
+                                                            <a href="${pageContext.request.contextPath}/bookTicket?movieId=${movie.movieId}&showId=${show.showTimeId}" class="block text-center border border-green-600/50 text-green-500 hover:bg-green-600/10 rounded py-2 text-[13px] font-medium transition-colors">
+                                                                ${show.showTime.toString().substring(0,5)}
+                                                            </a>
+                                                        </c:otherwise>
+                                                    </c:choose>
                                                 </c:forEach>
                                             </c:when>
                                             <c:otherwise>

@@ -63,8 +63,9 @@ public class ManageSettingsServlet extends HttpServlet {
             String premiumRows  = sanitizeRows(request.getParameter("premiumRows"));
             String reclinerRows = sanitizeRows(request.getParameter("reclinerRows"));
             String vipRows      = sanitizeRows(request.getParameter("vipRows"));
+            String layoutMap    = request.getParameter("layoutMap");
 
-            HallConfig config = new HallConfig(hallName, seatsPerRow, standardRows, premiumRows, reclinerRows, vipRows);
+            HallConfig config = new HallConfig(hallName, seatsPerRow, standardRows, premiumRows, reclinerRows, vipRows, layoutMap);
             boolean saved = hallConfigDao.save(config);
 
             // Rebuild AVAILABLE_HALLS list from all hall configs
@@ -76,7 +77,8 @@ public class ManageSettingsServlet extends HttpServlet {
             // Add a brand new hall with default configuration
             String newHallName = request.getParameter("newHallName");
             if (newHallName != null && !newHallName.trim().isEmpty()) {
-                HallConfig config = new HallConfig(newHallName.trim(), 12, "A,B,C", "D", "", "E");
+                String defaultLayout = "S S S S S S S S S S S S|S S S S S S S S S S S S|S S S S S S S S S S S S|S S S S S S S S S S S S|P P P P P P P P P P P P|V V V V V V V V V V V V";
+                HallConfig config = new HallConfig(newHallName.trim(), 12, "A,B,C,D", "E", "", "F", defaultLayout);
                 hallConfigDao.save(config);
                 rebuildAvailableHalls();
                 response.sendRedirect(request.getContextPath() + "/manageSettings?success=Hall '" + newHallName.trim() + "' added successfully");

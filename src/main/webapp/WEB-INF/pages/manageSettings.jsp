@@ -60,6 +60,19 @@
         .btn-delete-hall:hover { background: #dc3545; color: white; }
         .total-seats-label { font-size: 12px; color: #888; margin-left: auto; }
 
+        /* Grid Builder */
+        .layout-grid { display: inline-flex; flex-direction: column; gap: 4px; overflow-x: auto; padding: 10px 0; }
+        .layout-row { display: flex; gap: 4px; }
+        .layout-cell { width: 30px; height: 30px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: bold; color: #fff; user-select: none; border: 1px solid #ccc; transition: all 0.2s; }
+        .layout-cell:hover { transform: scale(1.1); box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+        .cell-S { background: #e0e0e0; color: #555; }
+        .cell-P { background: #c8e6c9; color: #2e7d32; border-color: #a5d6a7; }
+        .cell-R { background: #ffe0b2; color: #e65100; border-color: #ffcc80; }
+        .cell-V { background: #e1bee7; color: #6a1b9a; border-color: #ce93d8; }
+        .cell-_ { background: transparent; border: 1px dashed #ccc; }
+        .btn-grid-control { background: #f9fbfd; border: 1px solid #e0e0e0; border-radius: 4px; padding: 5px 10px; font-size: 11px; font-weight: bold; cursor: pointer; margin-right: 6px; color: #555; }
+        .btn-grid-control:hover { background: #e8edf2; color: #141d23; }
+
         /* Add Hall form */
         .add-hall-form { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 16px; padding-top: 16px; border-top: 1px dashed #e0e0e0; }
         .add-hall-input { flex: 1; min-width: 200px; padding: 10px 14px; border: 1px solid #e0e0e0; border-radius: 6px; font-size: 0.9rem; }
@@ -162,11 +175,32 @@
                     <strong>How it works:</strong> Each hall has its own seat layout. Define how many seats per row and which row letters belong to which seat type (Standard, Premium, Recliner, VIP). Row letters are comma-separated (e.g. A,B,C). The booking page will automatically reflect your changes.
                 </div>
                 <div class="seat-type-key">
-                    <div class="type-item"><div class="type-dot dot-standard"></div> Standard (grey)</div>
-                    <div class="type-item"><div class="type-dot dot-premium"></div> Premium (green)</div>
-                    <div class="type-item"><div class="type-dot dot-recliner"></div> Recliner (orange)</div>
-                    <div class="type-item"><div class="type-dot dot-vip"></div> VIP (purple)</div>
+                    <div class="type-item"><div class="type-dot dot-standard"></div> Standard (S)</div>
+                    <div class="type-item"><div class="type-dot dot-premium"></div> Premium (P)</div>
+                    <div class="type-item"><div class="type-dot dot-recliner"></div> Recliner (R)</div>
+                    <div class="type-item"><div class="type-dot dot-vip"></div> VIP (V)</div>
+                    <div class="type-item"><div class="type-dot dot-empty"></div> Aisle (_)</div>
                 </div>
+
+                <div class="brush-palette" style="margin-bottom: 20px; padding: 15px; background: #fff; border: 1px solid #e0e0e0; border-radius: 8px; display: flex; align-items: center; gap: 15px;">
+                    <span style="font-size: 13px; font-weight: 700; color: #555;">SELECTED BRUSH:</span>
+                    <div id="brush_S" class="brush-tool active" onclick="setBrush('S')"><div class="type-dot dot-standard"></div>Standard (S)</div>
+                    <div id="brush_P" class="brush-tool" onclick="setBrush('P')"><div class="type-dot dot-premium"></div>Premium (P)</div>
+                    <div id="brush_R" class="brush-tool" onclick="setBrush('R')"><div class="type-dot dot-recliner"></div>Recliner (R)</div>
+                    <div id="brush_V" class="brush-tool" onclick="setBrush('V')"><div class="type-dot dot-vip"></div>VIP (V)</div>
+                    <div id="brush__" class="brush-tool" onclick="setBrush('_')"><div class="type-dot dot-empty"></div>Aisle (_)</div>
+                    <div style="margin-left: auto; font-size: 11px; color: #888;">Tip: Click or Drag to paint seats</div>
+                </div>
+
+                <style>
+                    .row-label:hover { background: #f0f0f0; color: #dc143c !important; }
+                    .brush-tool {
+                        display: flex; align-items: center; gap: 8px; padding: 6px 12px; border: 1px solid #ddd; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 600; transition: all 0.2s;
+                    }
+                    .brush-tool:hover { background: #f8f9fa; border-color: #ccc; }
+                    .brush-tool.active { background: #e8f0fe; border-color: #0d6efd; color: #0d6efd; box-shadow: 0 2px 4px rgba(13,110,253,0.1); }
+                    .type-dot.dot-empty { background: #fff; border: 1px dashed #ccc; }
+                </style>
 
                 <div class="halls-list">
                     <c:forEach var="hall" items="${hallConfigs}">
@@ -186,40 +220,20 @@
                                         Total seats = (standard rows + premium rows + recliner rows + vip rows) x seats per row.
                                         Currently: <strong>${hall.totalSeats} seats</strong>
                                     </div>
-                                    <div class="hall-form-grid">
-                                        <div class="hall-form-group">
-                                            <label for="spr_${hall.hallName}">Seats Per Row</label>
-                                            <input type="number" id="spr_${hall.hallName}" name="seatsPerRow" value="${hall.seatsPerRow}" min="1" max="30" required>
-                                            <p class="hall-form-help">Number of seats in each row (e.g. 12)</p>
+                                    <div class="hall-layout-builder" style="margin-bottom: 20px;">
+                                        <label style="display:block; font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; color: #5c3f3f; margin-bottom: 6px;">Visual Seat Map Designer</label>
+                                        <p class="hall-form-help" style="margin-bottom: 12px;">Click on a seat cell to cycle through its type (Standard -> Premium -> Recliner -> VIP -> Empty Space).</p>
+                                        
+                                        <div style="margin-bottom: 12px; padding: 10px; background: #f9fbfd; border-radius: 6px; border: 1px solid #e8edf2; display: inline-block;">
+                                            <button type="button" class="btn-grid-control" onclick="addLayoutRow('${hall.hallName}')">+ Add Row</button>
+                                            <button type="button" class="btn-grid-control" onclick="removeLayoutRow('${hall.hallName}')">- Remove Row</button>
+                                            <button type="button" class="btn-grid-control" onclick="addLayoutCol('${hall.hallName}')">+ Add Col</button>
+                                            <button type="button" class="btn-grid-control" onclick="removeLayoutCol('${hall.hallName}')">- Remove Col</button>
                                         </div>
-                                        <div class="hall-form-group">
-                                            <label>Row Summary</label>
-                                            <div style="padding: 9px 12px; background:#f9fbfd; border:1px solid #e0e0e0; border-radius:6px; font-size:12px; color:#555; line-height:1.8;">
-                                                Standard: <strong>${not empty hall.standardRows ? hall.standardRows : 'none'}</strong><br>
-                                                Premium: <strong>${not empty hall.premiumRows ? hall.premiumRows : 'none'}</strong><br>
-                                                Recliner: <strong>${not empty hall.reclinerRows ? hall.reclinerRows : 'none'}</strong><br>
-                                                VIP: <strong>${not empty hall.vipRows ? hall.vipRows : 'none'}</strong>
-                                            </div>
-                                        </div>
-                                        <div class="hall-form-group">
-                                            <label>Standard Rows</label>
-                                            <input type="text" name="standardRows" value="${hall.standardRows}" placeholder="e.g. A,B,C,D">
-                                            <p class="hall-form-help">Grey seats — regular pricing</p>
-                                        </div>
-                                        <div class="hall-form-group">
-                                            <label>Premium Rows</label>
-                                            <input type="text" name="premiumRows" value="${hall.premiumRows}" placeholder="e.g. E,F">
-                                            <p class="hall-form-help">Green seats — premium view</p>
-                                        </div>
-                                        <div class="hall-form-group">
-                                            <label>Recliner Rows</label>
-                                            <input type="text" name="reclinerRows" value="${hall.reclinerRows}" placeholder="e.g. G (leave blank if none)">
-                                            <p class="hall-form-help">Orange seats — reclining chairs</p>
-                                        </div>
-                                        <div class="hall-form-group">
-                                            <label>VIP Rows</label>
-                                            <input type="text" name="vipRows" value="${hall.vipRows}" placeholder="e.g. H (leave blank if none)">
-                                            <p class="hall-form-help">Purple seats — premium foldable/couple</p>
+
+                                        <div style="overflow-x: auto; max-width: 100%; border: 1px solid #e0e0e0; border-radius: 8px; padding: 10px; background: #fff;">
+                                            <input type="hidden" id="layoutMap_${hall.hallName.replace(' ', '_')}" name="layoutMap" value="${not empty hall.layoutMap ? hall.layoutMap : 'S S S S S S S S S S S S|S S S S S S S S S S S S|P P P P P P P P P P P P'}">
+                                            <div id="grid_${hall.hallName.replace(' ', '_')}" class="layout-grid"></div>
                                         </div>
                                     </div>
                                     <div class="hall-actions">
@@ -262,6 +276,173 @@
             var body = document.getElementById(id);
             if (body) body.classList.toggle('open');
         }
+
+        // --- Hall Layout Grid Builder Logic ---
+        
+        // currentBrush keeps track of which seat type we are currently "painting" with.
+        // S = Standard, P = Premium, R = Recliner, V = VIP, _ = Empty Aisle
+        let currentBrush = 'S'; 
+        
+        // isMouseDown helps us know when the user is dragging their mouse to paint multiple seats.
+        let isMouseDown = false;
+
+        function parseLayout(str) {
+            if(!str) return [];
+            return str.split('|').map(r => r.split(' '));
+        }
+
+        function stringifyLayout(rows) {
+            return rows.map(r => r.join(' ')).join('|');
+        }
+
+        // Track mouse clicks for the "drag-to-paint" feature
+        document.addEventListener('mousedown', () => isMouseDown = true);
+        document.addEventListener('mouseup', () => isMouseDown = false);
+
+        // This function runs when you click a seat type button in the palette.
+        function setBrush(type) {
+            currentBrush = type;
+            // Highlight the selected button and remove highlight from others
+            document.querySelectorAll('.brush-tool').forEach(b => b.classList.remove('active'));
+            document.getElementById('brush_' + type).classList.add('active');
+        }
+
+        // This is the core function that changes a seat's type.
+        // It updates the hidden text input (layoutMap) and the visual grid.
+        function paintSeat(hallId, rowIndex, colIndex, cellElement) {
+            const input = document.getElementById('layoutMap_' + hallId);
+            let rows = parseLayout(input.value);
+            if (rows[rowIndex][colIndex] === currentBrush) return;
+            
+            rows[rowIndex][colIndex] = currentBrush;
+            input.value = stringifyLayout(rows);
+            
+            // Optimization: Update the cell element directly instead of re-rendering everything
+            if (cellElement) {
+                cellElement.className = 'layout-cell cell-' + currentBrush;
+                cellElement.innerText = currentBrush === '_' ? '' : currentBrush;
+                cellElement.title = "Click or drag to paint " + currentBrush;
+            } else {
+                renderGrid(hallId);
+            }
+        }
+
+        function cycleSeatType(hallId, rowIndex, colIndex) {
+            // Legacy click function - now just uses paintSeat with current brush
+            paintSeat(hallId, rowIndex, colIndex);
+        }
+
+        function addLayoutRow(rawHallName) {
+            let hallId = rawHallName.replace(/ /g, '_');
+            const input = document.getElementById('layoutMap_' + hallId);
+            let rows = parseLayout(input.value);
+            let cols = rows.length > 0 ? rows[0].length : 12;
+            rows.push(Array(cols).fill('S'));
+            input.value = stringifyLayout(rows);
+            renderGrid(hallId);
+        }
+
+        function removeLayoutRow(rawHallName) {
+            let hallId = rawHallName.replace(/ /g, '_');
+            const input = document.getElementById('layoutMap_' + hallId);
+            let rows = parseLayout(input.value);
+            if(rows.length > 1) {
+                rows.pop();
+                input.value = stringifyLayout(rows);
+                renderGrid(hallId);
+            } else {
+                alert("Cannot remove the last row.");
+            }
+        }
+
+        function addLayoutCol(rawHallName) {
+            let hallId = rawHallName.replace(/ /g, '_');
+            const input = document.getElementById('layoutMap_' + hallId);
+            let rows = parseLayout(input.value);
+            rows.forEach(r => r.push('S'));
+            input.value = stringifyLayout(rows);
+            renderGrid(hallId);
+        }
+
+        function removeLayoutCol(rawHallName) {
+            let hallId = rawHallName.replace(/ /g, '_');
+            const input = document.getElementById('layoutMap_' + hallId);
+            let rows = parseLayout(input.value);
+            if(rows[0] && rows[0].length > 1) {
+                rows.forEach(r => r.pop());
+                input.value = stringifyLayout(rows);
+                renderGrid(hallId);
+            } else {
+                alert("Cannot remove the last column.");
+            }
+        }
+
+        function renderGrid(hallId) {
+            const input = document.getElementById('layoutMap_' + hallId);
+            const container = document.getElementById('grid_' + hallId);
+            if(!input || !container) return;
+            container.innerHTML = '';
+            
+            let rows = parseLayout(input.value);
+            
+            // Render screen indicator
+            let screenDiv = document.createElement('div');
+            screenDiv.style.cssText = "width: 100%; height: 6px; background: #ccc; border-radius: 4px; margin-bottom: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); position: relative;";
+            let screenLabel = document.createElement('span');
+            screenLabel.innerText = "SCREEN";
+            screenLabel.style.cssText = "position: absolute; top: 10px; left: 50%; transform: translateX(-50%); font-size: 10px; font-weight: bold; color: #888; letter-spacing: 0.2em;";
+            screenDiv.appendChild(screenLabel);
+            container.appendChild(screenDiv);
+            
+            // Helper function to fill an entire row with the current brush
+            function fillRow(hallId, rIdx) {
+                const input = document.getElementById('layoutMap_' + hallId);
+                let rows = parseLayout(input.value);
+                // Map every seat in this row to the selected type
+                rows[rIdx] = rows[rIdx].map(() => currentBrush);
+                input.value = stringifyLayout(rows);
+                renderGrid(hallId);
+            }
+
+            rows.forEach((row, rIdx) => {
+                let rowDiv = document.createElement('div');
+                rowDiv.className = 'layout-row';
+                
+                // Row letter indicator (Click to fill row)
+                let rowLabel = document.createElement('div');
+                rowLabel.className = 'row-label';
+                rowLabel.style.cssText = "width: 25px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: bold; color: #888; cursor: pointer; border-radius: 4px; margin-right: 5px;";
+                rowLabel.innerText = String.fromCharCode(65 + rIdx);
+                rowLabel.title = "Click to fill entire row with " + currentBrush;
+                rowLabel.onclick = () => fillRow(hallId, rIdx);
+                rowDiv.appendChild(rowLabel);
+
+                row.forEach((cell, cIdx) => {
+                    let cellDiv = document.createElement('div');
+                    cellDiv.className = 'layout-cell cell-' + cell;
+                    cellDiv.innerText = cell === '_' ? '' : cell;
+                    
+                    cellDiv.onmousedown = (e) => {
+                        e.preventDefault();
+                        paintSeat(hallId, rIdx, cIdx, cellDiv);
+                    };
+                    cellDiv.onmouseenter = () => {
+                        if (isMouseDown) paintSeat(hallId, rIdx, cIdx, cellDiv);
+                    };
+                    
+                    cellDiv.title = "Click or drag to paint " + currentBrush;
+                    rowDiv.appendChild(cellDiv);
+                });
+                container.appendChild(rowDiv);
+            });
+        }
+
+        // Initialize all grids on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            <c:forEach var="hall" items="${hallConfigs}">
+            renderGrid('${hall.hallName.replace(' ', '_')}');
+            </c:forEach>
+        });
     </script>
 </body>
 </html>

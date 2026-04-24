@@ -40,6 +40,13 @@ public class Movie {
     private String trailerUrl;
     // Comma-separated list of top cast members e.g. "Tom Hanks, Robin Wright"
     private String castList;
+    // Optional movie-specific pricing overrides
+    private Double priceStandard;
+    private Double pricePremium;
+    private Double priceRecliner;
+    private Double priceVip;
+    // Track if movie is active or soft-deleted
+    private boolean isActive = true;
 
     // Empty constructor - used to create movie object and set values later
     public Movie() {}
@@ -129,4 +136,19 @@ public class Movie {
 
     public String getCastList() { return castList; }
     public void setCastList(String castList) { this.castList = castList; }
+
+    public Double getPriceStandard() { return priceStandard; }
+    public void setPriceStandard(Double priceStandard) { this.priceStandard = priceStandard; }
+
+    public Double getPricePremium() { return pricePremium; }
+    public void setPricePremium(Double pricePremium) { this.pricePremium = pricePremium; }
+
+    public Double getPriceRecliner() { return priceRecliner; }
+    public void setPriceRecliner(Double priceRecliner) { this.priceRecliner = priceRecliner; }
+
+    public Double getPriceVip() { return priceVip; }
+    public void setPriceVip(Double priceVip) { this.priceVip = priceVip; }
+
+    public boolean isActive() { return isActive; }
+    public void setActive(boolean active) { this.isActive = active; }
 }

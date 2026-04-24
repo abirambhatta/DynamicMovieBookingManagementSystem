@@ -12,6 +12,16 @@ import java.util.List;
  */
 public class HallConfigDao {
 
+    // This flag ensures we only check the database structure once while the app is running.
+    private static boolean schemaChecked = false;
+
+    // This function checks if the database tables need to be updated.
+    private void checkSchema() {
+        if (schemaChecked) return;
+        createTableIfNeeded(); // Run the table creation/update logic
+        schemaChecked = true;
+    }
+
     /**
      * Create the hall_config table if it does not exist, and seed default data.
      * Called once on startup by the servlet.
@@ -23,7 +33,8 @@ public class HallConfigDao {
                 "standard_rows VARCHAR(100) DEFAULT 'A,B,C,D'," +
                 "premium_rows VARCHAR(100) DEFAULT 'E'," +
                 "recliner_rows VARCHAR(100) DEFAULT ''," +
-                "vip_rows VARCHAR(100) DEFAULT 'F'" +
+                "vip_rows VARCHAR(100) DEFAULT 'F'," +
+                "layout_map TEXT" +
                 ")";
         String updateHallsSql = "UPDATE system_settings SET setting_value = ? WHERE setting_key = 'AVAILABLE_HALLS'";
 
@@ -31,16 +42,21 @@ public class HallConfigDao {
              Statement stmt = conn.createStatement()) {
             stmt.execute(createSql);
 
-            // Expand seat_type column to TEXT to handle long seat ID lists (e.g. A1, A2, B1, B2 ...)
+            // We try to update the bookings table to support long seat strings.
             try { stmt.execute("ALTER TABLE bookings MODIFY COLUMN seat_type TEXT"); }
-            catch (SQLException ignored) {} // already TEXT or no bookings table yet
+            catch (SQLException ignored) {} 
+
+            // We add the layout_map column to the hall_config table if it is missing.
+            try { stmt.execute("ALTER TABLE hall_config ADD COLUMN layout_map TEXT"); }
+            catch (SQLException ignored) {} 
 
             // Seed default hall data for each standard hall (Audi 01, 02, 03)
             String[] defaultHalls = {"Audi 01", "Audi 02", "Audi 03"};
+            String defaultLayout = "S S S S S S S S S S S S|S S S S S S S S S S S S|S S S S S S S S S S S S|S S S S S S S S S S S S|P P P P P P P P P P P P|V V V V V V V V V V V V";
             for (String hall : defaultHalls) {
                 String insert = "INSERT IGNORE INTO hall_config " +
-                        "(hall_name, seats_per_row, standard_rows, premium_rows, recliner_rows, vip_rows) " +
-                        "VALUES ('" + hall + "', 12, 'A,B,C,D', 'E', '', 'F')";
+                        "(hall_name, seats_per_row, standard_rows, premium_rows, recliner_rows, vip_rows, layout_map) " +
+                        "VALUES ('" + hall + "', 12, 'A,B,C,D', 'E', '', 'F', '" + defaultLayout + "')";
                 stmt.execute(insert);
             }
 
@@ -57,6 +73,7 @@ public class HallConfigDao {
 
     /** Get all hall configurations. */
     public List<HallConfig> getAllHallConfigs() {
+        checkSchema();
         List<HallConfig> list = new ArrayList<>();
         String sql = "SELECT * FROM hall_config ORDER BY hall_name";
         try (Connection conn = DBConnection.getConnection();
@@ -73,6 +90,7 @@ public class HallConfigDao {
 
     /** Get configuration for a specific hall. Returns null if not found. */
     public HallConfig getByHallName(String hallName) {
+        checkSchema();
         String sql = "SELECT * FROM hall_config WHERE hall_name = ?";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -88,9 +106,10 @@ public class HallConfigDao {
 
     /** Insert or update a hall configuration (upsert). */
     public boolean save(HallConfig config) {
-        String sql = "INSERT INTO hall_config (hall_name, seats_per_row, standard_rows, premium_rows, recliner_rows, vip_rows) " +
-                "VALUES (?, ?, ?, ?, ?, ?) " +
-                "ON DUPLICATE KEY UPDATE seats_per_row=?, standard_rows=?, premium_rows=?, recliner_rows=?, vip_rows=?";
+        checkSchema();
+        String sql = "INSERT INTO hall_config (hall_name, seats_per_row, standard_rows, premium_rows, recliner_rows, vip_rows, layout_map) " +
+                "VALUES (?, ?, ?, ?, ?, ?, ?) " +
+                "ON DUPLICATE KEY UPDATE seats_per_row=?, standard_rows=?, premium_rows=?, recliner_rows=?, vip_rows=?, layout_map=?";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, config.getHallName());
@@ -99,12 +118,14 @@ public class HallConfigDao {
             pstmt.setString(4, config.getPremiumRows());
             pstmt.setString(5, config.getReclinerRows());
             pstmt.setString(6, config.getVipRows());
+            pstmt.setString(7, config.getLayoutMap());
             // ON DUPLICATE KEY values
-            pstmt.setInt(7, config.getSeatsPerRow());
-            pstmt.setString(8, config.getStandardRows());
-            pstmt.setString(9, config.getPremiumRows());
-            pstmt.setString(10, config.getReclinerRows());
-            pstmt.setString(11, config.getVipRows());
+            pstmt.setInt(8, config.getSeatsPerRow());
+            pstmt.setString(9, config.getStandardRows());
+            pstmt.setString(10, config.getPremiumRows());
+            pstmt.setString(11, config.getReclinerRows());
+            pstmt.setString(12, config.getVipRows());
+            pstmt.setString(13, config.getLayoutMap());
             return pstmt.executeUpdate() > 0;
         } catch (SQLException e) {
             e.printStackTrace();
@@ -133,6 +154,7 @@ public class HallConfigDao {
         c.setPremiumRows(rs.getString("premium_rows"));
         c.setReclinerRows(rs.getString("recliner_rows"));
         c.setVipRows(rs.getString("vip_rows"));
+        c.setLayoutMap(rs.getString("layout_map"));
         return c;
     }
 }

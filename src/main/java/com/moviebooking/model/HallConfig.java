@@ -11,17 +11,19 @@ public class HallConfig {
     private String premiumRows;  // e.g. "E,F"
     private String reclinerRows; // e.g. ""
     private String vipRows;      // e.g. "G"
+    private String layoutMap;    // Advanced visual map string e.g. "S S _ S S|S S _ S S"
 
     public HallConfig() {}
 
     public HallConfig(String hallName, int seatsPerRow, String standardRows,
-                      String premiumRows, String reclinerRows, String vipRows) {
+                      String premiumRows, String reclinerRows, String vipRows, String layoutMap) {
         this.hallName = hallName;
         this.seatsPerRow = seatsPerRow;
         this.standardRows = standardRows;
         this.premiumRows = premiumRows;
         this.reclinerRows = reclinerRows;
         this.vipRows = vipRows;
+        this.layoutMap = layoutMap;
     }
 
     public String getHallName() { return hallName; }
@@ -42,8 +44,18 @@ public class HallConfig {
     public String getVipRows() { return vipRows; }
     public void setVipRows(String vipRows) { this.vipRows = vipRows; }
 
+    public String getLayoutMap() { return layoutMap; }
+    public void setLayoutMap(String layoutMap) { this.layoutMap = layoutMap; }
+
     /** Returns total number of seats in this hall across all row types */
     public int getTotalSeats() {
+        if (layoutMap != null && !layoutMap.trim().isEmpty()) {
+            int count = 0;
+            for (char c : layoutMap.toCharArray()) {
+                if (c == 'S' || c == 'P' || c == 'R' || c == 'V') count++;
+            }
+            return count;
+        }
         int count = 0;
         count += countRows(standardRows);
         count += countRows(premiumRows);

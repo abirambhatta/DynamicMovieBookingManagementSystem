@@ -126,9 +126,16 @@ public class TmdbService {
             URL url = new URL(urlStr);
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("GET");
-            conn.setRequestProperty("Accept", "application/json");
-            conn.setConnectTimeout(5000);
-            conn.setReadTimeout(5000);
+            conn.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36");
+            
+            if (urlStr.contains("themoviedb.org")) {
+                conn.setRequestProperty("Accept", "application/json");
+            } else {
+                conn.setRequestProperty("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8");
+            }
+            
+            conn.setConnectTimeout(10000); // Increased timeout to 10s
+            conn.setReadTimeout(10000);
 
             if (conn.getResponseCode() != 200) {
                 System.err.println("[TmdbService] HTTP " + conn.getResponseCode() + " for " + urlStr);
@@ -175,7 +182,10 @@ public class TmdbService {
                     return json.substring(start, end)
                                .replace("\\u0026", "&")
                                .replace("\\u2019", "'")
-                               .replace("\\\"", "\"");
+                               .replace("\\\"", "\"")
+                               .replace("\\n", "\n")
+                               .replace("\\r", "")
+                               .replace("\\/", "/");
                 } else if (json.startsWith("null", start)) {
                     return "null";
                 }
@@ -247,31 +257,75 @@ public class TmdbService {
             if (json == null) return null;
             // Find a YouTube Trailer
             String[] items = json.split("\\{\"id\"");
+            String genericTrailerKey = null;
+            
             for (int i = 1; i < items.length; i++) {
                 String item = "{\"id\"" + items[i];
                 String type = extractJsonString(item, "type", false);
                 String site = extractJsonString(item, "site", false);
-                if ("Trailer".equalsIgnoreCase(type) && "YouTube".equalsIgnoreCase(site)) {
-                    String key = extractJsonString(item, "key", false);
-                    if (key != null && !key.isEmpty()) {
+                String name = extractJsonString(item, "name", false);
+                String key  = extractJsonString(item, "key", false);
+                
+                if (key == null || key.isEmpty()) continue;
+                if (!"YouTube".equalsIgnoreCase(site)) continue;
+
+                // We ONLY care about videos of type "Trailer"
+                if ("Trailer".equalsIgnoreCase(type)) {
+                    // Priority 1: Official Trailer
+                    if (name.toLowerCase().contains("official") || name.toLowerCase().contains("main")) {
                         return "https://www.youtube.com/embed/" + key + "?autoplay=1";
+                    }
+                    // Priority 2: Keep track of any trailer in case no "Official" one is found
+                    if (genericTrailerKey == null) {
+                        genericTrailerKey = key;
                     }
                 }
             }
-            // Fallback: any YouTube video (Teaser etc.)
-            for (int i = 1; i < items.length; i++) {
-                String item = "{\"id\"" + items[i];
-                String site = extractJsonString(item, "site", false);
-                if ("YouTube".equalsIgnoreCase(site)) {
-                    String key = extractJsonString(item, "key", false);
-                    if (key != null && !key.isEmpty()) {
-                        return "https://www.youtube.com/embed/" + key + "?autoplay=1";
-                    }
-                }
+            
+            // If we found any trailer (even if not "Official"), return it
+            if (genericTrailerKey != null) {
+                return "https://www.youtube.com/embed/" + genericTrailerKey + "?autoplay=1";
             }
+            
+            // If no "Trailer" type was found at all, we return null (no fallback to teasers!)
+            return null;
         } catch (Exception e) {
             System.err.println("[TmdbService] fetchTrailerUrl error: " + e.getMessage());
         }
         return null;
+    }
+
+    /** 
+     * Search YouTube for a movie trailer as a fallback. 
+     * Returns a list of maps containing 'title' and 'url'.
+     */
+    public List<Map<String, String>> searchYoutube(String movieTitle) {
+        List<Map<String, String>> results = new java.util.ArrayList<>();
+        try {
+            String query = java.net.URLEncoder.encode(movieTitle + " Official Trailer", "UTF-8");
+            String urlStr = "https://www.youtube.com/results?search_query=" + query;
+            String html = fetchJson(urlStr); // fetchJson works for HTML too
+            if (html == null) return results;
+
+            // Simple regex to find videoId and title in YouTube's initial data
+            java.util.regex.Pattern p = java.util.regex.Pattern.compile("\"videoId\":\"([a-zA-Z0-9_-]{11})\",\"thumbnail\".*?\"title\":\\{\"runs\":\\[\\{\"text\":\"([^\"]+)\"\\}\\]");
+            java.util.regex.Matcher m = p.matcher(html);
+            
+            int count = 0;
+            while (m.find() && count < 5) {
+                String id = m.group(1);
+                String title = m.group(2);
+                
+                // Avoid "Concept" or "Fan Made" if possible, but keep them as fallback
+                Map<String, String> video = new java.util.HashMap<>();
+                video.put("title", title);
+                video.put("url", "https://www.youtube.com/embed/" + id + "?autoplay=1");
+                results.add(video);
+                count++;
+            }
+        } catch (Exception e) {
+            System.err.println("[TmdbService] YouTube search error: " + e.getMessage());
+        }
+        return results;
     }
 }

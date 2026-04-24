@@ -74,7 +74,7 @@
         .time-row { display: flex; flex-wrap: wrap; gap: 8px; }
         .time-btn { padding: 8px 16px; background: #fff; border: 1px solid #e0e0e0; border-radius: 6px; font-size: 13px; font-weight: 700; cursor: pointer; transition: all 0.15s; user-select: none; }
         .time-btn:hover, .time-btn.active { background: #dc143c; color: #fff; border-color: #dc143c; }
-        .time-btn.expired { background: #f5f5f5; color: #bbb; border-color: #e0e0e0; cursor: not-allowed; text-decoration: line-through; user-select: none; }
+        .time-btn.expired { background: #fee2e2; color: #dc2626; border-color: #fecaca; cursor: not-allowed; opacity: 0.7; user-select: none; }
 
         /* Summary */
         .summary-card { background: #fff; border: 1px solid #e8edf2; border-radius: 10px; padding: 18px; }
@@ -248,6 +248,67 @@
             }
 
             container.innerHTML = '';
+            
+            // USE LAYOUT MAP IF PRESENT
+            if (config.layoutMap && config.layoutMap.trim() !== '') {
+                const rows = config.layoutMap.split('|');
+                rows.forEach((row, rIdx) => {
+                    const cells = row.split(' ');
+                    const rowDiv = document.createElement('div');
+                    rowDiv.className = 'seat-row row-container';
+                    const letter = String.fromCharCode(65 + rIdx);
+                    
+                    const label = document.createElement('span');
+                    label.className = 'row-label';
+                    label.textContent = letter;
+                    rowDiv.appendChild(label);
+                    
+                    const seatsDiv = document.createElement('div');
+                    seatsDiv.className = 'seats-in-row';
+                    
+                    let seatCounter = 1;
+                    cells.forEach((cellType, cIdx) => {
+                        if (cellType === '_') {
+                            const space = document.createElement('div');
+                            space.style.width = '28px';
+                            space.style.height = '28px';
+                            seatsDiv.appendChild(space);
+                        } else {
+                            let cls = 'standard';
+                            if (cellType === 'P') cls = 'premium';
+                            else if (cellType === 'R') cls = 'recliner';
+                            else if (cellType === 'V') cls = 'vip';
+                            
+                            const seat = document.createElement('div');
+                            seat.className = 'seat ' + cls;
+                            const seatId = letter + seatCounter;
+                            seatCounter++;
+                            
+                            seat.dataset.id = seatId;
+                            seat.dataset.type = cls;
+                            seat.title = seatId + ' (' + cls + ')';
+                            seat.addEventListener('click', function() {
+                                if (this.classList.contains('reserved')) return;
+                                if (selectedSeats.has(seatId)) {
+                                    selectedSeats.delete(seatId);
+                                    this.classList.remove('selected');
+                                } else {
+                                    if (selectedSeats.size >= 10) { alert('Maximum 10 seats per booking.'); return; }
+                                    selectedSeats.set(seatId, cls);
+                                    this.classList.add('selected');
+                                }
+                                updateSummary();
+                            });
+                            seatsDiv.appendChild(seat);
+                        }
+                    });
+                    rowDiv.appendChild(seatsDiv);
+                    container.appendChild(rowDiv);
+                });
+                return;
+            }
+
+            // FALLBACK TO LEGACY SYSTEM
             const spr = config.seatsPerRow;
             const types = [
                 { rows: config.standardRows, cls: 'standard' },

@@ -138,6 +138,7 @@
                             <option value="showing" ${param.status == 'showing' ? 'selected' : ''}>Now Showing</option>
                             <option value="upcoming" ${param.status == 'upcoming' ? 'selected' : ''}>Upcoming</option>
                             <option value="ended" ${param.status == 'ended' ? 'selected' : ''}>Ended</option>
+                            <option value="hidden" ${param.status == 'hidden' ? 'selected' : ''}>Hidden (Soft Deleted)</option>
                         </select>
                     </div>
                     
@@ -172,7 +173,7 @@
             
             <div id="addMovieForm" style="display:none;" class="form-container">
                 <h2>Add New Movie</h2>
-                <form action="${pageContext.request.contextPath}/manageMovies" method="post" enctype="multipart/form-data">
+                <form action="${pageContext.request.contextPath}/manageMovies" method="post" enctype="multipart/form-data" onsubmit="return validateMovieDates(this)">
                     <input type="hidden" name="action" value="add">
                     <input type="hidden" id="tmdbPosterUrl" name="tmdbPosterUrl" value="">
 
@@ -259,6 +260,7 @@
                     <div class="form-group">
                         <label>YouTube Trailer URL (Optional):</label>
                         <input type="url" id="addTrailerUrl" name="trailerUrl" placeholder="https://www.youtube.com/embed/...">
+                        <div id="youtubeSearchFallback" style="display:none; margin-top:5px;"></div>
                     </div>
                     <div class="form-group">
                         <label>Cast (Optional):</label>
@@ -273,6 +275,16 @@
                         <input type="file" id="addPosterInput" name="posterImage" accept="image/*">
                         <small>Upload JPG, PNG, or GIF — or use TMDB auto-fill above to get the poster automatically</small>
                         <div id="tmdbPosterPreview" style="margin-top:8px;"></div>
+                    </div>
+                    <div class="form-group" style="background:#f9fbfd; padding:15px; border-radius:8px; border:1px solid #e0e0e0; margin-bottom:15px;">
+                        <label style="color:#dc143c; display:block; margin-bottom:5px;">Advanced Pricing Overrides (Optional):</label>
+                        <p style="font-size:12px; color:#666; margin-bottom:10px;">Leave blank to use the global default ticket prices.</p>
+                        <div style="display:grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap:10px;">
+                            <div><label style="font-size:11px; margin-bottom:4px; display:block;">Standard (Rs.)</label><input type="number" step="0.5" min="1" id="addPriceStandard" name="priceStandard" placeholder="Default"></div>
+                            <div><label style="font-size:11px; margin-bottom:4px; display:block;">Premium (Rs.)</label><input type="number" step="0.5" min="1" id="addPricePremium" name="pricePremium" placeholder="Default"></div>
+                            <div><label style="font-size:11px; margin-bottom:4px; display:block;">Recliner (Rs.)</label><input type="number" step="0.5" min="1" id="addPriceRecliner" name="priceRecliner" placeholder="Default"></div>
+                            <div><label style="font-size:11px; margin-bottom:4px; display:block;">VIP (Rs.)</label><input type="number" step="0.5" min="1" id="addPriceVip" name="priceVip" placeholder="Default"></div>
+                        </div>
                     </div>
                     <div class="form-group">
                         <label>Show Schedule:</label>
@@ -299,7 +311,7 @@
             <!-- Edit Movie Form -->
             <div id="editMovieForm" style="display:none;" class="form-container">
                 <h2>Edit Movie</h2>
-                <form action="${pageContext.request.contextPath}/manageMovies" method="post" enctype="multipart/form-data">
+                <form action="${pageContext.request.contextPath}/manageMovies" method="post" enctype="multipart/form-data" onsubmit="return validateMovieDates(this)">
                     <input type="hidden" name="action" value="update">
                     <input type="hidden" name="movieId" id="editMovieId">
                     
@@ -382,6 +394,17 @@
                         <textarea name="description" id="editDescription" required></textarea>
                     </div>
                     
+                    <div class="form-group" style="background:#f9fbfd; padding:15px; border-radius:8px; border:1px solid #e0e0e0; margin-bottom:15px;">
+                        <label style="color:#dc143c; display:block; margin-bottom:5px;">Advanced Pricing Overrides (Optional):</label>
+                        <p style="font-size:12px; color:#666; margin-bottom:10px;">Leave blank to use the global default ticket prices.</p>
+                        <div style="display:grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap:10px;">
+                            <div><label style="font-size:11px; margin-bottom:4px; display:block;">Standard (Rs.)</label><input type="number" step="0.5" min="1" id="editPriceStandard" name="priceStandard" placeholder="Default"></div>
+                            <div><label style="font-size:11px; margin-bottom:4px; display:block;">Premium (Rs.)</label><input type="number" step="0.5" min="1" id="editPricePremium" name="pricePremium" placeholder="Default"></div>
+                            <div><label style="font-size:11px; margin-bottom:4px; display:block;">Recliner (Rs.)</label><input type="number" step="0.5" min="1" id="editPriceRecliner" name="priceRecliner" placeholder="Default"></div>
+                            <div><label style="font-size:11px; margin-bottom:4px; display:block;">VIP (Rs.)</label><input type="number" step="0.5" min="1" id="editPriceVip" name="priceVip" placeholder="Default"></div>
+                        </div>
+                    </div>
+                    
                     <div class="form-group">
                         <label>Edit Show Schedule:</label>
                         <div class="schedule-container">
@@ -407,12 +430,25 @@
             
             <script>
                 console.log('JavaScript is loading...');
+                
+                // This function runs when the admin clicks "Add Movie" or "Update Movie".
+                // It checks if the End Date is before the Start Date.
+                function validateMovieDates(form) {
+                    const start = new Date(form.startDate.value);
+                    const end = new Date(form.endDate.value);
+                    if (start > end) {
+                        alert("ERROR: End Date cannot be before Start Date.");
+                        return false; // This stops the form from being submitted!
+                    }
+                    return true; // Everything is okay
+                }
 
                 // ============================================================
                 // TMDB AUTO-FILL FUNCTIONS
                 // ============================================================
                 const CONTEXT_PATH = '${pageContext.request.contextPath}';
 
+                // This function searches for movies on The Movie Database (TMDB)
                 function tmdbSearch() {
                     const query = document.getElementById('tmdbQuery').value.trim();
                     if (!query) { alert('Please enter a movie title to search.'); return; }
@@ -421,6 +457,7 @@
                     resultsDiv.style.display = 'block';
                     resultsDiv.innerHTML = '<div style="padding:12px;color:#666;font-size:13px;">Searching TMDB...</div>';
 
+                    // We call our internal servlet which talks to the TMDB API
                     fetch(CONTEXT_PATH + '/tmdbSearch?action=search&q=' + encodeURIComponent(query))
                         .then(res => res.json())
                         .then(data => {
@@ -436,16 +473,19 @@
                                 const imgSrc = movie.posterUrl && movie.posterUrl !== '' 
                                     ? movie.posterUrl 
                                     : 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="36" height="52"><rect width="36" height="52" fill="%23e9ecef"/><text x="18" y="30" text-anchor="middle" font-size="10" fill="%23999">No Poster</text></svg>';
-                                item.innerHTML = '<img src="' + imgSrc + '" alt="poster" onerror="this.src=\'data:image/svg+xml,<svg xmlns=\\\"http://www.w3.org/2000/svg\\\" width=\\\"36\\\" height=\\\"52\\\"><rect width=\\\"36\\\" height=\\\"52\\\" fill=\\\"#e9ecef\\\"/></svg>\'">'
+                                
+                                // Show the search results with poster and title
+                                item.innerHTML = '<img src="' + imgSrc + '" alt="poster">'
                                     + '<div><div class="tmdb-result-title">' + (movie.title || '') + '</div>'
-                                    + '<div class="tmdb-result-meta">' + year + ' &bull; ' + (movie.language || '').toUpperCase() + ' &bull; Rating: ' + (movie.rating || 'N/A') + '</div></div>';
+                                    + '<div class="tmdb-result-meta">' + year + ' &bull; ' + (movie.language || '').toUpperCase() + '</div></div>';
+                                
+                                // When a user clicks a result, fill the form!
                                 item.onclick = () => tmdbSelectMovie(movie.tmdbId, movie.title);
                                 resultsDiv.appendChild(item);
                             });
                         })
                         .catch(err => {
-                            resultsDiv.innerHTML = '<div style="padding:12px;color:#dc3545;font-size:13px;">Error contacting TMDB. Check your API key in web.xml.</div>';
-                            console.error('TMDB search error:', err);
+                            resultsDiv.innerHTML = '<div style="padding:12px;color:#dc3545;font-size:13px;">Error contacting TMDB.</div>';
                         });
                 }
 
@@ -456,6 +496,13 @@
                     fetch(CONTEXT_PATH + '/tmdbSearch?action=details&tmdbId=' + tmdbId)
                         .then(res => res.json())
                         .then(d => {
+                            // Clear fields first so old data doesn't linger
+                            ['addTitle', 'genreSelect', 'addDirector', 'duration', 'addLanguage', 'addDescription', 'addTrailerUrl', 'addCastList', 'addReleaseDate', 'tmdbPosterUrl'].forEach(id => {
+                                const el = document.getElementById(id);
+                                if (el) el.value = '';
+                            });
+                            document.getElementById('tmdbPosterPreview').innerHTML = '';
+                            
                             // Auto-fill all form fields
                             setVal('addTitle',       d.title);
                             setVal('addDirector',    d.director);
@@ -463,6 +510,21 @@
                             setVal('addLanguage',    languageCodeToName(d.language));
                             setVal('addDescription', d.overview || d.description);
                             setVal('addTrailerUrl',  d.trailerUrl);
+                            const trailerInput = document.getElementById('addTrailerUrl');
+                            const youtubeSearchDiv = document.getElementById('youtubeSearchFallback');
+                            
+                            if (!d.trailerUrl || d.trailerUrl === '') {
+                                if (trailerInput) {
+                                    trailerInput.placeholder = "No official trailer found on TMDB. Click below to search YouTube.";
+                                }
+                                if (youtubeSearchDiv) {
+                                    youtubeSearchDiv.style.display = 'block';
+                                    youtubeSearchDiv.innerHTML = '<button type="button" onclick="searchYouTubeFallback(\'' + d.title.replace(/'/g, "\\'") + '\')" style="margin-top:5px;background:#ff0000;color:white;border:none;padding:6px 12px;border-radius:4px;font-size:12px;cursor:pointer;display:flex;align-items:center;gap:5px;"><span class="material-symbols-outlined" style="font-size:16px;">search</span> Find Trailer on YouTube</button>';
+                                }
+                            } else {
+                                if (youtubeSearchDiv) youtubeSearchDiv.style.display = 'none';
+                                if (trailerInput) trailerInput.placeholder = "https://www.youtube.com/embed/...";
+                            }
                             setVal('addCastList',    d.cast);
                             if (d.releaseDate) setVal('addReleaseDate', d.releaseDate);
 
@@ -506,7 +568,7 @@
                 function setVal(id, val) {
                     const el = document.getElementById(id);
                     if (el && val !== undefined && val !== null && val !== '') {
-                        el.tagName === 'TEXTAREA' ? el.textContent = val : el.value = val;
+                        el.value = val;
                     }
                 }
 
@@ -515,6 +577,40 @@
                                   fr:'French', es:'Spanish', de:'German', ja:'Japanese', ko:'Korean',
                                   zh:'Chinese', it:'Italian', pt:'Portuguese', ru:'Russian' };
                     return map[code] || (code ? code.toUpperCase() : '');
+                }
+
+                function searchYouTubeFallback(title) {
+                    const fallbackDiv = document.getElementById('youtubeSearchFallback');
+                    fallbackDiv.innerHTML = '<p style="font-size:12px;color:#666;">Searching YouTube for "' + title + '" trailers...</p>';
+                    
+                    fetch(CONTEXT_PATH + '/tmdbSearch?action=youtube&title=' + encodeURIComponent(title))
+                        .then(res => res.json())
+                        .then(results => {
+                            if (!results || results.length === 0) {
+                                fallbackDiv.innerHTML = '<p style="font-size:12px;color:#dc3545;">No trailers found on YouTube either. Please add manually.</p>';
+                                return;
+                            }
+                            
+                            let html = '<p style="font-size:12px;font-weight:700;margin:10px 0 5px;color:#333;">Select a Trailer from YouTube:</p>';
+                            html += '<div style="display:flex;flex-direction:column;gap:5px;background:#f8f9fa;padding:10px;border-radius:6px;border:1px solid #dee2e6;max-height:200px;overflow-y:auto;">';
+                            results.forEach(video => {
+                                html += '<div onclick="selectYouTubeTrailer(\'' + video.url + '\')" style="padding:8px;background:white;border:1px solid #ddd;border-radius:4px;cursor:pointer;font-size:11px;transition:all 0.15s;" onmouseover="this.style.borderColor=\'#ff0000\';this.style.background=\'#fff5f5\'" onmouseout="this.style.borderColor=\'#ddd\';this.style.background=\'white\'">';
+                                html += '<div style="font-weight:700;color:#1a1a1a;margin-bottom:2px;">' + video.title + '</div>';
+                                html += '<div style="color:#ff0000;font-size:10px;">Click to select this trailer</div>';
+                                html += '</div>';
+                            });
+                            html += '</div>';
+                            fallbackDiv.innerHTML = html;
+                        })
+                        .catch(err => {
+                            console.error('YouTube search error:', err);
+                            fallbackDiv.innerHTML = '<p style="font-size:12px;color:#dc3545;">Error searching YouTube.</p>';
+                        });
+                }
+
+                function selectYouTubeTrailer(url) {
+                    document.getElementById('addTrailerUrl').value = url;
+                    document.getElementById('youtubeSearchFallback').style.display = 'none';
                 }
                 // ============================================================
                 // END TMDB FUNCTIONS
@@ -558,24 +654,26 @@
                     </c:if>
                 };
                 
-                // Generic collision detection for showtimes
+                // This clever function checks if a new showtime overlaps with any existing ones in the same hall.
                 function checkTimeConflict(dateStr, hallId, newTime, newDuration, currentMovieId, scheduleObj) {
                     if (!newTime || !newDuration) return { valid: true };
 
-                    const buffer = 30; // 30 minutes interval
+                    const buffer = 30; // We add a 30-minute buffer for cleaning/breaks
                     const totalMinutes = parseInt(newDuration) + buffer;
                     const newStartMinutes = timeToMinutes(newTime);
                     const newEndMinutes = newStartMinutes + totalMinutes;
 
-                    // 1. Check against ALL database showtimes (excluding current movie's old times if editing)
+                    // 1. Check against ALL other movies already in the database
                     if (typeof allShowTimesData !== 'undefined') {
                         let formattedDate = dateStr;
+                        // Format the date key if needed
                         if (dateStr.startsWith('date_')) {
                             const raw = dateStr.replace('date_', '');
                             formattedDate = raw.slice(0,4) + '-' + raw.slice(4,6) + '-' + raw.slice(6,8);
                         }
 
                         for (let st of allShowTimesData) {
+                            // Check if date and hall match, but ignore the movie we are currently editing
                             if (st.date === formattedDate && st.hall === hallId && st.movieId != currentMovieId) {
                                 const existingStartMinutes = timeToMinutes(st.time);
                                 const otherDuration = parseInt(movieDurations[st.movieId]) || 120;
@@ -643,7 +741,7 @@
                     
                     // If editMovie is set, show the edit form automatically
                     <c:if test="${not empty editMovie}">
-                    showEditForm(${editMovie.movieId}, `${editMovie.title}`, `${editMovie.genre}`, `${editMovie.director}`, ${editMovie.duration}, `${editMovie.language}`, `${editMovie.description}`, `${editMovie.posterImage}`, `${editMovie.startDate}`, `${editMovie.endDate}`, `${editMovie.releaseDate}`, `${editMovie.format}`, `${editMovie.ageRating}`, `${editMovie.trailerUrl}`, `${editMovie.castList}`);
+                    showEditForm(${editMovie.movieId}, `${editMovie.title}`, `${editMovie.genre}`, `${editMovie.director}`, ${editMovie.duration}, `${editMovie.language}`, `${editMovie.description}`, `${editMovie.posterImage}`, `${editMovie.startDate}`, `${editMovie.endDate}`, `${editMovie.releaseDate}`, `${editMovie.format}`, `${editMovie.ageRating}`, `${editMovie.trailerUrl}`, `${editMovie.castList}`, ${empty editMovie.priceStandard ? 'null' : editMovie.priceStandard}, ${empty editMovie.pricePremium ? 'null' : editMovie.pricePremium}, ${empty editMovie.priceRecliner ? 'null' : editMovie.priceRecliner}, ${empty editMovie.priceVip ? 'null' : editMovie.priceVip});
                     </c:if>
                 });
                 
@@ -997,7 +1095,7 @@
                 let selectedEditHalls = [];
                 let currentEditDate = null;
 
-                function showEditForm(movieId, title, genre, director, duration, language, description, posterImage, startDate, endDate, releaseDate, format, ageRating, trailerUrl, castList) {
+                function showEditForm(movieId, title, genre, director, duration, language, description, posterImage, startDate, endDate, releaseDate, format, ageRating, trailerUrl, castList, pStd, pPrem, pRec, pVip) {
                     console.log('Opening edit form for movie ID:', movieId);
                     
                     document.getElementById('editMovieId').value = movieId;
@@ -1012,6 +1110,11 @@
                     document.getElementById('editEndDate').value = endDate;
                     if (trailerUrl && trailerUrl !== 'null') document.getElementById('editTrailerUrl').value = trailerUrl;
                     if (castList && castList !== 'null') document.getElementById('editCastList').value = castList;
+                    
+                    document.getElementById('editPriceStandard').value = (pStd && pStd !== null) ? pStd : '';
+                    document.getElementById('editPricePremium').value = (pPrem && pPrem !== null) ? pPrem : '';
+                    document.getElementById('editPriceRecliner').value = (pRec && pRec !== null) ? pRec : '';
+                    document.getElementById('editPriceVip').value = (pVip && pVip !== null) ? pVip : '';
                     
                     // Populate format and age rating dropdowns
                     var fmtSel = document.getElementById('editFormat');
@@ -1400,6 +1503,7 @@
                             <th>ID</th>
                             <th>Name</th>
                             <th>Director</th>
+                            <th>Status</th>
                             <th>Genre</th>
                             <th>Format</th>
                             <th>Rating</th>
@@ -1412,10 +1516,22 @@
                         <c:choose>
                             <c:when test="${not empty movies}">
                                 <c:forEach var="movie" items="${movies}">
-                                    <tr>
+                                    <tr style="${!movie.active ? 'opacity: 0.7; background-color: #f8f9fa;' : ''}">
                                         <td>${movie.movieId}</td>
-                                        <td>${movie.title}</td>
+                                        <td>
+                                            <div style="font-weight: 700; color: ${!movie.active ? '#6c757d' : '#2c3e50'};">${movie.title}</div>
+                                        </td>
                                         <td>${movie.director}</td>
+                                        <td>
+                                            <c:choose>
+                                                <c:when test="${movie.active}">
+                                                    <span style="background:#d1e7dd;color:#0f5132;padding:2px 8px;border-radius:12px;font-size:10px;font-weight:700;text-transform:uppercase;">Active</span>
+                                                </c:when>
+                                                <c:otherwise>
+                                                    <span style="background:#f8d7da;color:#842029;padding:2px 8px;border-radius:12px;font-size:10px;font-weight:700;text-transform:uppercase;">Hidden</span>
+                                                </c:otherwise>
+                                            </c:choose>
+                                        </td>
                                         <td>${movie.genre}</td>
                                         <td>
                                             <span style="background:#e8f4f8;color:#2980b9;padding:2px 8px;border-radius:12px;font-size:11px;font-weight:700;">${not empty movie.format ? movie.format : '2D'}</span>
@@ -1430,9 +1546,18 @@
                                                 <a href="${pageContext.request.contextPath}/manageMovies?action=edit&id=${movie.movieId}" style="padding: 6px 10px; background: white; color: #ffc107; border: 1px solid rgba(255, 193, 7, 0.3); border-radius: 4px; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; transition: all 0.2s; min-width: 36px;" onmouseover="this.style.backgroundColor='#ffc107'; this.style.color='#212529';" onmouseout="this.style.backgroundColor='white'; this.style.color='#ffc107';" title="Edit Movie">
                                                     <span class="material-symbols-outlined" style="font-size: 18px;">edit</span>
                                                 </a>
-                                                <a href="${pageContext.request.contextPath}/manageMovies?action=delete&id=${movie.movieId}" onclick="return confirm('Are you sure?')" style="padding: 6px 10px; background: white; color: #dc3545; border: 1px solid rgba(220, 53, 69, 0.2); border-radius: 4px; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; transition: all 0.2s; min-width: 36px;" onmouseover="this.style.backgroundColor='#dc3545'; this.style.color='white';" onmouseout="this.style.backgroundColor='white'; this.style.color='#dc3545';" title="Delete Movie">
-                                                    <span class="material-symbols-outlined" style="font-size: 18px;">delete</span>
-                                                </a>
+                                                <c:choose>
+                                                    <c:when test="${movie.active}">
+                                                        <a href="${pageContext.request.contextPath}/manageMovies?action=delete&id=${movie.movieId}" onclick="return confirm('Hide movie? History will be preserved.')" style="padding: 6px 10px; background: white; color: #dc3545; border: 1px solid rgba(220, 53, 69, 0.2); border-radius: 4px; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; transition: all 0.2s; min-width: 36px;" onmouseover="this.style.backgroundColor='#dc3545'; this.style.color='white';" onmouseout="this.style.backgroundColor='white'; this.style.color='#dc3545';" title="Hide Movie (Soft Delete)">
+                                                            <span class="material-symbols-outlined" style="font-size: 18px;">visibility_off</span>
+                                                        </a>
+                                                    </c:when>
+                                                    <c:otherwise>
+                                                        <a href="${pageContext.request.contextPath}/manageMovies?action=restore&id=${movie.movieId}" style="padding: 6px 10px; background: white; color: #2ecc71; border: 1px solid rgba(46, 204, 113, 0.2); border-radius: 4px; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; transition: all 0.2s; min-width: 36px;" onmouseover="this.style.backgroundColor='#2ecc71'; this.style.color='white';" onmouseout="this.style.backgroundColor='white'; this.style.color='#2ecc71';" title="Restore Movie">
+                                                            <span class="material-symbols-outlined" style="font-size: 18px;">restore</span>
+                                                        </a>
+                                                    </c:otherwise>
+                                                </c:choose>
                                             </div>
                                         </td>
                                     </tr>
@@ -1440,7 +1565,7 @@
                             </c:when>
                             <c:otherwise>
                                 <tr>
-                                    <td colspan="9">No movies found.</td>
+                                    <td colspan="10">No movies found.</td>
                                 </tr>
                             </c:otherwise>
                         </c:choose>

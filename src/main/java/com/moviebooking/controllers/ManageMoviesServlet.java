@@ -48,6 +48,9 @@ public class ManageMoviesServlet extends HttpServlet {
             if ("delete".equals(action)) {
                 handleDelete(request, response);
                 return;
+            } else if ("restore".equals(action)) {
+                handleRestore(request, response);
+                return;
             } else if ("edit".equals(action)) {
                 int id = Integer.parseInt(request.getParameter("id"));
                 Movie movie = movieDao.getMovieById(id);
@@ -158,41 +161,66 @@ public class ManageMoviesServlet extends HttpServlet {
             String trailerUrl = request.getParameter("trailerUrl");
             String castList = request.getParameter("castList");
             
-            // Handle poster image file upload or TMDB poster URL
+            // --- POSTER IMAGE HANDLING ---
+            // We check if the user uploaded a file OR if they used the TMDB auto-fill poster URL.
             Part filePart = request.getPart("posterImage");
             String tmdbPosterUrl = request.getParameter("tmdbPosterUrl");
             String fileName = null;
+            
+            // Where we will save the images on the server
             String uploadPath = getServletContext().getRealPath("") + File.separator + "images";
             File uploadDir = new File(uploadPath);
-            if (!uploadDir.exists()) uploadDir.mkdirs();
+            if (!uploadDir.exists()) uploadDir.mkdirs(); // Create folder if it doesn't exist
 
             if (filePart != null && filePart.getSize() > 0) {
-                // User uploaded a custom poster — use it (overrides TMDB)
+                // CASE 1: User uploaded a file from their computer
                 fileName = Paths.get(filePart.getSubmittedFileName()).getFileName().toString();
                 filePart.write(uploadPath + File.separator + fileName);
             } else if (tmdbPosterUrl != null && !tmdbPosterUrl.trim().isEmpty()) {
-                // Download poster from TMDB and save locally
+                // CASE 2: No file uploaded, but we have a TMDB URL from auto-fill
                 try {
+                    // Create a unique name for the downloaded image
                     String ext = tmdbPosterUrl.contains(".") ? tmdbPosterUrl.substring(tmdbPosterUrl.lastIndexOf('.')) : ".jpg";
                     fileName = "tmdb_" + System.currentTimeMillis() + ext;
                     URL imgUrl = new URL(tmdbPosterUrl);
+                    // Download the image and save it to our images folder
                     try (InputStream in = imgUrl.openStream();
                          OutputStream out = new java.io.FileOutputStream(uploadPath + File.separator + fileName)) {
                         byte[] buf = new byte[4096]; int n;
                         while ((n = in.read(buf)) != -1) out.write(buf, 0, n);
                     }
                 } catch (Exception ex) {
+                    // If download fails, use the default placeholder
                     System.err.println("[ManageMoviesServlet] Failed to download TMDB poster: " + ex.getMessage());
                     fileName = "default.jpg";
                 }
             } else {
+                // CASE 3: No image provided at all, use default
                 fileName = "default.jpg";
+            }
+            
+            // --- DATE VALIDATION ---
+            // End date must be after Start date!
+            if (endDate.before(startDate)) {
+                request.setAttribute("error", "End date cannot be before start date");
+                doGet(request, response);
+                return;
             }
 
             // Create movie object and save to database
             Movie movie = new Movie(title, genre, director, duration, language, releaseDate, startDate, endDate, description, fileName, 0.0, format, ageRating);
             movie.setTrailerUrl(trailerUrl);
             movie.setCastList(castList);
+            
+            String pStd = request.getParameter("priceStandard");
+            String pPrem = request.getParameter("pricePremium");
+            String pRec = request.getParameter("priceRecliner");
+            String pVip = request.getParameter("priceVip");
+            if (pStd != null && !pStd.trim().isEmpty()) movie.setPriceStandard(Double.parseDouble(pStd));
+            if (pPrem != null && !pPrem.trim().isEmpty()) movie.setPricePremium(Double.parseDouble(pPrem));
+            if (pRec != null && !pRec.trim().isEmpty()) movie.setPriceRecliner(Double.parseDouble(pRec));
+            if (pVip != null && !pVip.trim().isEmpty()) movie.setPriceVip(Double.parseDouble(pVip));
+            
             boolean isAdded = movieDao.addMovie(movie);
 
             if (isAdded) {
@@ -246,7 +274,19 @@ public class ManageMoviesServlet extends HttpServlet {
             Date startDate = Date.valueOf(request.getParameter("startDate"));
             Date endDate = Date.valueOf(request.getParameter("endDate"));
             String trailerUrl = request.getParameter("trailerUrl");
-            String castList = request.getParameter("castList");
+            String castList = request.getParameter("castList"); // Restored missing parameter
+            
+            // Handle custom genre if selected in edit form
+            if ("custom".equals(genre)) {
+                genre = request.getParameter("customGenre");
+            }
+
+            // --- DATE VALIDATION ---
+            if (endDate.before(startDate)) {
+                request.setAttribute("error", "End date cannot be before start date");
+                doGet(request, response);
+                return;
+            }
 
             Movie existingMovie = movieDao.getMovieById(movieId);
             String posterImage = existingMovie.getPosterImage();
@@ -269,6 +309,17 @@ public class ManageMoviesServlet extends HttpServlet {
             movie.setMovieId(movieId);
             movie.setTrailerUrl(trailerUrl);
             movie.setCastList(castList);
+            movie.setActive(existingMovie.isActive());
+            
+            String pStd = request.getParameter("priceStandard");
+            String pPrem = request.getParameter("pricePremium");
+            String pRec = request.getParameter("priceRecliner");
+            String pVip = request.getParameter("priceVip");
+            if (pStd != null && !pStd.trim().isEmpty()) movie.setPriceStandard(Double.parseDouble(pStd));
+            if (pPrem != null && !pPrem.trim().isEmpty()) movie.setPricePremium(Double.parseDouble(pPrem));
+            if (pRec != null && !pRec.trim().isEmpty()) movie.setPriceRecliner(Double.parseDouble(pRec));
+            if (pVip != null && !pVip.trim().isEmpty()) movie.setPriceVip(Double.parseDouble(pVip));
+            
             boolean isUpdated = movieDao.updateMovie(movie);
 
             if (isUpdated) {
@@ -311,14 +362,30 @@ public class ManageMoviesServlet extends HttpServlet {
     private void handleDelete(HttpServletRequest request, HttpServletResponse response) 
             throws ServletException, IOException {
         try {
-            // Get movie ID from URL and delete it
             int movieId = Integer.parseInt(request.getParameter("id"));
             boolean isDeleted = movieDao.deleteMovie(movieId);
-
             if (isDeleted) {
-                response.sendRedirect(request.getContextPath() + "/manageMovies?success=Movie deleted successfully");
+                response.sendRedirect(request.getContextPath() + "/manageMovies?success=Movie hidden successfully. History is preserved.");
             } else {
-                response.sendRedirect(request.getContextPath() + "/manageMovies?error=Failed to delete movie");
+                response.sendRedirect(request.getContextPath() + "/manageMovies?error=Failed to hide movie");
+            }
+        } catch (Exception e) {
+            response.sendRedirect(request.getContextPath() + "/manageMovies?error=Invalid movie ID");
+        }
+    }
+
+    /**
+     * Handle restoring a soft-deleted movie.
+     */
+    private void handleRestore(HttpServletRequest request, HttpServletResponse response) 
+            throws ServletException, IOException {
+        try {
+            int movieId = Integer.parseInt(request.getParameter("id"));
+            boolean isRestored = movieDao.restoreMovie(movieId);
+            if (isRestored) {
+                response.sendRedirect(request.getContextPath() + "/manageMovies?success=Movie restored successfully");
+            } else {
+                response.sendRedirect(request.getContextPath() + "/manageMovies?error=Failed to restore movie");
             }
         } catch (Exception e) {
             response.sendRedirect(request.getContextPath() + "/manageMovies?error=Invalid movie ID");

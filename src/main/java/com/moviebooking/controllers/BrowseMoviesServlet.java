@@ -40,8 +40,8 @@ public class BrowseMoviesServlet extends HttpServlet {
             movies = movieDao.searchMovies(search);
             request.setAttribute("searchKeyword", search);
         } else {
-            // If no search, get all movies
-            movies = movieDao.getAllMovies();
+            // If no search, get all active movies
+            movies = movieDao.getAllActiveMovies();
         }
 
         // Handle Status and Date filtering

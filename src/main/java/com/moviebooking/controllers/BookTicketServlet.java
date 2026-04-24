@@ -88,11 +88,11 @@ public class BookTicketServlet extends HttpServlet {
                 }
                 bookedSeatsJson.append("}");
                 
-                // Load dynamic prices from admin settings
-                double standardPrice = Double.parseDouble(settingsDao.getSetting("PRICE_STANDARD", "200.0"));
-                double premiumPrice  = Double.parseDouble(settingsDao.getSetting("PRICE_PREMIUM",  "350.0"));
-                double reclinerPrice = Double.parseDouble(settingsDao.getSetting("PRICE_RECLINER", "500.0"));
-                double vipPrice      = Double.parseDouble(settingsDao.getSetting("PRICE_VIP",      "750.0"));
+                // Load dynamic prices from admin settings, overridden by movie-specific prices if present
+                double standardPrice = movie.getPriceStandard() != null ? movie.getPriceStandard() : Double.parseDouble(settingsDao.getSetting("PRICE_STANDARD", "200.0"));
+                double premiumPrice  = movie.getPricePremium() != null ? movie.getPricePremium() : Double.parseDouble(settingsDao.getSetting("PRICE_PREMIUM",  "350.0"));
+                double reclinerPrice = movie.getPriceRecliner() != null ? movie.getPriceRecliner() : Double.parseDouble(settingsDao.getSetting("PRICE_RECLINER", "500.0"));
+                double vipPrice      = movie.getPriceVip() != null ? movie.getPriceVip() : Double.parseDouble(settingsDao.getSetting("PRICE_VIP",      "750.0"));
 
                 // Build hall configs JSON for the seat grid
                 List<HallConfig> hallConfigs = hallConfigDao.getAllHallConfigs();
@@ -101,6 +101,7 @@ public class BookTicketServlet extends HttpServlet {
                     HallConfig hc = hallConfigs.get(h);
                     hcJson.append("\"").append(hc.getHallName()).append("\":{")
                         .append("\"seatsPerRow\":").append(hc.getSeatsPerRow()).append(",")
+                        .append("\"layoutMap\":\"").append(hc.getLayoutMap() != null ? hc.getLayoutMap() : "").append("\",")
                         .append("\"standardRows\":\"").append(hc.getStandardRows() != null ? hc.getStandardRows() : "").append("\",")
                         .append("\"premiumRows\":\"").append(hc.getPremiumRows() != null ? hc.getPremiumRows() : "").append("\",")
                         .append("\"reclinerRows\":\"").append(hc.getReclinerRows() != null ? hc.getReclinerRows() : "").append("\",")

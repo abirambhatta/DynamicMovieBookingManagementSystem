@@ -52,6 +52,22 @@ public class TmdbSearchServlet extends HttpServlet {
             Map<String, String> details = tmdbService.getMovieDetails(tmdbId.trim());
             out.print(mapToJson(details));
 
+        } else if ("youtube".equals(action)) {
+            // ---- SEARCH YOUTUBE FOR TRAILERS ----
+            String title = request.getParameter("title");
+            if (title == null || title.trim().isEmpty()) {
+                out.print("[]");
+                return;
+            }
+            List<Map<String, String>> results = tmdbService.searchYoutube(title.trim());
+            StringBuilder sb = new StringBuilder("[");
+            for (int i = 0; i < results.size(); i++) {
+                sb.append(mapToJson(results.get(i)));
+                if (i < results.size() - 1) sb.append(",");
+            }
+            sb.append("]");
+            out.print(sb.toString());
+
         } else {
             // ---- SEARCH BY TITLE (default action) ----
             String query = request.getParameter("q");
