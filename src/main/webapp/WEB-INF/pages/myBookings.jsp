@@ -6,6 +6,7 @@
     <meta charset="utf-8"/>
     <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
     <title>CinemaDirector | Booking History</title>
+    <link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath}/css/style.css">
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet"/>
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
@@ -93,16 +94,16 @@
 
     <jsp:include page="userHeader.jsp" />
 
-    <main class="mx-auto px-8 py-12 pt-12">
-        <!-- Page Header -->
-        <div class="mb-12">
+    <main class="p-8 min-h-screen">
+        <div class="max-w-7xl mx-auto">
+            <!-- Page Header -->
+            <div class="mb-12">
             <h1 class="text-[3.5rem] font-bold leading-tight tracking-tight text-on-background headline mb-2">Booking History</h1>
             <p class="text-secondary text-lg">Keep track of your cinematic journeys and upcoming premieres.</p>
         </div>
         
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
-            <!-- Left Column: Upcoming & Past Lists -->
-            <div class="lg:col-span-8 space-y-12">
+        <div class="grid grid-cols-1 gap-8">
+            <div class="space-y-12">
                 <c:choose>
                     <c:when test="${not empty bookings}">
                         <!-- Section: Upcoming Premieres -->
@@ -145,8 +146,8 @@
                                             </div>
                                             <div class="flex gap-3 mt-6">
                                                 <a href="${pageContext.request.contextPath}/ticketConfirmation?bookingId=${booking.bookingId}" class="bg-primary text-white px-6 py-3 rounded-md text-[11px] font-bold uppercase tracking-widest flex items-center gap-2 hover:brightness-110 transition-all inline-block text-center">
-                                                    <span class="material-symbols-outlined text-[18px]">download</span>
-                                                    Download Ticket
+                                                    <span class="material-symbols-outlined text-[18px]">visibility</span>
+                                                    View Ticket
                                                 </a>
                                             </div>
                                         </div>
@@ -215,72 +216,7 @@
                 </c:choose>
             </div>
             
-            <!-- Right Column: Stats & Profile Quick Actions -->
-            <div class="lg:col-span-4 space-y-8">
-                <!-- Loyalty Stats Card -->
-                <div class="bg-primary text-white rounded-xl p-8 relative overflow-hidden shadow-2xl">
-                    <div class="relative z-10">
-                        <p class="text-[11px] font-bold uppercase tracking-widest opacity-80 mb-4">Cine-Lover Member</p>
-                        <h3 class="text-3xl font-bold headline mb-6">
-                            <c:choose>
-                                <c:when test="${not empty bookings}">${bookings.size()}</c:when>
-                                <c:otherwise>0</c:otherwise>
-                            </c:choose> Movies <br/> 
-                            <span class="opacity-60">This Year</span>
-                        </h3>
-                        <div class="space-y-4 mb-8">
-                            <div class="flex justify-between items-center text-xs">
-                                <span>Points to next reward</span>
-                                <span class="font-bold">850 / 1000</span>
-                            </div>
-                            <div class="w-full bg-white/20 h-1.5 rounded-full">
-                                <div class="bg-white h-full rounded-full" style="width: 85%"></div>
-                            </div>
-                        </div>
-                        <button class="w-full bg-white text-primary py-3 rounded-md text-[11px] font-bold uppercase tracking-widest hover:bg-surface-bright transition-all">Redeem Points</button>
-                    </div>
-                    <!-- Decorative background element -->
-                    <span class="material-symbols-outlined absolute -bottom-8 -right-8 text-[160px] opacity-10 rotate-12" data-icon="confirmation_number">confirmation_number</span>
-                </div>
-                
-                <!-- Quick Filter Sidebar -->
-                <div class="bg-surface-container-low rounded-xl p-6">
-                    <h3 class="text-sm font-bold headline uppercase tracking-widest mb-6">Filter History</h3>
-                    <div class="space-y-3">
-                        <a href="${pageContext.request.contextPath}/myBookings" class="block w-full text-left px-4 py-3 rounded-lg bg-surface-container-highest text-primary font-bold text-sm flex justify-between items-center">
-                            All Bookings
-                            <span class="material-symbols-outlined text-[20px]">chevron_right</span>
-                        </a>
-                        <button onclick="alert('Client-side filtering to be implemented');" class="w-full text-left px-4 py-3 rounded-lg hover:bg-surface-container-high transition-colors text-on-surface-variant font-medium text-sm flex justify-between items-center">
-                            Upcoming Only
-                            <span class="material-symbols-outlined text-[20px]">chevron_right</span>
-                        </button>
-                        <button onclick="alert('Client-side filtering to be implemented');" class="w-full text-left px-4 py-3 rounded-lg hover:bg-surface-container-high transition-colors text-on-surface-variant font-medium text-sm flex justify-between items-center">
-                            Canceled
-                            <span class="material-symbols-outlined text-[20px]">chevron_right</span>
-                        </button>
-                    </div>
-                    
-                    <div class="mt-10">
-                        <h3 class="text-sm font-bold headline uppercase tracking-widest mb-4">Account Settings</h3>
-                        <div class="space-y-4">
-                            <a class="flex items-center gap-3 text-secondary hover:text-primary transition-colors text-sm" href="#">
-                                <span class="material-symbols-outlined text-[20px]">payments</span>
-                                Payment Methods
-                            </a>
-                            <a class="flex items-center gap-3 text-secondary hover:text-primary transition-colors text-sm" href="${pageContext.request.contextPath}/userProfile">
-                                <span class="material-symbols-outlined text-[20px]">person</span>
-                                Profile Details
-                            </a>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Ad/Promo Card -->
-                <div class="bg-surface-container-highest border-l-4 border-primary p-6 rounded-r-xl">
-                    <p class="text-primary font-bold text-sm mb-2">Director's Cut Sale</p>
-                    <p class="text-xs text-secondary leading-relaxed">Enjoy 30% off on all vintage screenings throughout October. Use code VINTAGE30 at checkout.</p>
-                </div>
+
             </div>
         </div>
     </main>

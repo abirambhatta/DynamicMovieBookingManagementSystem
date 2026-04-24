@@ -13,6 +13,9 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.sql.Date;
@@ -153,16 +156,36 @@ public class ManageMoviesServlet extends HttpServlet {
             String format = request.getParameter("format");
             String ageRating = request.getParameter("ageRating");
             
-            // Handle poster image file upload
+            // Handle poster image file upload or TMDB poster URL
             Part filePart = request.getPart("posterImage");
-            String fileName = Paths.get(filePart.getSubmittedFileName()).getFileName().toString();
-            // Save the image to the "images" folder inside the app
+            String tmdbPosterUrl = request.getParameter("tmdbPosterUrl");
+            String fileName = null;
             String uploadPath = getServletContext().getRealPath("") + File.separator + "images";
             File uploadDir = new File(uploadPath);
-            // Create the images folder if it doesn't exist
             if (!uploadDir.exists()) uploadDir.mkdirs();
-            // Write the uploaded file to the folder
-            filePart.write(uploadPath + File.separator + fileName);
+
+            if (filePart != null && filePart.getSize() > 0) {
+                // User uploaded a custom poster — use it (overrides TMDB)
+                fileName = Paths.get(filePart.getSubmittedFileName()).getFileName().toString();
+                filePart.write(uploadPath + File.separator + fileName);
+            } else if (tmdbPosterUrl != null && !tmdbPosterUrl.trim().isEmpty()) {
+                // Download poster from TMDB and save locally
+                try {
+                    String ext = tmdbPosterUrl.contains(".") ? tmdbPosterUrl.substring(tmdbPosterUrl.lastIndexOf('.')) : ".jpg";
+                    fileName = "tmdb_" + System.currentTimeMillis() + ext;
+                    URL imgUrl = new URL(tmdbPosterUrl);
+                    try (InputStream in = imgUrl.openStream();
+                         OutputStream out = new java.io.FileOutputStream(uploadPath + File.separator + fileName)) {
+                        byte[] buf = new byte[4096]; int n;
+                        while ((n = in.read(buf)) != -1) out.write(buf, 0, n);
+                    }
+                } catch (Exception ex) {
+                    System.err.println("[ManageMoviesServlet] Failed to download TMDB poster: " + ex.getMessage());
+                    fileName = "default.jpg";
+                }
+            } else {
+                fileName = "default.jpg";
+            }
 
             // Create movie object and save to database
             Movie movie = new Movie(title, genre, director, duration, language, releaseDate, startDate, endDate, description, fileName, 0.0, format, ageRating);
@@ -215,6 +238,9 @@ public class ManageMoviesServlet extends HttpServlet {
             String description = request.getParameter("description");
             String format = request.getParameter("format");
             String ageRating = request.getParameter("ageRating");
+            Date releaseDate = Date.valueOf(request.getParameter("releaseDate"));
+            Date startDate = Date.valueOf(request.getParameter("startDate"));
+            Date endDate = Date.valueOf(request.getParameter("endDate"));
 
             Movie existingMovie = movieDao.getMovieById(movieId);
             String posterImage = existingMovie.getPosterImage();
@@ -231,8 +257,8 @@ public class ManageMoviesServlet extends HttpServlet {
             }
             
             Movie movie = new Movie(title, genre, director, duration, language, 
-                    existingMovie.getReleaseDate(), existingMovie.getStartDate(), 
-                    existingMovie.getEndDate(), description, posterImage, 
+                    releaseDate, startDate, 
+                    endDate, description, posterImage, 
                     existingMovie.getRating(), format, ageRating);
             movie.setMovieId(movieId);
             boolean isUpdated = movieDao.updateMovie(movie);

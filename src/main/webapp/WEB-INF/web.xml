@@ -19,4 +19,15 @@
   <session-config>
     <session-timeout>30</session-timeout>
   </session-config>
+
+  <!-- =============================================
+       TMDB API CONFIGURATION
+       Replace YOUR_API_KEY_HERE with your actual
+       TMDB v3 API key from themoviedb.org/settings/api
+       ============================================= -->
+  <context-param>
+    <param-name>TMDB_API_KEY</param-name>
+    <param-value>652c60c2e093d9dffe3502468aeddb25</param-value>
+  </context-param>
+
 </web-app>

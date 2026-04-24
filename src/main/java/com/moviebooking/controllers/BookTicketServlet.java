@@ -1,4 +1,5 @@
 package com.moviebooking.controllers;
+import java.util.LinkedHashMap;
 
 import com.moviebooking.dao.BookingDao;
 import com.moviebooking.dao.GlobalSettingsDao;
@@ -64,13 +65,26 @@ public class BookTicketServlet extends HttpServlet {
                 }
                 json.append("]");
 
-                // Fetch booked seats
+                // Fetch booked seats — accumulate ALL seat IDs per showtime
+                // so multiple bookings for the same showtime are merged correctly
                 List<Booking> bookings = bookingDao.getBookingsByMovieId(movieId);
+                LinkedHashMap<String, StringBuilder> seatsByShowtime = new LinkedHashMap<>();
+                for (Booking b : bookings) {
+                    String key = b.getShowTime();
+                    String seats = b.getSeatType();
+                    if (seats == null || seats.trim().isEmpty() || "Not selected".equals(seats.trim())) continue;
+                    if (!seatsByShowtime.containsKey(key)) {
+                        seatsByShowtime.put(key, new StringBuilder(seats.trim()));
+                    } else {
+                        seatsByShowtime.get(key).append(",").append(seats.trim());
+                    }
+                }
                 StringBuilder bookedSeatsJson = new StringBuilder("{");
-                for(int i=0; i<bookings.size(); i++){
-                    Booking b = bookings.get(i);
-                    bookedSeatsJson.append("\"").append(b.getShowTime()).append("\":\"").append(b.getSeatType()).append("\"");
-                    if(i < bookings.size() -1) bookedSeatsJson.append(",");
+                boolean firstEntry = true;
+                for (java.util.Map.Entry<String, StringBuilder> entry : seatsByShowtime.entrySet()) {
+                    if (!firstEntry) bookedSeatsJson.append(",");
+                    bookedSeatsJson.append("\"").append(entry.getKey()).append("\":\"").append(entry.getValue()).append("\"");
+                    firstEntry = false;
                 }
                 bookedSeatsJson.append("}");
                 
@@ -151,10 +165,17 @@ public class BookTicketServlet extends HttpServlet {
         try {
             int movieId      = Integer.parseInt(movieIdParam);
             int numberOfSeats = Integer.parseInt(seatsParam);
-
-            // Use standard price as base (per-seat-type pricing calculated client-side)
-            double pricePerSeat = Double.parseDouble(settingsDao.getSetting("PRICE_STANDARD", "200.0"));
-            double totalPrice   = numberOfSeats * pricePerSeat;
+            
+            // Get total price calculated by client (handles premium/VIP seat pricing)
+            String totalPriceParam = request.getParameter("totalPrice");
+            double totalPrice = 0.0;
+            if (totalPriceParam != null && !totalPriceParam.trim().isEmpty()) {
+                totalPrice = Double.parseDouble(totalPriceParam);
+            } else {
+                // Fallback to standard price if client didn't send it
+                double pricePerSeat = Double.parseDouble(settingsDao.getSetting("PRICE_STANDARD", "200.0"));
+                totalPrice = numberOfSeats * pricePerSeat;
+            }
 
             // Store specific seat IDs in the seatType column (re-used as seat identifier store)
             String seatType = (selectedSeatIds != null && !selectedSeatIds.trim().isEmpty())

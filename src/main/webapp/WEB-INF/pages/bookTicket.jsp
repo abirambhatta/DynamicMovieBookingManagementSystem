@@ -146,6 +146,7 @@
             <input type="hidden" name="finalShowTime" id="finalShowTimeInput" value="">
             <input type="hidden" name="numberOfSeats" id="numberOfSeatsInput" value="0">
             <input type="hidden" name="selectedSeatIds" id="selectedSeatIdsInput" value="">
+            <input type="hidden" name="totalPrice" id="totalPriceInput" value="0">
             <div class="panel-body">
                 <c:if test="${not empty error}"><div class="booking-error">${error}</div></c:if>
 
@@ -434,6 +435,7 @@
 
             document.getElementById('numberOfSeatsInput').value = count;
             document.getElementById('selectedSeatIdsInput').value = seatArr.join(', ');
+            document.getElementById('totalPriceInput').value = total.toFixed(2);
             if (currentTime) document.getElementById('finalShowTimeInput').value = currentDate + ' ' + currentTime.time + ' - ' + currentTime.hall;
 
             const btn = document.getElementById('submitBtn');

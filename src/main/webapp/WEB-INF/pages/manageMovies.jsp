@@ -36,6 +36,21 @@
         .time-chip .remove { margin-left: 8px; cursor: pointer; font-weight: bold; }
         .conflict-warning { color: #dc3545; font-size: 13px; margin-top: 5px; display: none; }
         .conflict-warning.show { display: block; }
+
+        /* TMDB Search Styles */
+        .tmdb-search-bar { display: flex; gap: 8px; margin-bottom: 16px; }
+        .tmdb-search-bar input { flex: 1; padding: 10px 14px; border: 2px solid #0d6efd; border-radius: 6px; font-size: 14px; }
+        .tmdb-search-bar button { padding: 10px 18px; background: #0d6efd; color: white; border: none; border-radius: 6px; font-size: 13px; font-weight: 700; cursor: pointer; white-space: nowrap; }
+        .tmdb-search-bar button:hover { background: #0b5ed7; }
+        .tmdb-results { border: 1px solid #dee2e6; border-radius: 8px; background: white; max-height: 300px; overflow-y: auto; display: none; margin-bottom: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .tmdb-result-item { display: flex; align-items: center; gap: 12px; padding: 10px 14px; cursor: pointer; border-bottom: 1px solid #f0f0f0; transition: background 0.15s; }
+        .tmdb-result-item:hover { background: #f0f6ff; }
+        .tmdb-result-item img { width: 36px; height: 52px; object-fit: cover; border-radius: 4px; flex-shrink: 0; }
+        .tmdb-result-item img.no-poster { background: #e9ecef; display: flex; align-items: center; justify-content: center; }
+        .tmdb-result-title { font-weight: 700; font-size: 14px; color: #1a1a1a; }
+        .tmdb-result-meta { font-size: 12px; color: #6c757d; }
+        .tmdb-badge { display: inline-block; background: #0d6efd; color: white; font-size: 10px; font-weight: 800; padding: 2px 6px; border-radius: 4px; margin-bottom: 6px; letter-spacing: 0.05em; }
+        .tmdb-autofill-note { font-size: 12px; color: #0d6efd; font-weight: 600; margin-bottom: 10px; display: none; }
     </style>
 </head>
 <body>
@@ -138,9 +153,23 @@
                 <h2>Add New Movie</h2>
                 <form action="${pageContext.request.contextPath}/manageMovies" method="post" enctype="multipart/form-data">
                     <input type="hidden" name="action" value="add">
+                    <input type="hidden" id="tmdbPosterUrl" name="tmdbPosterUrl" value="">
+
+                    <!-- TMDB AUTO-FILL SECTION -->
+                    <div style="background:#e8f0fe;border:2px solid #0d6efd;border-radius:8px;padding:16px;margin-bottom:20px;">
+                        <span class="tmdb-badge">TMDB Auto-Fill</span>
+                        <p style="font-size:13px;color:#333;margin:0 0 10px;">Search a movie title to auto-fill all fields from The Movie Database.</p>
+                        <div class="tmdb-search-bar">
+                            <input type="text" id="tmdbQuery" placeholder="e.g. Inception, Avatar, Interstellar..." onkeydown="if(event.key==='Enter'){event.preventDefault();tmdbSearch();}">
+                            <button type="button" onclick="tmdbSearch()">Search TMDB</button>
+                        </div>
+                        <div id="tmdbResults" class="tmdb-results"></div>
+                        <div id="tmdbNote" class="tmdb-autofill-note">Fields auto-filled from TMDB! Review and adjust if needed, then upload a poster (or use the TMDB one linked above).</div>
+                    </div>
+
                     <div class="form-group">
                         <label>Title:</label>
-                        <input type="text" name="title" required>
+                        <input type="text" id="addTitle" name="title" required>
                     </div>
                     <div class="form-group">
                         <label>Genre:</label>
@@ -164,7 +193,7 @@
                     </div>
                     <div class="form-group">
                         <label>Director:</label>
-                        <input type="text" name="director" required>
+                        <input type="text" id="addDirector" name="director" required>
                     </div>
                     <div class="form-group">
                         <label>Duration (minutes):</label>
@@ -172,7 +201,7 @@
                     </div>
                     <div class="form-group">
                         <label>Language:</label>
-                        <input type="text" name="language" required>
+                        <input type="text" id="addLanguage" name="language" required>
                     </div>
                     <div class="form-group">
                         <label>Movie Format:</label>
@@ -196,7 +225,7 @@
                     </div>
                     <div class="form-group">
                         <label>Release Date:</label>
-                        <input type="date" name="releaseDate" required>
+                        <input type="date" id="addReleaseDate" name="releaseDate" required>
                     </div>
                     <div class="form-group">
                         <label>Start Date (Movie Airing):</label>
@@ -208,12 +237,13 @@
                     </div>
                     <div class="form-group">
                         <label>Description:</label>
-                        <textarea name="description" required></textarea>
+                        <textarea id="addDescription" name="description" required></textarea>
                     </div>
                     <div class="form-group">
-                        <label>Poster Image:</label>
-                        <input type="file" name="posterImage" accept="image/*" required>
-                        <small>Upload JPG, PNG, or GIF</small>
+                        <label>Poster Image: <span id="posterOptionalLabel" style="display:none;color:#0d6efd;font-size:12px;">(Optional — TMDB poster will be used)</span></label>
+                        <input type="file" id="addPosterInput" name="posterImage" accept="image/*">
+                        <small>Upload JPG, PNG, or GIF — or use TMDB auto-fill above to get the poster automatically</small>
+                        <div id="tmdbPosterPreview" style="margin-top:8px;"></div>
                     </div>
                     <div class="form-group">
                         <label>Show Schedule:</label>
@@ -340,6 +370,118 @@
             
             <script>
                 console.log('JavaScript is loading...');
+
+                // ============================================================
+                // TMDB AUTO-FILL FUNCTIONS
+                // ============================================================
+                const CONTEXT_PATH = '${pageContext.request.contextPath}';
+
+                function tmdbSearch() {
+                    const query = document.getElementById('tmdbQuery').value.trim();
+                    if (!query) { alert('Please enter a movie title to search.'); return; }
+
+                    const resultsDiv = document.getElementById('tmdbResults');
+                    resultsDiv.style.display = 'block';
+                    resultsDiv.innerHTML = '<div style="padding:12px;color:#666;font-size:13px;">Searching TMDB...</div>';
+
+                    fetch(CONTEXT_PATH + '/tmdbSearch?action=search&q=' + encodeURIComponent(query))
+                        .then(res => res.json())
+                        .then(data => {
+                            if (!data || data.length === 0) {
+                                resultsDiv.innerHTML = '<div style="padding:12px;color:#dc3545;font-size:13px;">No results found. Try a different title.</div>';
+                                return;
+                            }
+                            resultsDiv.innerHTML = '';
+                            data.slice(0, 8).forEach(movie => {
+                                const item = document.createElement('div');
+                                item.className = 'tmdb-result-item';
+                                const year = movie.releaseDate ? movie.releaseDate.substring(0, 4) : '?';
+                                const imgSrc = movie.posterUrl && movie.posterUrl !== '' 
+                                    ? movie.posterUrl 
+                                    : 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="36" height="52"><rect width="36" height="52" fill="%23e9ecef"/><text x="18" y="30" text-anchor="middle" font-size="10" fill="%23999">No Poster</text></svg>';
+                                item.innerHTML = '<img src="' + imgSrc + '" alt="poster" onerror="this.src=\'data:image/svg+xml,<svg xmlns=\\\"http://www.w3.org/2000/svg\\\" width=\\\"36\\\" height=\\\"52\\\"><rect width=\\\"36\\\" height=\\\"52\\\" fill=\\\"#e9ecef\\\"/></svg>\'">'
+                                    + '<div><div class="tmdb-result-title">' + (movie.title || '') + '</div>'
+                                    + '<div class="tmdb-result-meta">' + year + ' &bull; ' + (movie.language || '').toUpperCase() + ' &bull; Rating: ' + (movie.rating || 'N/A') + '</div></div>';
+                                item.onclick = () => tmdbSelectMovie(movie.tmdbId, movie.title);
+                                resultsDiv.appendChild(item);
+                            });
+                        })
+                        .catch(err => {
+                            resultsDiv.innerHTML = '<div style="padding:12px;color:#dc3545;font-size:13px;">Error contacting TMDB. Check your API key in web.xml.</div>';
+                            console.error('TMDB search error:', err);
+                        });
+                }
+
+                function tmdbSelectMovie(tmdbId, title) {
+                    const resultsDiv = document.getElementById('tmdbResults');
+                    resultsDiv.innerHTML = '<div style="padding:12px;color:#0d6efd;font-size:13px;">Loading full details for "' + title + '"...</div>';
+
+                    fetch(CONTEXT_PATH + '/tmdbSearch?action=details&tmdbId=' + tmdbId)
+                        .then(res => res.json())
+                        .then(d => {
+                            // Auto-fill all form fields
+                            setVal('addTitle',       d.title);
+                            setVal('addDirector',    d.director);
+                            setVal('duration',       d.duration);
+                            setVal('addLanguage',    languageCodeToName(d.language));
+                            setVal('addDescription', d.overview || d.description);
+                            if (d.releaseDate) setVal('addReleaseDate', d.releaseDate);
+
+                            // Genre - try to match existing options
+                            const genreSelect = document.getElementById('genreSelect');
+                            if (genreSelect && d.genre) {
+                                let matched = false;
+                                for (let opt of genreSelect.options) {
+                                    if (opt.value.toLowerCase() === d.genre.toLowerCase()) {
+                                        genreSelect.value = opt.value;
+                                        matched = true; break;
+                                    }
+                                }
+                                if (!matched) {
+                                    genreSelect.value = 'custom';
+                                    toggleCustomGenre();
+                                    setVal('customGenre', d.genre);
+                                }
+                            }
+
+                            // Handle TMDB poster
+                            if (d.posterUrl && d.posterUrl !== '') {
+                                document.getElementById('tmdbPosterUrl').value = d.posterUrl;
+                                document.getElementById('tmdbPosterPreview').innerHTML =
+                                    '<img src="' + d.posterUrl + '" alt="TMDB Poster" style="width:80px;border-radius:6px;border:2px solid #0d6efd;">'
+                                    + '<p style="font-size:11px;color:#0d6efd;margin-top:4px;">TMDB poster selected. You can still upload a custom one to override it.</p>';
+                                document.getElementById('posterOptionalLabel').style.display = 'inline';
+                                // Make poster upload optional
+                                document.getElementById('addPosterInput').removeAttribute('required');
+                            }
+
+                            resultsDiv.style.display = 'none';
+                            document.getElementById('tmdbNote').style.display = 'block';
+                        })
+                        .catch(err => {
+                            resultsDiv.innerHTML = '<div style="padding:12px;color:#dc3545;">Failed to load movie details.</div>';
+                            console.error('TMDB details error:', err);
+                        });
+                }
+
+                function setVal(id, val) {
+                    const el = document.getElementById(id);
+                    if (el && val !== undefined && val !== null && val !== '') {
+                        el.tagName === 'TEXTAREA' ? el.textContent = val : el.value = val;
+                    }
+                }
+
+                function languageCodeToName(code) {
+                    const map = { en:'English', hi:'Hindi', ta:'Tamil', te:'Telugu', ml:'Malayalam',
+                                  fr:'French', es:'Spanish', de:'German', ja:'Japanese', ko:'Korean',
+                                  zh:'Chinese', it:'Italian', pt:'Portuguese', ru:'Russian' };
+                    return map[code] || (code ? code.toUpperCase() : '');
+                }
+                // ============================================================
+                // END TMDB FUNCTIONS
+                // ============================================================
+
+
                 // Store all show times from database
                 const allShowTimesData = [
                     <c:if test="${not empty allShowTimes}">
@@ -358,6 +500,75 @@
                     </c:if>
                 ];
                 console.log('movieShowTimesData:', movieShowTimesData);
+                
+                // Store durations of all movies to calculate end times
+                const movieDurations = {
+                    <c:if test="${not empty movies}">
+                    <c:forEach var="m" items="${movies}" varStatus="status">
+                        ${m.movieId}: ${m.duration}<c:if test="${!status.last}">,</c:if>
+                    </c:forEach>
+                    </c:if>
+                };
+
+                // Store titles of all movies for detailed error messages
+                const movieTitles = {
+                    <c:if test="${not empty movies}">
+                    <c:forEach var="m" items="${movies}" varStatus="status">
+                        ${m.movieId}: "${m.title.replace('\"', '\\\"')}"<c:if test="${!status.last}">,</c:if>
+                    </c:forEach>
+                    </c:if>
+                };
+                
+                // Generic collision detection for showtimes
+                function checkTimeConflict(dateStr, hallId, newTime, newDuration, currentMovieId, scheduleObj) {
+                    if (!newTime || !newDuration) return { valid: true };
+
+                    const buffer = 30; // 30 minutes interval
+                    const totalMinutes = parseInt(newDuration) + buffer;
+                    const newStartMinutes = timeToMinutes(newTime);
+                    const newEndMinutes = newStartMinutes + totalMinutes;
+
+                    // 1. Check against ALL database showtimes (excluding current movie's old times if editing)
+                    if (typeof allShowTimesData !== 'undefined') {
+                        let formattedDate = dateStr;
+                        if (dateStr.startsWith('date_')) {
+                            const raw = dateStr.replace('date_', '');
+                            formattedDate = raw.slice(0,4) + '-' + raw.slice(4,6) + '-' + raw.slice(6,8);
+                        }
+
+                        for (let st of allShowTimesData) {
+                            if (st.date === formattedDate && st.hall === hallId && st.movieId != currentMovieId) {
+                                const existingStartMinutes = timeToMinutes(st.time);
+                                const otherDuration = parseInt(movieDurations[st.movieId]) || 120;
+                                const existingEndMinutes = existingStartMinutes + otherDuration + buffer;
+
+                                if (newStartMinutes < existingEndMinutes && newEndMinutes > existingStartMinutes) {
+                                    const movieTitle = movieTitles[st.movieId] || 'another movie';
+                                    const formattedHall = hallId.replace('audi', 'Audi ');
+                                    const formattedTime = formatTime(st.time.substring(0, 5));
+                                    return { valid: false, message: `Conflicts with "${movieTitle}" at ${formattedTime} in ${formattedHall} (including buffer).` };
+                                }
+                            }
+                        }
+                    }
+
+                    // 2. Check against times currently queued in the UI for this form
+                    if (scheduleObj && scheduleObj[dateStr] && scheduleObj[dateStr].halls[hallId]) {
+                        const existingTimes = scheduleObj[dateStr].halls[hallId];
+                        for (let time of existingTimes) {
+                            const existingStartMinutes = timeToMinutes(time);
+                            const existingEndMinutes = existingStartMinutes + totalMinutes;
+
+                            if (newStartMinutes < existingEndMinutes && newEndMinutes > existingStartMinutes) {
+                                const formattedHall = hallId.replace('audi', 'Audi ');
+                                const formattedTime = formatTime(time);
+                                return { valid: false, message: `Conflicts with another time you added (${formattedTime}) in ${formattedHall}.` };
+                            }
+                        }
+                    }
+
+                    return { valid: true };
+                }
                 
                 // Store all show schedule data (dates, halls, times)
                 let schedule = {};
@@ -606,47 +817,27 @@
                 
                 // Check if new time conflicts with existing times
                 function validateTime(sectionId) {
-                    // Get movie duration
                     const duration = parseInt(document.getElementById('duration').value) || 0;
-                    // Add 30 minute buffer after movie ends
-                    const buffer = 30;
-                    const totalMinutes = duration + buffer;
-                    
-                    // Get time input and warning elements
                     const timeInput = document.getElementById('timeInput_' + sectionId);
                     const newTime = timeInput.value;
                     const warning = document.getElementById('warning_' + sectionId);
                     
-                    // If no time selected or no duration, no conflict
                     if (!newTime || !duration) {
                         warning.classList.remove('show');
                         return true;
                     }
                     
-                    // Extract date and hall from section ID
                     const parts = sectionId.split('_');
                     const dateKey = parts[0] + '_' + parts[1];
                     const hallId = parts[2];
                     
-                    // Convert new time to minutes
-                    const newStartMinutes = timeToMinutes(newTime);
-                    const newEndMinutes = newStartMinutes + totalMinutes;
-                    // Get all existing times for this hall
-                    const existingTimes = schedule[dateKey].halls[hallId] || [];
-                    
-                    // Check if new time overlaps with any existing time
-                    for (let time of existingTimes) {
-                        const existingStartMinutes = timeToMinutes(time);
-                        const existingEndMinutes = existingStartMinutes + totalMinutes;
-                        
-                        // If times overlap, show warning
-                        if ((newStartMinutes < existingEndMinutes && newEndMinutes > existingStartMinutes)) {
-                            warning.classList.add('show');
-                            return false;
-                        }
+                    const checkResult = checkTimeConflict(dateKey, hallId, newTime, duration, 0, schedule);
+                    if (!checkResult.valid) {
+                        warning.textContent = checkResult.message;
+                        warning.classList.add('show');
+                        return false;
                     }
                     
-                    // No conflict found
                     warning.classList.remove('show');
                     return true;
                 }
@@ -670,14 +861,16 @@
                     }
                     
                     // Check for conflicts
-                    if (!validateTime(sectionId)) {
-                        alert('Cannot add this time - it conflicts with another show (including movie duration and 30min buffer)');
-                        return;
-                    }
-                    
-                    // Extract date key from section ID
                     const parts = sectionId.split('_');
                     const dateKey = parts[0] + '_' + parts[1];
+                    
+                    const duration = parseInt(document.getElementById('duration').value) || 0;
+                    const checkResult = checkTimeConflict(dateKey, hallId, time, duration, 0, schedule);
+                    
+                    if (!checkResult.valid) {
+                        alert(checkResult.message);
+                        return;
+                    }
                     
                     // Add time to schedule
                     schedule[dateKey].halls[hallId].push(time);
@@ -1025,6 +1218,15 @@
                     
                     if (!time) {
                         alert('Please select a time');
+                        return;
+                    }
+                    
+                    const duration = parseInt(document.getElementById('editDuration').value) || 0;
+                    const currentMovieId = document.getElementById('editMovieId').value;
+                    
+                    const checkResult = checkTimeConflict(currentEditDate, hallId, time, duration, currentMovieId, editSchedule);
+                    if (!checkResult.valid) {
+                        alert(checkResult.message);
                         return;
                     }
                     
