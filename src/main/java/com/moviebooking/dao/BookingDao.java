@@ -80,8 +80,8 @@ public class BookingDao {
      */
     public List<Booking> getBookingsByUserId(int userId) {
         List<Booking> bookings = new ArrayList<>();
-        // Join with movies table to also get the movie title
-        String query = "SELECT b.*, m.title as movie_title FROM bookings b JOIN movies m ON b.movie_id = m.movie_id WHERE b.user_id = ? ORDER BY b.booking_date DESC";
+        // Join with movies table to also get the movie title and poster
+        String query = "SELECT b.*, m.title as movie_title, m.poster_image as movie_poster FROM bookings b JOIN movies m ON b.movie_id = m.movie_id WHERE b.user_id = ? ORDER BY b.booking_date DESC";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(query)) {
             pstmt.setInt(1, userId);
@@ -99,6 +99,7 @@ public class BookingDao {
                 booking.setStatus(rs.getString("status"));
                 booking.setBookingDate(rs.getTimestamp("booking_date"));
                 booking.setMovieTitle(rs.getString("movie_title"));
+                booking.setMoviePoster(rs.getString("movie_poster"));
                 bookings.add(booking);
             }
         } catch (SQLException e) {
@@ -272,9 +273,9 @@ public class BookingDao {
     public List<Object[]> getTopBookedMovies(int limit) {
         List<Object[]> topMovies = new ArrayList<>();
         // Group bookings by movie and count them, sorted by most booked
-        String query = "SELECT m.title, COUNT(b.booking_id) as booking_count, SUM(b.number_of_seats) as total_seats " +
+        String query = "SELECT m.title, COUNT(b.booking_id) as booking_count, SUM(b.number_of_seats) as total_seats, m.poster_image " +
                       "FROM bookings b JOIN movies m ON b.movie_id = m.movie_id " +
-                      "GROUP BY m.movie_id, m.title ORDER BY booking_count DESC";
+                      "GROUP BY m.movie_id, m.title, m.poster_image ORDER BY booking_count DESC";
         // Add LIMIT if a limit is given
         if (limit > 0) {
             query += " LIMIT ?";
@@ -285,12 +286,13 @@ public class BookingDao {
                 pstmt.setInt(1, limit);
             }
             ResultSet rs = pstmt.executeQuery();
-            // Each row has movie title, booking count, and total seats
+            // Each row has movie title, booking count, total seats, and poster image
             while (rs.next()) {
-                Object[] row = new Object[3];
+                Object[] row = new Object[4];
                 row[0] = rs.getString("title");
                 row[1] = rs.getInt("booking_count");
                 row[2] = rs.getInt("total_seats");
+                row[3] = rs.getString("poster_image");
                 topMovies.add(row);
             }
         } catch (SQLException e) {
@@ -504,6 +506,173 @@ public class BookingDao {
             e.printStackTrace();
         }
         return seatData;
+    }
+    
+    public List<Object[]> getSeatDistributionByPeriod(String period, String startDate, String endDate) {
+        List<Object[]> seatData = new ArrayList<>();
+        
+        int standardCount = 0;
+        int premiumCount = 0;
+        int reclinerCount = 0;
+        int vipCount = 0;
+        
+        try (Connection conn = DBConnection.getConnection()) {
+            java.util.Map<String, String> rowToTypeMap = new java.util.HashMap<>();
+            
+            String hallConfigQuery = "SELECT hall_name, standard_rows, premium_rows, recliner_rows, vip_rows FROM hall_config";
+            try (Statement stmt = conn.createStatement();
+                 ResultSet rs = stmt.executeQuery(hallConfigQuery)) {
+                
+                while (rs.next()) {
+                    String standardRows = rs.getString("standard_rows");
+                    String premiumRows = rs.getString("premium_rows");
+                    String reclinerRows = rs.getString("recliner_rows");
+                    String vipRows = rs.getString("vip_rows");
+                    
+                    if (standardRows != null && !standardRows.trim().isEmpty()) {
+                        for (String row : standardRows.split(",")) {
+                            rowToTypeMap.put(row.trim().toUpperCase(), "Standard");
+                        }
+                    }
+                    if (premiumRows != null && !premiumRows.trim().isEmpty()) {
+                        for (String row : premiumRows.split(",")) {
+                            rowToTypeMap.put(row.trim().toUpperCase(), "Premium");
+                        }
+                    }
+                    if (reclinerRows != null && !reclinerRows.trim().isEmpty()) {
+                        for (String row : reclinerRows.split(",")) {
+                            rowToTypeMap.put(row.trim().toUpperCase(), "Recliner");
+                        }
+                    }
+                    if (vipRows != null && !vipRows.trim().isEmpty()) {
+                        for (String row : vipRows.split(",")) {
+                            rowToTypeMap.put(row.trim().toUpperCase(), "VIP");
+                        }
+                    }
+                }
+            }
+            
+            StringBuilder query = new StringBuilder("SELECT seat_type FROM bookings WHERE status = 'Confirmed'");
+            
+            if ("day".equals(period)) {
+                query.append(" AND DATE(booking_date) = CURDATE() ");
+            } else if ("week".equals(period)) {
+                query.append(" AND booking_date >= DATE_SUB(CURDATE(), INTERVAL 7 DAY) ");
+            } else if ("month".equals(period)) {
+                query.append(" AND booking_date >= DATE_SUB(CURDATE(), INTERVAL 30 DAY) ");
+            } else if ("custom".equals(period) && startDate != null && !startDate.isEmpty() && endDate != null && !endDate.isEmpty()) {
+                query.append(" AND DATE(booking_date) BETWEEN ? AND ? ");
+            }
+            
+            try (PreparedStatement pstmt = conn.prepareStatement(query.toString())) {
+                if ("custom".equals(period) && startDate != null && !startDate.isEmpty() && endDate != null && !endDate.isEmpty()) {
+                    pstmt.setString(1, startDate);
+                    pstmt.setString(2, endDate);
+                }
+                
+                ResultSet rs = pstmt.executeQuery();
+                
+                while (rs.next()) {
+                    String seatIds = rs.getString("seat_type");
+                    if (seatIds == null || seatIds.trim().isEmpty()) continue;
+                    
+                    String[] seats = seatIds.split(",");
+                    for (String seat : seats) {
+                        seat = seat.trim();
+                        if (seat.isEmpty()) continue;
+                        
+                        String rowLetter = "";
+                        for (int i = 0; i < seat.length(); i++) {
+                            char c = seat.charAt(i);
+                            if (Character.isDigit(c)) break;
+                            rowLetter += c;
+                        }
+                        rowLetter = rowLetter.toUpperCase();
+                        
+                        String seatType = rowToTypeMap.getOrDefault(rowLetter, "Standard");
+                        
+                        switch (seatType) {
+                            case "Standard": standardCount++; break;
+                            case "Premium": premiumCount++; break;
+                            case "Recliner": reclinerCount++; break;
+                            case "VIP": vipCount++; break;
+                        }
+                    }
+                }
+            }
+            
+            if (standardCount > 0) seatData.add(new Object[]{"Standard", standardCount});
+            if (premiumCount > 0) seatData.add(new Object[]{"Premium", premiumCount});
+            if (reclinerCount > 0) seatData.add(new Object[]{"Recliner", reclinerCount});
+            if (vipCount > 0) seatData.add(new Object[]{"VIP", vipCount});
+            
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return seatData;
+    }
+    
+    public List<Object[]> getRevenueChartData(String period, String startDate, String endDate, String group) {
+        List<Object[]> data = new ArrayList<>();
+        StringBuilder query = new StringBuilder();
+        
+        if ("day".equals(period)) {
+            query.append("SELECT DATE_FORMAT(booking_date, '%Y-%m-%d %H:00') as label, COALESCE(SUM(total_price), 0) as revenue ");
+            query.append("FROM bookings WHERE status != 'Cancelled' AND DATE(booking_date) = CURDATE() ");
+            query.append("GROUP BY label ORDER BY label ASC");
+        } else if ("week".equals(period)) {
+            query.append("SELECT DATE(booking_date) as label, COALESCE(SUM(total_price), 0) as revenue ");
+            query.append("FROM bookings WHERE status != 'Cancelled' AND booking_date >= DATE_SUB(CURDATE(), INTERVAL 7 DAY) ");
+            query.append("GROUP BY label ORDER BY label ASC");
+        } else if ("month".equals(period)) {
+            query.append("SELECT DATE(booking_date) as label, COALESCE(SUM(total_price), 0) as revenue ");
+            query.append("FROM bookings WHERE status != 'Cancelled' AND booking_date >= DATE_SUB(CURDATE(), INTERVAL 30 DAY) ");
+            query.append("GROUP BY label ORDER BY label ASC");
+        } else if ("custom".equals(period) && startDate != null && endDate != null) {
+            String groupBy = "day";
+            if (group != null && !group.isEmpty()) {
+                groupBy = group;
+            } else {
+                try {
+                    java.time.LocalDate start = java.time.LocalDate.parse(startDate);
+                    java.time.LocalDate end = java.time.LocalDate.parse(endDate);
+                    long days = java.time.temporal.ChronoUnit.DAYS.between(start, end);
+                    if (days > 90) groupBy = "month";
+                    else if (days > 30) groupBy = "week";
+                } catch (Exception e) {}
+            }
+            
+            if ("month".equals(groupBy)) {
+                query.append("SELECT DATE_FORMAT(booking_date, '%Y-%m') as label, COALESCE(SUM(total_price), 0) as revenue ");
+            } else if ("week".equals(groupBy)) {
+                query.append("SELECT DATE_ADD(DATE(booking_date), INTERVAL (1-DAYOFWEEK(booking_date)) DAY) as label, COALESCE(SUM(total_price), 0) as revenue ");
+            } else {
+                query.append("SELECT DATE(booking_date) as label, COALESCE(SUM(total_price), 0) as revenue ");
+            }
+            query.append("FROM bookings WHERE status != 'Cancelled' AND DATE(booking_date) BETWEEN ? AND ? ");
+            query.append("GROUP BY label ORDER BY label ASC");
+        } else {
+            query.append("SELECT DATE_FORMAT(booking_date, '%Y-%m') as label, COALESCE(SUM(total_price), 0) as revenue ");
+            query.append("FROM bookings WHERE status != 'Cancelled' AND booking_date >= DATE_SUB(CURDATE(), INTERVAL 12 MONTH) ");
+            query.append("GROUP BY label ORDER BY label ASC");
+        }
+
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(query.toString())) {
+             
+            if ("custom".equals(period) && startDate != null && endDate != null) {
+                pstmt.setString(1, startDate);
+                pstmt.setString(2, endDate);
+            }
+            
+            ResultSet rs = pstmt.executeQuery();
+            while (rs.next()) {
+                data.add(new Object[]{rs.getString("label"), rs.getDouble("revenue")});
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return data;
     }
     
     public List<Object[]> getAllMoviesWithBookingCount() {
@@ -745,5 +914,127 @@ public class BookingDao {
             e.printStackTrace();
         }
         return 0;
+    }
+    
+    public double getTotalRevenueByPeriod(String period, String startDate, String endDate) {
+        StringBuilder query = new StringBuilder("SELECT COALESCE(SUM(total_price), 0) FROM bookings WHERE status != 'Cancelled'");
+        
+        if ("day".equals(period)) {
+            query.append(" AND DATE(booking_date) = CURDATE()");
+        } else if ("week".equals(period)) {
+            query.append(" AND booking_date >= DATE_SUB(CURDATE(), INTERVAL 7 DAY)");
+        } else if ("month".equals(period)) {
+            query.append(" AND booking_date >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)");
+        } else if ("custom".equals(period) && startDate != null && !startDate.isEmpty() && endDate != null && !endDate.isEmpty()) {
+            query.append(" AND DATE(booking_date) BETWEEN ? AND ?");
+        }
+        
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(query.toString())) {
+            
+            if ("custom".equals(period) && startDate != null && !startDate.isEmpty() && endDate != null && !endDate.isEmpty()) {
+                pstmt.setString(1, startDate);
+                pstmt.setString(2, endDate);
+            }
+            
+            ResultSet rs = pstmt.executeQuery();
+            if (rs.next()) {
+                return rs.getDouble(1);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0.0;
+    }
+
+    public List<Object[]> getAllMoviesWithBookingCountByPeriod(String period, String startDate, String endDate) {
+        List<Object[]> movieData = new ArrayList<>();
+        StringBuilder query = new StringBuilder(
+            "SELECT m.title, COALESCE(COUNT(b.booking_id), 0) as booking_count, COALESCE(SUM(b.number_of_seats), 0) as total_seats " +
+            "FROM movies m LEFT JOIN bookings b ON m.movie_id = b.movie_id "
+        );
+        
+        if ("day".equals(period)) {
+            query.append(" AND DATE(b.booking_date) = CURDATE() ");
+        } else if ("week".equals(period)) {
+            query.append(" AND b.booking_date >= DATE_SUB(CURDATE(), INTERVAL 7 DAY) ");
+        } else if ("month".equals(period)) {
+            query.append(" AND b.booking_date >= DATE_SUB(CURDATE(), INTERVAL 30 DAY) ");
+        } else if ("custom".equals(period) && startDate != null && !startDate.isEmpty() && endDate != null && !endDate.isEmpty()) {
+            query.append(" AND DATE(b.booking_date) BETWEEN ? AND ? ");
+        }
+        
+        query.append("GROUP BY m.movie_id, m.title ORDER BY booking_count DESC");
+        
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(query.toString())) {
+             
+            if ("custom".equals(period) && startDate != null && !startDate.isEmpty() && endDate != null && !endDate.isEmpty()) {
+                pstmt.setString(1, startDate);
+                pstmt.setString(2, endDate);
+            }
+            
+            ResultSet rs = pstmt.executeQuery();
+            while (rs.next()) {
+                Object[] row = new Object[3];
+                row[0] = rs.getString("title");
+                row[1] = rs.getInt("booking_count");
+                row[2] = rs.getInt("total_seats");
+                movieData.add(row);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return movieData;
+    }
+
+    public List<Object[]> getTopBookedMoviesByPeriod(int limit, String period, String startDate, String endDate) {
+        List<Object[]> topMovies = new ArrayList<>();
+        StringBuilder query = new StringBuilder(
+            "SELECT m.title, COUNT(b.booking_id) as booking_count, SUM(b.number_of_seats) as total_seats, m.poster_image " +
+            "FROM bookings b JOIN movies m ON b.movie_id = m.movie_id WHERE b.status != 'Cancelled' "
+        );
+        
+        if ("day".equals(period)) {
+            query.append(" AND DATE(b.booking_date) = CURDATE() ");
+        } else if ("week".equals(period)) {
+            query.append(" AND b.booking_date >= DATE_SUB(CURDATE(), INTERVAL 7 DAY) ");
+        } else if ("month".equals(period)) {
+            query.append(" AND b.booking_date >= DATE_SUB(CURDATE(), INTERVAL 30 DAY) ");
+        } else if ("custom".equals(period) && startDate != null && !startDate.isEmpty() && endDate != null && !endDate.isEmpty()) {
+            query.append(" AND DATE(b.booking_date) BETWEEN ? AND ? ");
+        }
+        
+        query.append("GROUP BY m.movie_id, m.title, m.poster_image ORDER BY booking_count DESC");
+        
+        if (limit > 0) {
+            query.append(" LIMIT ?");
+        }
+        
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(query.toString())) {
+             
+            int paramIndex = 1;
+            if ("custom".equals(period) && startDate != null && !startDate.isEmpty() && endDate != null && !endDate.isEmpty()) {
+                pstmt.setString(paramIndex++, startDate);
+                pstmt.setString(paramIndex++, endDate);
+            }
+            if (limit > 0) {
+                pstmt.setInt(paramIndex, limit);
+            }
+            
+            ResultSet rs = pstmt.executeQuery();
+            while (rs.next()) {
+                Object[] row = new Object[4];
+                row[0] = rs.getString("title");
+                row[1] = rs.getInt("booking_count");
+                row[2] = rs.getInt("total_seats");
+                row[3] = rs.getString("poster_image");
+                topMovies.add(row);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return topMovies;
     }
 }

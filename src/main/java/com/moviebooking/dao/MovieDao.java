@@ -21,7 +21,7 @@ public class MovieDao {
      */
     public boolean addMovie(Movie movie) {
         // SQL query to insert all movie details into the movies table
-        String query = "INSERT INTO movies (title, genre, director, duration, language, release_date, start_date, end_date, description, poster_image, format, age_rating) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        String query = "INSERT INTO movies (title, genre, director, duration, language, release_date, start_date, end_date, description, poster_image, format, age_rating, trailer_url, cast_list) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         try (Connection conn = DBConnection.getConnection();
              // RETURN_GENERATED_KEYS lets us get the auto-generated movie ID after insert
              PreparedStatement pstmt = conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
@@ -38,6 +38,8 @@ public class MovieDao {
             pstmt.setString(10, movie.getPosterImage());
             pstmt.setString(11, movie.getFormat() != null ? movie.getFormat() : "2D");
             pstmt.setString(12, movie.getAgeRating() != null ? movie.getAgeRating() : "PG");
+            pstmt.setString(13, movie.getTrailerUrl());
+            pstmt.setString(14, movie.getCastList());
             // Run the insert query
             int result = pstmt.executeUpdate();
             if (result > 0) {
@@ -83,6 +85,8 @@ public class MovieDao {
                 movie.setPosterImage(rs.getString("poster_image"));
                 movie.setFormat(rs.getString("format"));
                 movie.setAgeRating(rs.getString("age_rating"));
+                movie.setTrailerUrl(rs.getString("trailer_url"));
+                movie.setCastList(rs.getString("cast_list"));
                 movies.add(movie);
             }
         } catch (SQLException e) {
@@ -119,6 +123,8 @@ public class MovieDao {
                 movie.setPosterImage(rs.getString("poster_image"));
                 movie.setFormat(rs.getString("format"));
                 movie.setAgeRating(rs.getString("age_rating"));
+                movie.setTrailerUrl(rs.getString("trailer_url"));
+                movie.setCastList(rs.getString("cast_list"));
                 return movie;
             }
         } catch (SQLException e) {
@@ -134,7 +140,7 @@ public class MovieDao {
      */
     public boolean updateMovie(Movie movie) {
         // Update all fields for the movie with the given ID
-        String query = "UPDATE movies SET title = ?, genre = ?, director = ?, duration = ?, language = ?, release_date = ?, start_date = ?, end_date = ?, description = ?, poster_image = ?, format = ?, age_rating = ? WHERE movie_id = ?";
+        String query = "UPDATE movies SET title = ?, genre = ?, director = ?, duration = ?, language = ?, release_date = ?, start_date = ?, end_date = ?, description = ?, poster_image = ?, format = ?, age_rating = ?, trailer_url = ?, cast_list = ? WHERE movie_id = ?";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(query)) {
             pstmt.setString(1, movie.getTitle());
@@ -149,7 +155,9 @@ public class MovieDao {
             pstmt.setString(10, movie.getPosterImage());
             pstmt.setString(11, movie.getFormat() != null ? movie.getFormat() : "2D");
             pstmt.setString(12, movie.getAgeRating() != null ? movie.getAgeRating() : "PG");
-            pstmt.setInt(13, movie.getMovieId());
+            pstmt.setString(13, movie.getTrailerUrl());
+            pstmt.setString(14, movie.getCastList());
+            pstmt.setInt(15, movie.getMovieId());
             return pstmt.executeUpdate() > 0;
         } catch (SQLException e) {
             e.printStackTrace();
@@ -205,6 +213,8 @@ public class MovieDao {
                 movie.setPosterImage(rs.getString("poster_image"));
                 movie.setFormat(rs.getString("format"));
                 movie.setAgeRating(rs.getString("age_rating"));
+                movie.setTrailerUrl(rs.getString("trailer_url"));
+                movie.setCastList(rs.getString("cast_list"));
                 movies.add(movie);
             }
         } catch (SQLException e) {
@@ -240,6 +250,8 @@ public class MovieDao {
                 movie.setPosterImage(rs.getString("poster_image"));
                 movie.setFormat(rs.getString("format"));
                 movie.setAgeRating(rs.getString("age_rating"));
+                movie.setTrailerUrl(rs.getString("trailer_url"));
+                movie.setCastList(rs.getString("cast_list"));
                 movies.add(movie);
             }
         } catch (SQLException e) {
@@ -358,6 +370,8 @@ public class MovieDao {
                 movie.setPosterImage(rs.getString("poster_image"));
                 movie.setFormat(rs.getString("format"));
                 movie.setAgeRating(rs.getString("age_rating"));
+                movie.setTrailerUrl(rs.getString("trailer_url"));
+                movie.setCastList(rs.getString("cast_list"));
                 movies.add(movie);
             }
         } catch (SQLException e) {

@@ -28,27 +28,38 @@ public class AdminHomeServlet extends HttpServlet {
         String period = request.getParameter("period");
         String startDate = request.getParameter("startDate");
         String endDate = request.getParameter("endDate");
+        String group = request.getParameter("group");
         
         int totalUsers = userDao.getTotalUsers();
         int totalMovies = movieDao.getTotalMovies();
         
         // Get bookings count based on filter
         int totalBookings;
+        double totalRevenue;
+        
         if (period != null && !period.isEmpty()) {
             totalBookings = bookingDao.getBookingsCountByPeriod(period, startDate, endDate);
+            totalRevenue = bookingDao.getTotalRevenueByPeriod(period, startDate, endDate);
         } else {
             totalBookings = bookingDao.getTotalBookings();
+            totalRevenue = bookingDao.getTotalRevenue();
         }
         
-        double totalRevenue = bookingDao.getTotalRevenue();
+        List<Object[]> allMovies;
+        List<Object[]> topMovies;
+        List<Object[]> seatDistribution;
         
-        List<Object[]> allMovies = bookingDao.getAllMoviesWithBookingCount();
-        List<Object[]> topMovies = bookingDao.getTopBookedMovies(0);
+        if (period != null && !period.isEmpty()) {
+            allMovies = bookingDao.getAllMoviesWithBookingCountByPeriod(period, startDate, endDate);
+            topMovies = bookingDao.getTopBookedMoviesByPeriod(0, period, startDate, endDate);
+            seatDistribution = bookingDao.getSeatDistributionByPeriod(period, startDate, endDate);
+        } else {
+            allMovies = bookingDao.getAllMoviesWithBookingCount();
+            topMovies = bookingDao.getTopBookedMovies(0);
+            seatDistribution = bookingDao.getSeatDistribution();
+        }
         List<Booking> recentBookings = bookingDao.getRecentBookings(5);
-        List<Object[]> revenueByDay = bookingDao.getRevenueByDay();
-        List<Object[]> revenueByMonth = bookingDao.getRevenueByMonth();
-        List<Object[]> revenueByYear = bookingDao.getRevenueByYear();
-        List<Object[]> seatDistribution = bookingDao.getSeatDistribution();
+        List<Object[]> chartRevenue = bookingDao.getRevenueChartData(period, startDate, endDate, group);
 
         request.setAttribute("totalUsers", totalUsers);
         request.setAttribute("totalMovies", totalMovies);
@@ -57,13 +68,12 @@ public class AdminHomeServlet extends HttpServlet {
         request.setAttribute("allMovies", allMovies);
         request.setAttribute("topMovies", topMovies);
         request.setAttribute("recentBookings", recentBookings);
-        request.setAttribute("revenueByDay", revenueByDay);
-        request.setAttribute("revenueByMonth", revenueByMonth);
-        request.setAttribute("revenueByYear", revenueByYear);
+        request.setAttribute("chartRevenue", chartRevenue);
         request.setAttribute("seatDistribution", seatDistribution);
         request.setAttribute("selectedPeriod", period);
         request.setAttribute("startDate", startDate);
         request.setAttribute("endDate", endDate);
+        request.setAttribute("customGroup", group);
         
         request.getRequestDispatcher("/WEB-INF/pages/adminHome.jsp").forward(request, response);
     }

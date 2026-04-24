@@ -159,7 +159,10 @@ public class UserDao {
      * @return the User object if found, null if not found
      */
     public User getUserById(int userId) {
-        String query = "SELECT * FROM users WHERE user_id = ?";
+        String query = "SELECT u.*, " +
+                      "(SELECT COUNT(*) FROM bookings b WHERE b.user_id = u.user_id) as booking_count, " +
+                      "(SELECT COALESCE(SUM(b.total_price), 0) FROM bookings b WHERE b.user_id = u.user_id) as total_spent " +
+                      "FROM users u WHERE user_id = ?";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(query)) {
             pstmt.setInt(1, userId);
@@ -171,6 +174,8 @@ public class UserDao {
                 user.setEmail(rs.getString("email"));
                 user.setPhone(rs.getString("phone"));
                 user.setRole(rs.getString("role"));
+                user.setBookingCount(rs.getInt("booking_count"));
+                user.setTotalSpent(rs.getDouble("total_spent"));
                 return user;
             }
         } catch (SQLException e) {

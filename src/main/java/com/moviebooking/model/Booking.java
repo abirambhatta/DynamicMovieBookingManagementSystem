@@ -30,6 +30,8 @@ public class Booking {
     private String movieTitle;
     // Name of the user who booked (used for admin display)
     private String userName;
+    // URL/path to the movie poster image
+    private String moviePoster;
 
     // Empty constructor - needed to create booking object and set values later
     public Booking() {}
@@ -79,4 +81,7 @@ public class Booking {
 
     public String getUserName() { return userName; }
     public void setUserName(String userName) { this.userName = userName; }
+
+    public String getMoviePoster() { return moviePoster; }
+    public void setMoviePoster(String moviePoster) { this.moviePoster = moviePoster; }
 }

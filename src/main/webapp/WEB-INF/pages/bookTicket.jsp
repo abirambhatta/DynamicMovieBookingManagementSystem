@@ -113,7 +113,7 @@
 
         <%-- ===== LEFT: SEAT MAP ===== --%>
         <section class="seat-section">
-            <a href="${pageContext.request.contextPath}/movieDetails?id=${movie.movieId}" class="back-link">&larr; Back to Details</a>
+            <a href="javascript:history.back()" class="back-link" onclick="if(document.referrer === '') { window.location.href='${pageContext.request.contextPath}/userHome'; return false; }">&larr; Back</a>
             <div class="seat-header">
                 <div>
                     <span class="hall-label" id="selectedHallLabel">Select a showtime</span>

@@ -105,7 +105,7 @@
 
         <!-- Stats Bento Grid -->
         <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-10">
-            <div class="p-6 rounded-xl" style="background-color: white; border: 1px solid #e9ecef; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+            <div class="p-6 rounded-xl" style="background-color: white; border: 1px solid #e9ecef; border-left: 4px solid #dc143c; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
                 <p class="text-xs font-bold uppercase tracking-widest mb-2" style="color: #6c757d;">Total Users</p>
                 <h3 class="text-4xl font-bold leading-none" style="color: #212529;">${totalUsers}</h3>
                 <div class="mt-4 flex items-center text-xs font-bold" style="color: #dc143c;">
@@ -113,7 +113,7 @@
                     Registered members
                 </div>
             </div>
-            <div class="p-6 rounded-xl" style="background-color: white; border: 1px solid #e9ecef; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+            <div class="p-6 rounded-xl" style="background-color: white; border: 1px solid #e9ecef; border-left: 4px solid #3498db; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
                 <p class="text-xs font-bold uppercase tracking-widest mb-2" style="color: #6c757d;">Admins</p>
                 <h3 class="text-4xl font-bold leading-none" style="color: #212529;">${totalAdmins}</h3>
                 <div class="mt-4 flex items-center text-xs font-bold" style="color: #6c757d;">
@@ -121,7 +121,7 @@
                     System administrators
                 </div>
             </div>
-            <div class="p-6 rounded-xl" style="background-color: white; border: 1px solid #e9ecef; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+            <div class="p-6 rounded-xl" style="background-color: white; border: 1px solid #e9ecef; border-left: 4px solid #28a745; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
                 <p class="text-xs font-bold uppercase tracking-widest mb-2" style="color: #6c757d;">Active Users</p>
                 <h3 class="text-4xl font-bold leading-none" style="color: #212529;">${activeUsers}</h3>
                 <div class="mt-4 flex items-center text-xs font-bold" style="color: #28a745;">
@@ -193,7 +193,7 @@
         <!-- User Table Section -->
         <div class="rounded-xl overflow-hidden" style="background-color: white; border: 1px solid #e9ecef; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
             <div class="overflow-x-auto">
-                <table class="w-full text-left border-collapse min-w-[800px]">
+                <table class="w-full text-left border-collapse min-w-[800px]" data-paginate="true" data-rows-per-page="8">
                     <thead>
                         <tr style="background-color: #dc143c; color: white;">
                             <th class="px-6 py-4 text-[11px] font-bold uppercase tracking-[0.1em]">User Identity</th>
@@ -380,5 +380,6 @@
             document.getElementById('userModal').classList.add('hidden');
         }
     </script>
+    <script src="${pageContext.request.contextPath}/js/pagination.js"></script>
 </body>
 </html>

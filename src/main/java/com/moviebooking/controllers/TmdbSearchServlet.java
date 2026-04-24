@@ -77,15 +77,18 @@ public class TmdbSearchServlet extends HttpServlet {
         for (Map.Entry<String, String> e : m.entrySet()) {
             if (!first) sb.append(",");
             sb.append("\"").append(e.getKey()).append("\":\"")
-              .append(e.getValue() == null ? "" : e.getValue()
-                  .replace("\\", "\\\\")
-                  .replace("\"", "\\\"")
-                  .replace("\n", "\\n")
-                  .replace("\r", ""))
+              .append(escapeJson(e.getValue()))
               .append("\"");
             first = false;
         }
         sb.append("}");
         return sb.toString();
+    }
+
+    private String escapeJson(String s) {
+        return s == null ? "" : s.replace("\\", "\\\\")
+                  .replace("\"", "\\\"")
+                  .replace("\n", "\\n")
+                  .replace("\r", "");
     }
 }

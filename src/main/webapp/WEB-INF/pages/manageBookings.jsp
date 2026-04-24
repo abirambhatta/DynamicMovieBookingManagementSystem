@@ -53,25 +53,46 @@
         <jsp:include page="adminHeader.jsp" />
         
         <div class="main-content">
-            <h1>Manage Bookings</h1>
+            <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 30px;">
+                <div>
+                    <h1 style="font-size: 28px; font-weight: 700; margin: 0; color: #212529;">Booking Records</h1>
+                    <p style="margin: 5px 0 0 0; color: #6c757d;">Manage and track all customer reservations.</p>
+                </div>
+            </div>
             
             <!-- Statistics Cards -->
             <div class="stats-grid">
                 <div class="stat-card">
                     <h3>Total Bookings</h3>
                     <p class="stat-value">${totalBookings}</p>
+                    <div style="margin-top: 15px; display: flex; align-items: center; font-size: 12px; font-weight: 700; color: #dc143c;">
+                        <span class="material-symbols-outlined" style="font-size: 16px; margin-right: 5px;">confirmation_number</span>
+                        All time reservations
+                    </div>
                 </div>
                 <div class="stat-card confirmed">
                     <h3>Confirmed</h3>
                     <p class="stat-value">${confirmedBookings}</p>
+                    <div style="margin-top: 15px; display: flex; align-items: center; font-size: 12px; font-weight: 700; color: #2ecc71;">
+                        <span class="material-symbols-outlined" style="font-size: 16px; margin-right: 5px;">check_circle</span>
+                        Successful bookings
+                    </div>
                 </div>
                 <div class="stat-card cancelled">
                     <h3>Cancelled</h3>
                     <p class="stat-value">${cancelledBookings}</p>
+                    <div style="margin-top: 15px; display: flex; align-items: center; font-size: 12px; font-weight: 700; color: #e74c3c;">
+                        <span class="material-symbols-outlined" style="font-size: 16px; margin-right: 5px;">cancel</span>
+                        Refunded or cancelled
+                    </div>
                 </div>
                 <div class="stat-card today">
                     <h3>Today's Bookings</h3>
                     <p class="stat-value">${todayBookings}</p>
+                    <div style="margin-top: 15px; display: flex; align-items: center; font-size: 12px; font-weight: 700; color: #3498db;">
+                        <span class="material-symbols-outlined" style="font-size: 16px; margin-right: 5px;">today</span>
+                        Bookings made today
+                    </div>
                 </div>
             </div>
             
@@ -159,7 +180,7 @@
             
             <!-- Bookings table -->
             <div class="table-container">
-                <table class="data-table">
+                <table class="data-table" data-paginate="true" data-rows-per-page="8">
                     <!-- Table header -->
                     <thead>
                         <tr>
@@ -223,5 +244,6 @@
             </div>
         </div>
     </div>
+    <script src="${pageContext.request.contextPath}/js/pagination.js"></script>
 </body>
 </html>

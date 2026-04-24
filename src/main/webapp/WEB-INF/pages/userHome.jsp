@@ -1,5 +1,6 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <!DOCTYPE html>
 <html class="light" lang="en">
 <head>
@@ -87,19 +88,60 @@
                 <c:choose>
                     <c:when test="${not empty recentMovies}">
                         <c:forEach var="movie" items="${recentMovies}">
-                            <div class="bg-surface-container-lowest rounded-xl overflow-hidden shadow-[0_10px_30px_rgba(20,29,35,0.05)] border border-surface-container transition-transform hover:-translate-y-1 hover:shadow-[0_20px_40px_rgba(20,29,35,0.08)] group flex flex-col h-full">
-                                <div class="relative w-full aspect-[2/3] overflow-hidden bg-surface-container-high">
+                            <div class="bg-[#1c2331] rounded-xl overflow-hidden shadow-lg group flex flex-col h-full border border-surface-variant/20 cursor-pointer" onclick="window.location.href='${pageContext.request.contextPath}/movieDetails?id=${movie.movieId}'">
+                                <div class="relative w-full aspect-[2/3] overflow-hidden bg-black">
                                     <img src="${pageContext.request.contextPath}/images/${movie.posterImage}" alt="${movie.title}" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" onerror="this.style.display='none'">
-                                    <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-4">
-                                        <span class="text-white text-xs font-bold uppercase tracking-widest border border-white/40 backdrop-blur-sm px-3 py-1 rounded bg-black/30">View Details</span>
+                                    
+                                    <!-- Format and Age Rating Badges -->
+                                    <div class="absolute top-3 right-3 flex flex-col gap-2 items-end z-20">
+                                        <c:if test="${not empty movie.format}">
+                                            <span class="bg-white/90 backdrop-blur-sm text-primary-dark font-bold text-[10px] uppercase tracking-wider px-2.5 py-1 rounded shadow-sm">${movie.format}</span>
+                                        </c:if>
+                                        <c:if test="${not empty movie.ageRating}">
+                                            <span class="bg-black/70 backdrop-blur-sm text-white font-bold text-[10px] uppercase tracking-wider px-2.5 py-1 rounded border border-white/20 shadow-sm">${movie.ageRating}</span>
+                                        </c:if>
+                                    </div>
+                                    
+                                    <!-- Gradient overlay -->
+                                    <div class="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-[#1c2331]/90 to-transparent z-0"></div>
+                                    
+                                    <!-- Hover Buttons Overlay -->
+                                    <div class="absolute bottom-6 inset-x-0 flex flex-col items-center gap-3 px-6 z-10 opacity-0 translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300">
+                                        <a href="${pageContext.request.contextPath}/bookTicket?movieId=${movie.movieId}" class="w-full bg-white hover:bg-gray-100 text-primary py-3 rounded-lg flex items-center justify-center gap-2 font-bold shadow-md transition-colors">
+                                            <span class="material-symbols-outlined text-[20px]">local_activity</span>
+                                            Buy Ticket
+                                        </a>
+                                        <c:if test="${not empty movie.trailerUrl}">
+                                            <button type="button" onclick="event.preventDefault(); event.stopPropagation(); openTrailer('${movie.trailerUrl}');" class="w-full bg-white hover:bg-gray-100 text-primary py-3 rounded-lg flex items-center justify-center gap-2 font-bold shadow-md transition-colors">
+                                                <span class="material-symbols-outlined text-[20px]">play_circle</span>
+                                                Play Trailer
+                                            </button>
+                                        </c:if>
                                     </div>
                                 </div>
-                                <div class="p-5 flex flex-col flex-grow justify-between">
-                                    <div>
-                                        <h3 class="text-lg font-bold font-headline text-on-surface mb-2 leading-tight">${movie.title}</h3>
-                                        <p class="text-xs font-medium text-secondary uppercase tracking-widest inline-block bg-surface-container-highest px-2 py-1 rounded text-primary">${movie.genre}</p>
+                                <div class="p-5 flex flex-col flex-grow bg-[#1c2331]">
+                                    <a href="${pageContext.request.contextPath}/movieDetails?id=${movie.movieId}" class="hover:underline">
+                                        <h3 class="text-2xl font-bold font-headline text-white mb-1 leading-tight">${movie.title}</h3>
+                                    </a>
+                                    <fmt:parseNumber var="hours" integerOnly="true" type="number" value="${movie.duration / 60}" />
+                                    <p class="text-[14px] text-gray-400 mb-2"><c:if test="${hours > 0}">${hours}h </c:if>${movie.duration % 60}m</p>
+                                    <p class="text-[12px] font-bold text-gray-400 uppercase tracking-widest mb-6">${movie.genre}</p>
+                                    
+                                    <div class="grid grid-cols-2 lg:grid-cols-3 gap-2 mt-auto">
+                                        <c:set var="shows" value="${showTimesMap[movie.movieId]}" />
+                                        <c:choose>
+                                            <c:when test="${not empty shows}">
+                                                <c:forEach var="show" items="${shows}">
+                                                    <a href="${pageContext.request.contextPath}/bookTicket?movieId=${movie.movieId}&showId=${show.showTimeId}" class="block text-center border border-green-600/50 text-green-500 hover:bg-green-600/10 rounded py-2 text-[13px] font-medium transition-colors">
+                                                        ${show.showTime.toString().substring(0,5)}
+                                                    </a>
+                                                </c:forEach>
+                                            </c:when>
+                                            <c:otherwise>
+                                                <div class="col-span-full py-2 text-center text-xs text-gray-500 italic">No shows scheduled today</div>
+                                            </c:otherwise>
+                                        </c:choose>
                                     </div>
-                                    <a href="${pageContext.request.contextPath}/movieDetails?id=${movie.movieId}" class="mt-6 block w-full text-center px-4 py-2.5 bg-surface text-primary text-[11px] font-bold uppercase tracking-widest rounded border border-surface-variant hover:border-primary hover:bg-primary hover:text-white transition-all">Get Tickets</a>
                                 </div>
                             </div>
                         </c:forEach>
@@ -116,5 +158,36 @@
         </section>
         </div>
     </main>
+    <!-- Trailer Modal -->
+    <div id="trailerModal" class="fixed inset-0 z-[9999] hidden bg-black/90 backdrop-blur-sm flex items-center justify-center p-4 lg:p-12">
+        <button type="button" onclick="closeTrailer()" class="absolute top-6 right-6 md:top-8 md:right-8 text-white hover:text-primary transition-colors flex items-center justify-center w-12 h-12 z-50 bg-white/10 hover:bg-white/20 rounded-full border border-white/20 backdrop-blur-sm" title="Close">
+            <span class="material-symbols-outlined text-[28px]">close</span>
+        </button>
+        <div class="relative w-full max-w-5xl aspect-video bg-black rounded-2xl shadow-2xl border border-white/10">
+            <div class="w-full h-full overflow-hidden rounded-2xl">
+                <iframe id="trailerIframe" class="w-full h-full" src="" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+            </div>
+        </div>
+    </div>
+    <script>
+        function openTrailer(url) {
+            let embedUrl = url;
+            if (url.includes('watch?v=')) {
+                let videoId = url.split('watch?v=')[1].split('&')[0];
+                embedUrl = 'https://www.youtube.com/embed/' + videoId + '?autoplay=1';
+            } else if (url.includes('youtu.be/')) {
+                let videoId = url.split('youtu.be/')[1].split('?')[0];
+                embedUrl = 'https://www.youtube.com/embed/' + videoId + '?autoplay=1';
+            } else if (!url.includes('?autoplay=')) {
+                embedUrl += url.includes('?') ? '&autoplay=1' : '?autoplay=1';
+            }
+            document.getElementById('trailerIframe').src = embedUrl;
+            document.getElementById('trailerModal').classList.remove('hidden');
+        }
+        function closeTrailer() {
+            document.getElementById('trailerModal').classList.add('hidden');
+            document.getElementById('trailerIframe').src = '';
+        }
+    </script>
 </body>
 </html>

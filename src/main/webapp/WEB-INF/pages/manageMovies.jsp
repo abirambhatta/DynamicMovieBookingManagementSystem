@@ -62,25 +62,46 @@
         <jsp:include page="adminHeader.jsp" />
         
         <div class="main-content">
-            <h1>Manage Movies</h1>
+            <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 30px;">
+                <div>
+                    <h1 style="font-size: 28px; font-weight: 700; margin: 0; color: #212529;">Movie Catalog</h1>
+                    <p style="margin: 5px 0 0 0; color: #6c757d;">Manage your cinema's movies and showtimes.</p>
+                </div>
+            </div>
             
             <!-- Statistics Cards -->
             <div class="stats-grid">
                 <div class="stat-card">
                     <h3>Total Movies</h3>
                     <p class="stat-value">${totalMovies}</p>
+                    <div style="margin-top: 15px; display: flex; align-items: center; font-size: 12px; font-weight: 700; color: #dc143c;">
+                        <span class="material-symbols-outlined" style="font-size: 16px; margin-right: 5px;">movie</span>
+                        All movies in database
+                    </div>
                 </div>
                 <div class="stat-card now-showing">
                     <h3>Now Showing</h3>
                     <p class="stat-value">${nowShowing}</p>
+                    <div style="margin-top: 15px; display: flex; align-items: center; font-size: 12px; font-weight: 700; color: #2ecc71;">
+                        <span class="material-symbols-outlined" style="font-size: 16px; margin-right: 5px;">play_circle</span>
+                        Currently in theaters
+                    </div>
                 </div>
                 <div class="stat-card upcoming">
                     <h3>Upcoming</h3>
                     <p class="stat-value">${upcoming}</p>
+                    <div style="margin-top: 15px; display: flex; align-items: center; font-size: 12px; font-weight: 700; color: #3498db;">
+                        <span class="material-symbols-outlined" style="font-size: 16px; margin-right: 5px;">upcoming</span>
+                        Coming soon
+                    </div>
                 </div>
                 <div class="stat-card showtimes">
                     <h3>Total Showtimes</h3>
                     <p class="stat-value">${totalShowTimes}</p>
+                    <div style="margin-top: 15px; display: flex; align-items: center; font-size: 12px; font-weight: 700; color: #f39c12;">
+                        <span class="material-symbols-outlined" style="font-size: 16px; margin-right: 5px;">schedule</span>
+                        Active schedules
+                    </div>
                 </div>
             </div>
             
@@ -236,6 +257,14 @@
                         <input type="date" id="endDate" name="endDate" required>
                     </div>
                     <div class="form-group">
+                        <label>YouTube Trailer URL (Optional):</label>
+                        <input type="url" id="addTrailerUrl" name="trailerUrl" placeholder="https://www.youtube.com/embed/...">
+                    </div>
+                    <div class="form-group">
+                        <label>Cast (Optional):</label>
+                        <input type="text" id="addCastList" name="castList" placeholder="Comma-separated list of actors">
+                    </div>
+                    <div class="form-group">
                         <label>Description:</label>
                         <textarea id="addDescription" name="description" required></textarea>
                     </div>
@@ -341,6 +370,14 @@
                         <input type="date" id="editEndDate" name="endDate" required onchange="updateEditSchedule()">
                     </div>
                     <div class="form-group">
+                        <label>YouTube Trailer URL (Optional):</label>
+                        <input type="url" id="editTrailerUrl" name="trailerUrl" placeholder="https://www.youtube.com/embed/...">
+                    </div>
+                    <div class="form-group">
+                        <label>Cast (Optional):</label>
+                        <input type="text" id="editCastList" name="castList" placeholder="Comma-separated list of actors">
+                    </div>
+                    <div class="form-group">
                         <label>Description:</label>
                         <textarea name="description" id="editDescription" required></textarea>
                     </div>
@@ -425,6 +462,8 @@
                             setVal('duration',       d.duration);
                             setVal('addLanguage',    languageCodeToName(d.language));
                             setVal('addDescription', d.overview || d.description);
+                            setVal('addTrailerUrl',  d.trailerUrl);
+                            setVal('addCastList',    d.cast);
                             if (d.releaseDate) setVal('addReleaseDate', d.releaseDate);
 
                             // Genre - try to match existing options
@@ -604,7 +643,7 @@
                     
                     // If editMovie is set, show the edit form automatically
                     <c:if test="${not empty editMovie}">
-                    showEditForm(${editMovie.movieId}, `${editMovie.title}`, `${editMovie.genre}`, `${editMovie.director}`, ${editMovie.duration}, `${editMovie.language}`, `${editMovie.description}`, `${editMovie.posterImage}`, `${editMovie.startDate}`, `${editMovie.endDate}`, `${editMovie.releaseDate}`, `${editMovie.format}`, `${editMovie.ageRating}`);
+                    showEditForm(${editMovie.movieId}, `${editMovie.title}`, `${editMovie.genre}`, `${editMovie.director}`, ${editMovie.duration}, `${editMovie.language}`, `${editMovie.description}`, `${editMovie.posterImage}`, `${editMovie.startDate}`, `${editMovie.endDate}`, `${editMovie.releaseDate}`, `${editMovie.format}`, `${editMovie.ageRating}`, `${editMovie.trailerUrl}`, `${editMovie.castList}`);
                     </c:if>
                 });
                 
@@ -958,7 +997,7 @@
                 let selectedEditHalls = [];
                 let currentEditDate = null;
 
-                function showEditForm(movieId, title, genre, director, duration, language, description, posterImage, startDate, endDate, releaseDate, format, ageRating) {
+                function showEditForm(movieId, title, genre, director, duration, language, description, posterImage, startDate, endDate, releaseDate, format, ageRating, trailerUrl, castList) {
                     console.log('Opening edit form for movie ID:', movieId);
                     
                     document.getElementById('editMovieId').value = movieId;
@@ -971,6 +1010,8 @@
                     document.getElementById('editReleaseDate').value = releaseDate;
                     document.getElementById('editStartDate').value = startDate;
                     document.getElementById('editEndDate').value = endDate;
+                    if (trailerUrl && trailerUrl !== 'null') document.getElementById('editTrailerUrl').value = trailerUrl;
+                    if (castList && castList !== 'null') document.getElementById('editCastList').value = castList;
                     
                     // Populate format and age rating dropdowns
                     var fmtSel = document.getElementById('editFormat');
@@ -1353,7 +1394,7 @@
             </script>
             
             <div class="table-container">
-                <table class="data-table">
+                <table class="data-table" data-paginate="true" data-rows-per-page="8">
                     <thead>
                         <tr>
                             <th>ID</th>
@@ -1408,5 +1449,6 @@
             </div>
         </div>
     </div>
+    <script src="${pageContext.request.contextPath}/js/pagination.js"></script>
 </body>
 </html>

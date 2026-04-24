@@ -1,5 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <!DOCTYPE html>
 <html class="light" lang="en">
 <head>
@@ -56,72 +58,106 @@
         <c:choose>
             <c:when test="${not empty movie}">
                 
-                <!-- Movie Backdrop / Hero Section -->
-                <div class="relative w-full h-[400px] lg:h-[500px] overflow-hidden bg-black">
-                    <!-- Blur backdrop -->
-                    <div class="absolute inset-0 opacity-40">
-                        <img src="${pageContext.request.contextPath}/images/${movie.posterImage}" alt="Backdrop" class="w-full h-full object-cover blur-xl scale-110" onerror="this.style.display='none'">
-                    </div>
-                    <!-- Gradient Overlays -->
-                    <div class="absolute inset-0 bg-gradient-to-t from-surface via-surface/80 to-transparent"></div>
-                    <div class="absolute inset-0 bg-gradient-to-r from-black/80 via-black/40 to-transparent"></div>
+                <!-- Hero Banner Section -->
+                <div class="relative w-full h-[350px] lg:h-[450px] bg-black">
+                    <c:choose>
+                        <c:when test="${not empty movie.trailerUrl}">
+                            <!-- YouTube Thumbnail with Play Button -->
+                            <div class="absolute inset-0 cursor-pointer group" onclick="openTrailer('${movie.trailerUrl}')">
+                                <img id="bannerThumb" src="" alt="Trailer Thumbnail" class="w-full h-full object-cover opacity-60 transition-transform duration-700 group-hover:scale-105" onerror="this.src='${pageContext.request.contextPath}/images/${movie.posterImage}'; this.classList.add('blur-xl', 'opacity-40');">
+                                <div class="absolute inset-0 flex items-center justify-center pb-12">
+                                    <div class="w-20 h-20 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center border-4 border-white/60 shadow-2xl group-hover:scale-110 transition-transform">
+                                        <span class="material-symbols-outlined text-white text-[48px]" style="font-variation-settings: 'FILL' 1;">play_arrow</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <script>
+                                (function(){
+                                    const url = '${movie.trailerUrl}';
+                                    let videoId = '';
+                                    if (url.includes('watch?v=')) videoId = url.split('watch?v=')[1].split('&')[0];
+                                    else if (url.includes('youtu.be/')) videoId = url.split('youtu.be/')[1].split('?')[0];
+                                    else if (url.includes('/embed/')) videoId = url.split('/embed/')[1].split('?')[0];
+                                    if (videoId) document.getElementById('bannerThumb').src = 'https://img.youtube.com/vi/' + videoId + '/maxresdefault.jpg';
+                                })();
+                            </script>
+                        </c:when>
+                        <c:otherwise>
+                            <!-- Blurred Poster -->
+                            <img src="${pageContext.request.contextPath}/images/${movie.posterImage}" alt="Backdrop" class="w-full h-full object-cover blur-xl opacity-40">
+                        </c:otherwise>
+                    </c:choose>
                     
-                    <!-- Content Over Backdrop -->
-                    <div class="absolute inset-0 flex items-end">
-                        <div class="max-w-7xl mx-auto w-full px-8 pb-10 flex flex-col md:flex-row gap-8 items-end">
+                    <!-- Gradient Fade at Bottom -->
+                    <div class="absolute inset-x-0 bottom-0 h-48 bg-gradient-to-t from-black via-black/80 to-transparent pointer-events-none"></div>
+                </div>
+
+                <!-- Dark Content Wrapper -->
+                <div class="w-full bg-black pb-12 relative z-10 shadow-[0_20px_40px_rgba(0,0,0,0.5)]">
+                    <div class="max-w-7xl mx-auto w-full px-8 flex flex-col md:flex-row gap-8 items-start">
+                        
+                        <!-- Poster Container -->
+                        <div class="w-48 lg:w-72 aspect-[2/3] rounded-xl overflow-hidden shadow-2xl flex-shrink-0 border-4 border-[#1c2331] bg-black -mt-24 md:-mt-48 z-20">
+                            <img src="${pageContext.request.contextPath}/images/${movie.posterImage}" alt="${movie.title}" class="w-full h-full object-cover" onerror="this.style.display='none'">
+                        </div>
+                        
+                        <!-- Title & Metadata -->
+                        <div class="flex-1 mt-4 md:mt-2 z-20">
+                            <h1 class="text-4xl lg:text-5xl font-bold tracking-tight text-white mb-2 font-headline leading-tight">${movie.title}</h1>
                             
-                            <!-- Poster Container -->
-                            <div class="relative w-48 lg:w-64 aspect-[2/3] rounded-xl overflow-hidden shadow-2xl flex-shrink-0 border-4 border-white/10 z-10 hidden md:block translate-y-16">
-                                <img src="${pageContext.request.contextPath}/images/${movie.posterImage}" alt="${movie.title}" class="w-full h-full object-cover" onerror="this.style.display='none'">
+                            <div class="w-10 h-0.5 bg-primary mb-4"></div>
+                            
+                            <div class="flex flex-wrap items-center gap-3 mb-6">
+                                <c:if test="${not empty movie.format}">
+                                    <span class="bg-primary text-white font-bold text-[11px] uppercase tracking-wider px-2 py-1 rounded shadow-sm">${movie.format}</span>
+                                </c:if>
+                                <c:if test="${not empty movie.ageRating}">
+                                    <c:choose>
+                                        <c:when test="${movie.ageRating == 'R' or movie.ageRating == 'NC-17'}">
+                                            <span class="bg-red-900/80 border border-red-500 text-white font-bold text-[11px] uppercase tracking-wider px-2 py-1 rounded shadow-sm flex items-center gap-1">
+                                                <span class="material-symbols-outlined text-[12px]">warning</span>
+                                                ${movie.ageRating}
+                                            </span>
+                                        </c:when>
+                                        <c:otherwise>
+                                            <span class="bg-white/10 text-white font-bold text-[11px] uppercase tracking-wider px-2 py-1 rounded border border-white/20 shadow-sm">${movie.ageRating}</span>
+                                        </c:otherwise>
+                                    </c:choose>
+                                </c:if>
+                                
+                                <div class="w-1 h-1 rounded-full bg-white/30 mx-1"></div>
+                                <span class="text-white/80 text-sm font-medium flex items-center gap-1.5"><span class="material-symbols-outlined text-[16px] text-primary/80">category</span> ${movie.genre}</span>
+                                
+                                <div class="w-1 h-1 rounded-full bg-white/30 mx-1"></div>
+                                <span class="text-white/80 text-sm font-medium flex items-center gap-1.5"><span class="material-symbols-outlined text-[16px] text-primary/80">language</span> 
+                                <c:choose>
+                                    <c:when test="${movie.language == 'BN'}">Bengali</c:when>
+                                    <c:when test="${movie.language == 'EN'}">English</c:when>
+                                    <c:when test="${movie.language == 'HI'}">Hindi</c:when>
+                                    <c:when test="${movie.language == 'NE'}">Nepali</c:when>
+                                    <c:otherwise>${movie.language}</c:otherwise>
+                                </c:choose>
+                                </span>
+                                
+                                <div class="w-1 h-1 rounded-full bg-white/30 mx-1"></div>
+                                <span class="text-white/80 text-sm font-medium flex items-center gap-1.5"><span class="material-symbols-outlined text-[16px] text-primary/80">schedule</span> 
+                                <fmt:parseNumber var="hours" integerOnly="true" type="number" value="${movie.duration / 60}" />
+                                <c:if test="${hours > 0}">${hours}h </c:if>${movie.duration % 60}m
+                                </span>
                             </div>
                             
-                            <!-- Title & Metadata -->
-                            <div class="flex-1 z-10 mb-4 md:mb-0">
-                                <h1 class="text-4xl lg:text-5xl font-bold tracking-tight text-white mb-4 font-headline leading-tight">${movie.title}</h1>
-                                
-                                <div class="flex flex-wrap items-center gap-3 mb-6">
-                                    <c:if test="${not empty movie.format}">
-                                        <span class="bg-primary text-white font-bold text-xs uppercase tracking-wider px-3 py-1.5 rounded shadow-sm">${movie.format}</span>
-                                    </c:if>
-                                    <c:if test="${not empty movie.ageRating}">
-                                        <c:choose>
-                                            <c:when test="${movie.ageRating == 'R' or movie.ageRating == 'NC-17'}">
-                                                <span class="bg-red-900/80 border border-red-500 text-white font-bold text-xs uppercase tracking-wider px-3 py-1.5 rounded shadow-sm flex items-center gap-1">
-                                                    <span class="material-symbols-outlined text-[14px]">warning</span>
-                                                    ${movie.ageRating} &mdash; 18+ Only
-                                                </span>
-                                            </c:when>
-                                            <c:otherwise>
-                                                <span class="bg-white/20 backdrop-blur-sm border border-white/30 text-white font-bold text-xs uppercase tracking-wider px-3 py-1.5 rounded shadow-sm">${movie.ageRating}</span>
-                                            </c:otherwise>
-                                        </c:choose>
-                                    </c:if>
-                                    
-                                    <div class="w-1.5 h-1.5 rounded-full bg-white/50 mx-1"></div>
-                                    <span class="text-white/90 text-sm font-medium flex items-center gap-1"><span class="material-symbols-outlined text-[16px] text-primary">category</span> ${movie.genre}</span>
-                                    
-                                    <div class="w-1.5 h-1.5 rounded-full bg-white/50 mx-1"></div>
-                                    <span class="text-white/90 text-sm font-medium flex items-center gap-1"><span class="material-symbols-outlined text-[16px] text-primary">language</span> ${movie.language}</span>
-                                    
-                                    <div class="w-1.5 h-1.5 rounded-full bg-white/50 mx-1"></div>
-                                    <span class="text-white/90 text-sm font-medium flex items-center gap-1"><span class="material-symbols-outlined text-[16px] text-primary">schedule</span> ${movie.duration} mins</span>
-                                </div>
-                                
-                                <!-- Mobile Actions -->
-                                <div class="md:hidden mt-6">
-                                    <a href="${pageContext.request.contextPath}/bookTicket?movieId=${movie.movieId}" class="inline-flex w-full justify-center px-8 py-3 bg-primary text-white text-sm font-bold uppercase tracking-wider rounded-lg shadow-lg shadow-primary/30 active:scale-95 transition-transform items-center gap-2">
-                                        <span class="material-symbols-outlined text-[20px]">local_activity</span>
-                                        Book Tickets Now
-                                    </a>
-                                </div>
-                            </div>
-                            
-                            <!-- Desktop Actions -->
-                            <div class="hidden md:flex flex-shrink-0 z-10 pb-4">
-                                <a href="${pageContext.request.contextPath}/bookTicket?movieId=${movie.movieId}" class="px-8 py-4 bg-primary hover:bg-primary-dark text-white text-sm font-bold uppercase tracking-wider rounded-xl shadow-[0_10px_20px_rgba(220,20,60,0.3)] transition-all hover:-translate-y-1 hover:shadow-[0_15px_25px_rgba(220,20,60,0.4)] flex items-center gap-2">
-                                    <span class="material-symbols-outlined text-[24px]">local_activity</span>
+                            <!-- Action Buttons -->
+                            <div class="flex flex-wrap gap-4 mt-8">
+                                <a href="${pageContext.request.contextPath}/bookTicket?movieId=${movie.movieId}" class="px-8 py-3 bg-primary hover:bg-primary-dark text-white text-sm font-bold uppercase tracking-wider rounded-md shadow-lg shadow-primary/20 transition-all hover:-translate-y-1 flex items-center justify-center gap-2 w-full md:w-auto">
+                                    <span class="material-symbols-outlined text-[20px]">local_activity</span>
                                     Book Tickets Now
                                 </a>
+                                <c:if test="${not empty movie.trailerUrl}">
+                                    <button type="button" onclick="openTrailer('${movie.trailerUrl}')" class="px-8 py-3 bg-white/10 hover:bg-white/20 backdrop-blur-md text-white border border-white/20 text-sm font-bold uppercase tracking-wider rounded-md transition-all hover:-translate-y-1 flex items-center justify-center gap-2 w-full md:w-auto">
+                                        <span class="material-symbols-outlined text-[20px]">play_circle</span>
+                                        Watch Trailer
+                                    </button>
+                                </c:if>
                             </div>
                         </div>
                     </div>
@@ -145,14 +181,28 @@
                                     <span class="material-symbols-outlined text-primary">groups</span>
                                     Cast & Crew
                                 </h2>
-                                <div class="flex items-center gap-4">
-                                    <div class="w-12 h-12 rounded-full bg-surface-container-high flex items-center justify-center text-secondary border border-surface-variant">
-                                        <span class="material-symbols-outlined text-[24px]">person</span>
+                                <div class="flex flex-col md:flex-row gap-8">
+                                    <div class="flex items-center gap-4">
+                                        <div class="w-12 h-12 rounded-full bg-surface-container-high flex items-center justify-center text-secondary border border-surface-variant shrink-0">
+                                            <span class="material-symbols-outlined text-[24px]">movie_creation</span>
+                                        </div>
+                                        <div>
+                                            <p class="text-[10px] font-bold text-secondary uppercase tracking-widest">Director</p>
+                                            <p class="font-bold text-on-surface">${movie.director}</p>
+                                        </div>
                                     </div>
-                                    <div>
-                                        <p class="text-[10px] font-bold text-secondary uppercase tracking-widest">Director</p>
-                                        <p class="font-bold text-on-surface">${movie.director}</p>
+                                    
+                                    <c:if test="${not empty movie.castList}">
+                                    <div class="flex items-center gap-4">
+                                        <div class="w-12 h-12 rounded-full bg-surface-container-high flex items-center justify-center text-secondary border border-surface-variant shrink-0">
+                                            <span class="material-symbols-outlined text-[24px]">recent_actors</span>
+                                        </div>
+                                        <div>
+                                            <p class="text-[10px] font-bold text-secondary uppercase tracking-widest">Cast</p>
+                                            <p class="font-medium text-on-surface leading-tight max-w-md">${movie.castList}</p>
+                                        </div>
                                     </div>
+                                    </c:if>
                                 </div>
                             </section>
                         </div>
@@ -169,11 +219,21 @@
                                     </div>
                                     <div>
                                         <p class="text-[10px] font-bold text-secondary uppercase tracking-widest">Language</p>
-                                        <p class="font-medium text-on-surface">${movie.language}</p>
+                                        <p class="font-medium text-on-surface">
+                                            <c:choose>
+                                                <c:when test="${movie.language == 'BN'}">Bengali</c:when>
+                                                <c:when test="${movie.language == 'EN'}">English</c:when>
+                                                <c:when test="${movie.language == 'HI'}">Hindi</c:when>
+                                                <c:when test="${movie.language == 'NE'}">Nepali</c:when>
+                                                <c:otherwise>${movie.language}</c:otherwise>
+                                            </c:choose>
+                                        </p>
                                     </div>
                                     <div>
                                         <p class="text-[10px] font-bold text-secondary uppercase tracking-widest">Run Time</p>
-                                        <p class="font-medium text-on-surface">${movie.duration} Minutes</p>
+                                        <p class="font-medium text-on-surface">
+                                            <c:if test="${hours > 0}">${hours}h </c:if>${movie.duration % 60}m
+                                        </p>
                                     </div>
                                     <div>
                                         <p class="text-[10px] font-bold text-secondary uppercase tracking-widest">Certification</p>
@@ -203,5 +263,37 @@
             </c:otherwise>
         </c:choose>
     </main>
+
+    <!-- Trailer Modal -->
+    <div id="trailerModal" class="fixed inset-0 z-[9999] hidden bg-black/90 backdrop-blur-sm flex items-center justify-center p-4 lg:p-12">
+        <button type="button" onclick="closeTrailer()" class="absolute top-6 right-6 md:top-8 md:right-8 text-white hover:text-primary transition-colors flex items-center justify-center w-12 h-12 z-50 bg-white/10 hover:bg-white/20 rounded-full border border-white/20 backdrop-blur-sm" title="Close">
+            <span class="material-symbols-outlined text-[28px]">close</span>
+        </button>
+        <div class="relative w-full max-w-5xl aspect-video bg-black rounded-2xl shadow-2xl border border-white/10">
+            <div class="w-full h-full overflow-hidden rounded-2xl">
+                <iframe id="trailerIframe" class="w-full h-full" src="" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+            </div>
+        </div>
+    </div>
+    <script>
+        function openTrailer(url) {
+            let embedUrl = url;
+            if (url.includes('watch?v=')) {
+                let videoId = url.split('watch?v=')[1].split('&')[0];
+                embedUrl = 'https://www.youtube.com/embed/' + videoId + '?autoplay=1';
+            } else if (url.includes('youtu.be/')) {
+                let videoId = url.split('youtu.be/')[1].split('?')[0];
+                embedUrl = 'https://www.youtube.com/embed/' + videoId + '?autoplay=1';
+            } else if (!url.includes('?autoplay=')) {
+                embedUrl += url.includes('?') ? '&autoplay=1' : '?autoplay=1';
+            }
+            document.getElementById('trailerIframe').src = embedUrl;
+            document.getElementById('trailerModal').classList.remove('hidden');
+        }
+        function closeTrailer() {
+            document.getElementById('trailerModal').classList.add('hidden');
+            document.getElementById('trailerIframe').src = '';
+        }
+    </script>
 </body>
 </html>

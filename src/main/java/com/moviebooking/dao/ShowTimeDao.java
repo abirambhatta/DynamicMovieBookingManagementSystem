@@ -164,4 +164,31 @@ public class ShowTimeDao {
         }
         return showTimes;
     }
+
+    public List<ShowTime> getShowTimesByDate(java.sql.Date date) {
+        List<ShowTime> showTimes = new ArrayList<>();
+        String query = "SELECT * FROM show_times WHERE show_date = ? ORDER BY show_time";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(query)) {
+            pstmt.setDate(1, date);
+            ResultSet rs = pstmt.executeQuery();
+            while (rs.next()) {
+                ShowTime st = new ShowTime();
+                st.setShowTimeId(rs.getInt("show_time_id"));
+                st.setMovieId(rs.getInt("movie_id"));
+                st.setShowDate(rs.getDate("show_date"));
+                st.setShowTime(rs.getTime("show_time"));
+                try {
+                    String hall = rs.getString("hall");
+                    st.setHall(hall != null ? hall : "audi01");
+                } catch(Exception e) {
+                    st.setHall("audi01");
+                }
+                showTimes.add(st);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return showTimes;
+    }
 }

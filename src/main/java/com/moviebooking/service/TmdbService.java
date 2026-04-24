@@ -94,7 +94,7 @@ public class TmdbService {
             m.put("posterUrl", (poster != null && !poster.equals("null"))
                                ? IMAGE_BASE + poster : "");
 
-            // Get director from credits endpoint
+            // Get director and top 5 cast from credits endpoint
             String creditsUrl = BASE_URL + "/movie/" + tmdbId
                               + "/credits?api_key=" + apiKey;
             String creditsJson = fetchJson(creditsUrl);
@@ -102,7 +102,15 @@ public class TmdbService {
                 // Find crew member with job "Director"
                 String director = extractDirector(creditsJson);
                 m.put("director", director != null ? director : "");
+                
+                // Extract top 5 cast members
+                String castStr = extractTopCast(creditsJson, 5);
+                m.put("cast", castStr);
             }
+
+            // Get YouTube trailer from /videos endpoint
+            String trailerUrl = fetchTrailerUrl(tmdbId);
+            m.put("trailerUrl", trailerUrl != null ? trailerUrl : "");
 
         } catch (Exception e) {
             System.err.println("[TmdbService] getMovieDetails error: " + e.getMessage());
@@ -208,5 +216,62 @@ public class TmdbService {
             }
         } catch (Exception ignored) {}
         return "";
+    }
+
+    /** Extract top N cast names from credits JSON. Returns comma-separated string. */
+    private String extractTopCast(String creditsJson, int maxCount) {
+        try {
+            String castBlock = extractBlock(creditsJson, "cast");
+            // Split on each cast member object
+            String[] members = castBlock.split("\\{\"adult\"");
+            StringBuilder sb = new StringBuilder();
+            int count = 0;
+            for (int i = 1; i < members.length && count < maxCount; i++) {
+                String name = extractJsonString("{\"adult\"" + members[i], "name", false);
+                if (name != null && !name.isEmpty() && !name.equals("null")) {
+                    if (count > 0) sb.append(", ");
+                    sb.append(name);
+                    count++;
+                }
+            }
+            return sb.toString();
+        } catch (Exception ignored) {}
+        return "";
+    }
+
+    /** Fetch YouTube trailer embed URL from TMDB /videos endpoint. */
+    private String fetchTrailerUrl(String tmdbId) {
+        try {
+            String urlStr = BASE_URL + "/movie/" + tmdbId + "/videos?api_key=" + apiKey + "&language=en-US";
+            String json = fetchJson(urlStr);
+            if (json == null) return null;
+            // Find a YouTube Trailer
+            String[] items = json.split("\\{\"id\"");
+            for (int i = 1; i < items.length; i++) {
+                String item = "{\"id\"" + items[i];
+                String type = extractJsonString(item, "type", false);
+                String site = extractJsonString(item, "site", false);
+                if ("Trailer".equalsIgnoreCase(type) && "YouTube".equalsIgnoreCase(site)) {
+                    String key = extractJsonString(item, "key", false);
+                    if (key != null && !key.isEmpty()) {
+                        return "https://www.youtube.com/embed/" + key + "?autoplay=1";
+                    }
+                }
+            }
+            // Fallback: any YouTube video (Teaser etc.)
+            for (int i = 1; i < items.length; i++) {
+                String item = "{\"id\"" + items[i];
+                String site = extractJsonString(item, "site", false);
+                if ("YouTube".equalsIgnoreCase(site)) {
+                    String key = extractJsonString(item, "key", false);
+                    if (key != null && !key.isEmpty()) {
+                        return "https://www.youtube.com/embed/" + key + "?autoplay=1";
+                    }
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("[TmdbService] fetchTrailerUrl error: " + e.getMessage());
+        }
+        return null;
     }
 }

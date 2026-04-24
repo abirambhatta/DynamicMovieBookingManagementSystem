@@ -155,6 +155,8 @@ public class ManageMoviesServlet extends HttpServlet {
             String description = request.getParameter("description");
             String format = request.getParameter("format");
             String ageRating = request.getParameter("ageRating");
+            String trailerUrl = request.getParameter("trailerUrl");
+            String castList = request.getParameter("castList");
             
             // Handle poster image file upload or TMDB poster URL
             Part filePart = request.getPart("posterImage");
@@ -189,6 +191,8 @@ public class ManageMoviesServlet extends HttpServlet {
 
             // Create movie object and save to database
             Movie movie = new Movie(title, genre, director, duration, language, releaseDate, startDate, endDate, description, fileName, 0.0, format, ageRating);
+            movie.setTrailerUrl(trailerUrl);
+            movie.setCastList(castList);
             boolean isAdded = movieDao.addMovie(movie);
 
             if (isAdded) {
@@ -241,6 +245,8 @@ public class ManageMoviesServlet extends HttpServlet {
             Date releaseDate = Date.valueOf(request.getParameter("releaseDate"));
             Date startDate = Date.valueOf(request.getParameter("startDate"));
             Date endDate = Date.valueOf(request.getParameter("endDate"));
+            String trailerUrl = request.getParameter("trailerUrl");
+            String castList = request.getParameter("castList");
 
             Movie existingMovie = movieDao.getMovieById(movieId);
             String posterImage = existingMovie.getPosterImage();
@@ -261,6 +267,8 @@ public class ManageMoviesServlet extends HttpServlet {
                     endDate, description, posterImage, 
                     existingMovie.getRating(), format, ageRating);
             movie.setMovieId(movieId);
+            movie.setTrailerUrl(trailerUrl);
+            movie.setCastList(castList);
             boolean isUpdated = movieDao.updateMovie(movie);
 
             if (isUpdated) {

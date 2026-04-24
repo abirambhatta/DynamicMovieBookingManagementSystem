@@ -119,8 +119,15 @@
                                     <c:set var="hasUpcoming" value="true" />
                                     <!-- Bento Style Card for Upcoming -->
                                     <div class="bg-surface-container-highest rounded-xl p-6 flex flex-col md:flex-row gap-8 mb-6 group hover:bg-surface-container-high transition-colors">
-                                        <div class="w-full md:w-48 aspect-[2/3] rounded-lg overflow-hidden shadow-xl shrink-0 bg-surface-variant flex items-center justify-center">
-                                            <span class="material-symbols-outlined text-6xl text-secondary opacity-30">movie</span>
+                                        <div class="w-full md:w-48 aspect-[2/3] rounded-lg overflow-hidden shadow-xl shrink-0 bg-surface-variant flex items-center justify-center relative">
+                                            <c:choose>
+                                                <c:when test="${not empty booking.moviePoster}">
+                                                    <img src="${pageContext.request.contextPath}/images/${booking.moviePoster}" alt="${booking.movieTitle}" class="w-full h-full object-cover">
+                                                </c:when>
+                                                <c:otherwise>
+                                                    <span class="material-symbols-outlined text-6xl text-secondary opacity-30">movie</span>
+                                                </c:otherwise>
+                                            </c:choose>
                                         </div>
                                         <div class="flex flex-col justify-between py-2 flex-grow">
                                             <div>
@@ -172,8 +179,15 @@
                                         <c:set var="hasPast" value="true" />
                                         <!-- Past Item -->
                                         <div class="bg-surface-container-low rounded-lg p-4 flex items-center gap-6 group hover:bg-surface-container transition-colors">
-                                            <div class="w-16 h-20 rounded-md overflow-hidden shrink-0 bg-surface-variant flex items-center justify-center">
-                                                <span class="material-symbols-outlined text-3xl text-secondary opacity-30">movie</span>
+                                            <div class="w-16 h-20 rounded-md overflow-hidden shrink-0 bg-surface-variant flex items-center justify-center relative">
+                                                <c:choose>
+                                                    <c:when test="${not empty booking.moviePoster}">
+                                                        <img src="${pageContext.request.contextPath}/images/${booking.moviePoster}" alt="${booking.movieTitle}" class="w-full h-full object-cover">
+                                                    </c:when>
+                                                    <c:otherwise>
+                                                        <span class="material-symbols-outlined text-3xl text-secondary opacity-30">movie</span>
+                                                    </c:otherwise>
+                                                </c:choose>
                                             </div>
                                             <div class="flex-grow grid grid-cols-1 md:grid-cols-3 gap-4">
                                                 <div>

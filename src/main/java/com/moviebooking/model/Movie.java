@@ -36,6 +36,10 @@ public class Movie {
     private String format;
     // Age rating like G, PG, R
     private String ageRating;
+    // YouTube embed URL for the movie trailer
+    private String trailerUrl;
+    // Comma-separated list of top cast members e.g. "Tom Hanks, Robin Wright"
+    private String castList;
 
     // Empty constructor - used to create movie object and set values later
     public Movie() {}
@@ -119,4 +123,10 @@ public class Movie {
 
     public String getAgeRating() { return ageRating; }
     public void setAgeRating(String ageRating) { this.ageRating = ageRating; }
+
+    public String getTrailerUrl() { return trailerUrl; }
+    public void setTrailerUrl(String trailerUrl) { this.trailerUrl = trailerUrl; }
+
+    public String getCastList() { return castList; }
+    public void setCastList(String castList) { this.castList = castList; }
 }
