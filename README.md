@@ -88,11 +88,9 @@ CREATE TABLE bookings (
     FOREIGN KEY (showtime_id) REFERENCES showtimes(showtime_id) ON DELETE CASCADE
 );
 
--- Insert default admin user (password: admin123)
-INSERT INTO users (name, email, password, role) 
-VALUES ('Admin', 'admin@moviemint.com', 
-'1000:5f9c8a7e6d4b3c2a1f0e9d8c7b6a5f4e:a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2', 
-'admin');
+-- Admin user will be auto-created on first application startup
+-- Email: admin@moviemint.com
+-- Password: admin123
 ```
 
 ### 3. Environment Configuration
