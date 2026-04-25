@@ -561,7 +561,30 @@
         // ===========================
         window.onload = function() {
             renderDates();
-            if (sortedDates.length > 0) selectDate(sortedDates[0]);
+            
+            // Check if there's a pre-selected showtime from URL parameter
+            const preSelectedDate = "${preSelectedDate}";
+            const preSelectedTime = "${preSelectedTime}";
+            const preSelectedHall = "${preSelectedHall}";
+            
+            if (preSelectedDate && preSelectedDate !== "" && sortedDates.includes(preSelectedDate)) {
+                // Auto-select the pre-selected date and time
+                selectDate(preSelectedDate);
+                
+                // Wait for times to render, then select the matching time
+                setTimeout(() => {
+                    const timeButtons = document.querySelectorAll('.time-btn:not(.expired)');
+                    timeButtons.forEach(btn => {
+                        const btnText = btn.innerText;
+                        if (btnText.includes(preSelectedTime) && btnText.includes(preSelectedHall)) {
+                            btn.click();
+                        }
+                    });
+                }, 100);
+            } else if (sortedDates.length > 0) {
+                selectDate(sortedDates[0]);
+            }
+            
             updateSummary();
         };
     </script>

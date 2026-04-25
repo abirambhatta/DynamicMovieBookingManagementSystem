@@ -1,171 +1,91 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Forgot Password - MovieMint</title>
+    <title>MovieMint | Reset Password</title>
     <link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath}/css/style.css">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        html, body {
-            height: 100%;
-            width: 100%;
-        }
-        
-        /* Two column layout for forgot password page */
         .forgot-password-container {
-            display: flex;
-            height: 100vh;
-            background-color: #f8f9fa;
-            overflow: hidden;
-        }
-        
-        /* Left side - Logo section */
-        .forgot-password-logo-section {
-            flex: 1;
-            background: linear-gradient(135deg, #dc143c 0%, #b71c1c 100%);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 60px 40px;
-            color: white;
-            position: relative;
-            overflow: hidden;
-            height: 100vh;
-        }
-        
-        /* Decorative elements - contained within section */
-        .forgot-password-logo-section::before {
-            content: '';
-            position: absolute;
-            width: 300px;
-            height: 300px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 50%;
-            top: -150px;
-            right: -150px;
-        }
-        
-        .forgot-password-logo-section::after {
-            content: '';
-            position: absolute;
-            width: 200px;
-            height: 200px;
-            background: rgba(255, 255, 255, 0.08);
-            border-radius: 50%;
-            bottom: -100px;
-            left: -100px;
-        }
-        
-        .logo-content {
-            text-align: center;
-            position: relative;
-            z-index: 1;
-        }
-        
-        .logo-content h1 {
-            font-size: 56px;
-            font-weight: 700;
-            margin-bottom: 16px;
-            letter-spacing: -1px;
-        }
-        
-        .logo-content .tagline {
-            font-size: 20px;
-            opacity: 0.95;
-            margin-bottom: 40px;
-            font-weight: 300;
-        }
-        
-        .reset-info {
-            margin-top: 50px;
-            text-align: left;
-            display: inline-block;
-            max-width: 300px;
-        }
-        
-        .reset-info h3 {
-            font-size: 18px;
-            margin-bottom: 16px;
-            font-weight: 600;
-        }
-        
-        .reset-info p {
-            font-size: 15px;
-            opacity: 0.9;
-            line-height: 1.6;
-            margin-bottom: 12px;
-        }
-        
-        /* Right side - Form section */
-        .forgot-password-form-section {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 60px 40px;
+            max-width: 420px;
+            margin: 60px auto;
             background: white;
-            overflow-y: auto;
-            height: 100vh;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            border: 1px solid #e9ecef;
         }
-        
-        .forgot-password-form-box {
-            width: 100%;
-            max-width: 380px;
-        }
-        
-        .forgot-password-form-box h2 {
+        .forgot-password-container h2 {
             text-align: center;
             color: #212529;
-            margin-bottom: 8px;
-            font-size: 32px;
+            margin-bottom: 32px;
+            font-size: 28px;
             font-weight: 600;
         }
-        
-        .forgot-password-form-box .form-subtitle {
-            text-align: center;
-            color: #6c757d;
+        .step-indicator {
+            display: flex;
+            justify-content: space-between;
             margin-bottom: 32px;
-            font-size: 14px;
+            gap: 12px;
         }
-        
+        .step {
+            flex: 1;
+            height: 4px;
+            background: #e9ecef;
+            border-radius: 2px;
+            transition: background 0.3s;
+        }
+        .step.active {
+            background: #dc143c;
+        }
+        .step.completed {
+            background: #28a745;
+        }
         .form-group {
-            margin-bottom: 24px;
+            margin-bottom: 20px;
         }
-        
         .form-group label {
             display: block;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
             color: #495057;
             font-weight: 500;
             font-size: 14px;
         }
-        
         .form-group input {
             width: 100%;
-            padding: 12px 14px;
+            padding: 10px 12px;
             border: 1px solid #ced4da;
             border-radius: 6px;
             font-size: 15px;
-            transition: all 0.2s;
+            transition: border-color 0.2s, box-shadow 0.2s;
         }
-        
         .form-group input:focus {
             outline: none;
             border-color: #dc143c;
             box-shadow: 0 0 0 3px rgba(220, 20, 60, 0.1);
         }
-        
-        .btn-primary {
+        .otp-input-group {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            margin: 20px 0;
+        }
+        .otp-input {
+            width: 50px;
+            height: 50px;
+            font-size: 24px;
+            text-align: center;
+            border: 2px solid #ced4da;
+            border-radius: 6px;
+            transition: border-color 0.2s;
+        }
+        .otp-input:focus {
+            outline: none;
+            border-color: #dc143c;
+        }
+        .btn {
             width: 100%;
             padding: 12px;
             background-color: #dc143c;
@@ -173,36 +93,18 @@
             border: none;
             border-radius: 6px;
             font-size: 15px;
-            font-weight: 600;
+            font-weight: 500;
             cursor: pointer;
             transition: background-color 0.2s;
-            margin-top: 8px;
+            margin-top: 12px;
         }
-        
-        .btn-primary:hover {
+        .btn:hover {
             background-color: #b71c1c;
         }
-        
-        .links {
-            text-align: center;
-            margin-top: 24px;
+        .btn:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
         }
-        
-        .links p {
-            margin: 12px 0;
-            font-size: 14px;
-        }
-        
-        .links a {
-            color: #dc143c;
-            text-decoration: none;
-            font-weight: 500;
-        }
-        
-        .links a:hover {
-            text-decoration: underline;
-        }
-        
         .error-message {
             background-color: #f8d7da;
             color: #721c24;
@@ -212,7 +114,6 @@
             border: 1px solid #f5c6cb;
             font-size: 14px;
         }
-        
         .success-message {
             background-color: #d4edda;
             color: #155724;
@@ -222,111 +123,150 @@
             border: 1px solid #c3e6cb;
             font-size: 14px;
         }
-        
-        /* Responsive design */
-        @media (max-width: 768px) {
-            .forgot-password-container {
-                flex-direction: column;
-                height: auto;
-                overflow: visible;
-            }
-            
-            .forgot-password-logo-section {
-                padding: 40px 20px;
-                height: auto;
-                min-height: 250px;
-            }
-            
-            .forgot-password-form-section {
-                padding: 40px 20px;
-                height: auto;
-                overflow-y: visible;
-            }
-            
-            .logo-content h1 {
-                font-size: 40px;
-            }
-            
-            .logo-content .tagline {
-                font-size: 18px;
-            }
-            
-            .reset-info {
-                margin-top: 30px;
-            }
-            
-            .reset-info h3 {
-                font-size: 16px;
-            }
-            
-            .reset-info p {
-                font-size: 14px;
-            }
+        .info-text {
+            color: #6c757d;
+            font-size: 14px;
+            margin-top: 12px;
+            text-align: center;
+        }
+        .resend-otp {
+            text-align: center;
+            margin-top: 16px;
+        }
+        .resend-otp a {
+            color: #dc143c;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .resend-otp a:hover {
+            text-decoration: underline;
+        }
+        .timer {
+            color: #dc143c;
+            font-weight: 600;
+        }
+        .back-link {
+            text-align: center;
+            margin-top: 20px;
+        }
+        .back-link a {
+            color: #dc143c;
+            text-decoration: none;
+            font-size: 14px;
+        }
+        .back-link a:hover {
+            text-decoration: underline;
         }
     </style>
 </head>
 <body>
-    <div class="forgot-password-container">
-        <!-- Left side - Logo section -->
-        <div class="forgot-password-logo-section">
-            <div class="logo-content">
-                <h1>MovieMint</h1>
-                <p class="tagline">Recover Your Access</p>
-                
-                <div class="reset-info">
-                    <h3>Password Reset</h3>
-                    <p>Enter your email address and create a new password to regain access to your MovieMint account.</p>
-                    <p>Your account will be secured with your new password.</p>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Right side - Form section -->
-        <div class="forgot-password-form-section">
-            <div class="forgot-password-form-box">
-                <h2>Reset Password</h2>
-                <p class="form-subtitle">Create a new password</p>
-                
-                <!-- Show error message if reset failed -->
-                <c:if test="${not empty error}">
-                    <div class="error-message">${error}</div>
-                </c:if>
-                
-                <!-- Show success message if reset was successful -->
-                <c:if test="${not empty success}">
-                    <div class="success-message">${success}</div>
-                </c:if>
+    <jsp:include page="userHeader.jsp" />
 
-                <!-- Password reset form -->
-                <form action="${pageContext.request.contextPath}/forgotPassword" method="post">
-                    <!-- Email input field -->
-                    <div class="form-group">
-                        <label for="email">Email Address</label>
-                        <input type="email" id="email" name="email" value="${param.email}" placeholder="your@email.com" required>
-                    </div>
-                    
-                    <!-- New password input field -->
-                    <div class="form-group">
-                        <label for="newPassword">New Password</label>
-                        <input type="password" id="newPassword" name="newPassword" placeholder="Enter new password" required>
-                    </div>
-                    
-                    <!-- Confirm password input field -->
-                    <div class="form-group">
-                        <label for="confirmPassword">Confirm Password</label>
-                        <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Confirm your password" required>
-                    </div>
-                    
-                    <!-- Submit button to reset password -->
-                    <button type="submit" class="btn-primary">Reset Password</button>
-                </form>
-                
-                <!-- Link back to login page -->
-                <div class="links">
-                    <p><a href="${pageContext.request.contextPath}/login">Back to Login</a></p>
-                </div>
-            </div>
+    <div class="forgot-password-container">
+        <h2>Reset Password</h2>
+
+        <div class="step-indicator">
+            <div class="step ${step == '1' ? 'active' : (step != '1' ? 'completed' : '')}"></div>
+            <div class="step ${step == '2' ? 'active' : (step == '3' ? 'completed' : '')}"></div>
+            <div class="step ${step == '3' ? 'active' : ''}"></div>
         </div>
+
+        <c:if test="${not empty error}">
+            <div class="error-message">${error}</div>
+        </c:if>
+        <c:if test="${not empty success}">
+            <div class="success-message">${success}</div>
+        </c:if>
+
+        <!-- Step 1: Email Verification -->
+        <c:if test="${step == '1' || step == null}">
+            <form method="POST" action="${pageContext.request.contextPath}/forgotPassword">
+                <input type="hidden" name="step" value="1">
+                
+                <div class="form-group">
+                    <label for="email">Email Address</label>
+                    <input type="email" id="email" name="email" required placeholder="Enter your registered email">
+                </div>
+
+                <p class="info-text">We'll send you an OTP to verify your identity</p>
+
+                <button type="submit" class="btn">Send OTP</button>
+
+                <div class="back-link">
+                    <a href="${pageContext.request.contextPath}/login">Back to Login</a>
+                </div>
+            </form>
+        </c:if>
+
+        <!-- Step 2: OTP Verification -->
+        <c:if test="${step == '2'}">
+            <form method="POST" action="${pageContext.request.contextPath}/forgotPassword">
+                <input type="hidden" name="step" value="2">
+                <input type="hidden" name="email" value="${email}">
+
+                <p class="info-text">Enter the 6-digit OTP sent to ${email}</p>
+
+                <div class="form-group">
+                    <label for="otp">One-Time Password</label>
+                    <input type="text" id="otp" name="otp" required placeholder="000000" maxlength="6" pattern="[0-9]{6}">
+                </div>
+
+                <p class="info-text">OTP expires in <span class="timer" id="timer">10:00</span></p>
+
+                <button type="submit" class="btn">Verify OTP</button>
+
+                <div class="resend-otp">
+                    <a href="${pageContext.request.contextPath}/forgotPassword?step=1">Resend OTP</a>
+                </div>
+
+                <div class="back-link">
+                    <a href="${pageContext.request.contextPath}/login">Back to Login</a>
+                </div>
+            </form>
+
+            <script>
+                let timeLeft = 600;
+                const timerElement = document.getElementById('timer');
+                
+                const countdown = setInterval(() => {
+                    timeLeft--;
+                    const minutes = Math.floor(timeLeft / 60);
+                    const seconds = timeLeft % 60;
+                    timerElement.textContent = minutes + ':' + (seconds < 10 ? '0' : '') + seconds;
+                    
+                    if (timeLeft <= 0) {
+                        clearInterval(countdown);
+                        timerElement.textContent = 'Expired';
+                    }
+                }, 1000);
+            </script>
+        </c:if>
+
+        <!-- Step 3: New Password -->
+        <c:if test="${step == '3'}">
+            <form method="POST" action="${pageContext.request.contextPath}/forgotPassword">
+                <input type="hidden" name="step" value="3">
+                <input type="hidden" name="email" value="${email}">
+
+                <p class="info-text">Create a new password for your account</p>
+
+                <div class="form-group">
+                    <label for="newPassword">New Password</label>
+                    <input type="password" id="newPassword" name="newPassword" required placeholder="At least 6 characters">
+                </div>
+
+                <div class="form-group">
+                    <label for="confirmPassword">Confirm Password</label>
+                    <input type="password" id="confirmPassword" name="confirmPassword" required placeholder="Re-enter your password">
+                </div>
+
+                <button type="submit" class="btn">Reset Password</button>
+
+                <div class="back-link">
+                    <a href="${pageContext.request.contextPath}/login">Back to Login</a>
+                </div>
+            </form>
+        </c:if>
     </div>
 </body>
 </html>

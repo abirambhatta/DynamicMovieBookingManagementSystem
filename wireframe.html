@@ -1,0 +1,1613 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MovieMint – Wireframe</title>
+  <style>
+    /* ─── Reset & Base ─────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: #f0f0f0;
+      color: #111;
+      padding: 24px;
+    }
+
+    h1.doc-title {
+      text-align: center;
+      font-size: 28px;
+      font-weight: 800;
+      letter-spacing: 1px;
+      margin-bottom: 8px;
+      border-bottom: 3px solid #222;
+      padding-bottom: 10px;
+    }
+
+    p.doc-subtitle {
+      text-align: center;
+      color: #555;
+      font-size: 13px;
+      margin-bottom: 36px;
+    }
+
+    /* ─── Table of Contents ─────────────────────────────────── */
+    .toc {
+      background: #fff;
+      border: 2px solid #222;
+      border-radius: 6px;
+      padding: 20px 28px;
+      max-width: 700px;
+      margin: 0 auto 48px;
+    }
+    .toc h2 { font-size: 15px; font-weight: 700; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 1px; }
+    .toc ol { padding-left: 20px; }
+    .toc li { margin: 5px 0; font-size: 13px; }
+    .toc a { color: #111; text-decoration: none; }
+    .toc a:hover { text-decoration: underline; }
+
+    /* ─── Section headings ──────────────────────────────────── */
+    .section-label {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: #888;
+      margin: 56px 0 8px;
+      border-top: 1px dashed #bbb;
+      padding-top: 16px;
+      max-width: 1000px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    /* ─── Page wrapper ──────────────────────────────────────── */
+    .page-block {
+      background: #fff;
+      border: 2px solid #222;
+      border-radius: 8px;
+      margin-bottom: 56px;
+      overflow: hidden;
+      max-width: 1000px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .page-title-bar {
+      background: #222;
+      color: #fff;
+      padding: 10px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .page-title-bar .page-name { font-size: 14px; font-weight: 700; letter-spacing: 1px; }
+    .page-title-bar .page-url  { font-size: 11px; color: #aaa; font-family: monospace; }
+
+    .page-content { padding: 0; }
+
+    /* ─── Wireframe primitives ──────────────────────────────── */
+
+    /* Navbar */
+    .wf-navbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 24px;
+      border-bottom: 2px solid #222;
+      background: #fafafa;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .wf-logo { font-size: 16px; font-weight: 900; letter-spacing: -0.5px; }
+    .wf-nav-links { display: flex; gap: 8px; flex-wrap: wrap; }
+    .wf-nav-links span {
+      font-size: 12px;
+      padding: 4px 10px;
+      border: 1.5px solid #222;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .wf-nav-links span.active { background: #222; color: #fff; }
+    .wf-nav-actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+    .wf-nav-actions span { font-size: 12px; }
+    .wf-search-box {
+      border: 1.5px solid #999;
+      border-radius: 4px;
+      padding: 4px 8px;
+      font-size: 11px;
+      color: #999;
+      min-width: 120px;
+    }
+    .wf-btn-sm {
+      border: 1.5px solid #222;
+      border-radius: 3px;
+      padding: 4px 12px;
+      font-size: 11px;
+      font-weight: 600;
+      display: inline-block;
+      background: #fff;
+      cursor: pointer;
+    }
+    .wf-btn-sm.solid { background: #222; color: #fff; }
+
+    /* Split layout */
+    .wf-split {
+      display: flex;
+      min-height: 460px;
+    }
+    .wf-split-left {
+      flex: 1;
+      background: repeating-linear-gradient(
+        -45deg, #e8e8e8, #e8e8e8 4px, #fff 4px, #fff 12px
+      );
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 32px;
+      border-right: 2px solid #222;
+    }
+    .wf-split-right {
+      flex: 1;
+      padding: 40px 48px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .wf-brand-block { text-align: center; }
+    .wf-brand-name {
+      font-size: 40px;
+      font-weight: 900;
+      letter-spacing: -1px;
+      border: 3px solid #222;
+      padding: 10px 24px;
+      display: inline-block;
+      margin-bottom: 12px;
+    }
+    .wf-tagline { font-size: 13px; color: #555; margin-bottom: 20px; }
+    .wf-feature-list { list-style: none; text-align: left; margin-top: 12px; }
+    .wf-feature-list li {
+      font-size: 12px;
+      padding: 5px 0;
+      border-bottom: 1px dashed #ccc;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .wf-feature-list li::before { content: '✓'; font-weight: 700; }
+
+    .wf-form-box { width: 100%; max-width: 320px; }
+    .wf-form-box h2 {
+      font-size: 22px;
+      font-weight: 800;
+      margin-bottom: 4px;
+      text-align: center;
+    }
+    .wf-form-box .subtitle { font-size: 12px; color: #777; text-align: center; margin-bottom: 20px; }
+    .wf-field { margin-bottom: 16px; }
+    .wf-field label { display: block; font-size: 11px; font-weight: 600; margin-bottom: 4px; }
+    .wf-field .wf-input {
+      width: 100%;
+      height: 36px;
+      border: 1.5px solid #999;
+      border-radius: 4px;
+      background: #f7f7f7;
+    }
+    .wf-btn-full {
+      width: 100%;
+      height: 40px;
+      background: #222;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      font-size: 13px;
+      font-weight: 700;
+      margin-top: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .wf-links { text-align: center; margin-top: 14px; }
+    .wf-links p { font-size: 11px; color: #777; margin: 6px 0; }
+    .wf-links a { color: #222; font-weight: 600; text-decoration: underline; }
+
+    /* Main content area */
+    .wf-main { padding: 24px 28px; }
+    .wf-page-h1 { font-size: 20px; font-weight: 800; margin-bottom: 16px; }
+
+    /* Welcome strip */
+    .wf-welcome {
+      background: #f4f4f4;
+      border: 1.5px dashed #bbb;
+      border-radius: 6px;
+      padding: 14px 20px;
+      margin-bottom: 20px;
+    }
+    .wf-welcome h1 { font-size: 17px; }
+    .wf-welcome p  { font-size: 12px; color: #666; margin-top: 2px; }
+
+    /* Card grid */
+    .wf-card-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 14px;
+      margin-bottom: 20px;
+    }
+    .wf-movie-card {
+      border: 1.5px solid #bbb;
+      border-radius: 6px;
+      overflow: hidden;
+    }
+    .wf-poster {
+      width: 100%;
+      height: 110px;
+      background: repeating-linear-gradient(-45deg, #e0e0e0, #e0e0e0 3px, #f5f5f5 3px, #f5f5f5 10px);
+      border-bottom: 1px solid #ccc;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      color: #aaa;
+    }
+    .wf-card-body { padding: 8px; }
+    .wf-card-body h3 { font-size: 11px; font-weight: 700; margin-bottom: 4px; }
+    .wf-card-body p  { font-size: 10px; color: #666; margin-bottom: 2px; }
+
+    /* Quick actions bar */
+    .wf-actions { display: flex; gap: 10px; margin-top: 16px; flex-wrap: wrap; }
+
+    /* Search + filter bar */
+    .wf-search-bar {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+    .wf-search-bar .wf-input-long {
+      flex: 1;
+      height: 36px;
+      border: 1.5px solid #999;
+      border-radius: 4px;
+      background: #f7f7f7;
+      min-width: 180px;
+    }
+    .wf-filter-row {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+      font-size: 12px;
+    }
+    .wf-select {
+      height: 32px;
+      border: 1.5px solid #999;
+      border-radius: 4px;
+      font-size: 12px;
+      padding: 0 8px;
+      background: #f7f7f7;
+      min-width: 120px;
+    }
+
+    /* Movie detail layout */
+    .wf-detail-layout {
+      display: flex;
+      gap: 28px;
+      flex-wrap: wrap;
+    }
+    .wf-poster-large {
+      width: 180px;
+      min-height: 260px;
+      border: 1.5px solid #bbb;
+      border-radius: 6px;
+      background: repeating-linear-gradient(-45deg, #e0e0e0, #e0e0e0 3px, #f5f5f5 3px, #f5f5f5 10px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      color: #aaa;
+      flex-shrink: 0;
+    }
+    .wf-detail-info { flex: 1; min-width: 220px; }
+    .wf-detail-info h1 { font-size: 20px; font-weight: 800; margin-bottom: 12px; }
+    .wf-detail-row { font-size: 12px; color: #444; margin-bottom: 7px; }
+    .wf-detail-row strong { color: #111; }
+
+    /* Stat cards */
+    .wf-stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+      margin-bottom: 24px;
+    }
+    .wf-stat-card {
+      border: 1.5px solid #bbb;
+      border-radius: 6px;
+      padding: 16px;
+      text-align: center;
+    }
+    .wf-stat-num { font-size: 28px; font-weight: 900; }
+    .wf-stat-lbl { font-size: 11px; color: #777; margin-top: 4px; }
+
+    /* Chart placeholder */
+    .wf-chart-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+    .wf-chart-box {
+      border: 1.5px dashed #bbb;
+      border-radius: 6px;
+      padding: 12px;
+      min-height: 200px;
+      display: flex;
+      flex-direction: column;
+    }
+    .wf-chart-title { font-size: 12px; font-weight: 700; margin-bottom: 10px; }
+    .wf-chart-body {
+      flex: 1;
+      background: repeating-linear-gradient(to top, #e8e8e8, #e8e8e8 1px, #fff 1px, #fff 16px);
+      border-radius: 4px;
+      display: flex;
+      align-items: flex-end;
+      gap: 8px;
+      padding: 8px;
+    }
+    .wf-bar { flex: 1; background: #bbb; border-radius: 2px; }
+
+    /* Table */
+    .wf-table-wrap { overflow-x: auto; margin-bottom: 16px; }
+    .wf-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+    }
+    .wf-table th {
+      background: #222;
+      color: #fff;
+      padding: 8px 10px;
+      text-align: left;
+      font-size: 11px;
+      white-space: nowrap;
+    }
+    .wf-table td {
+      padding: 8px 10px;
+      border-bottom: 1px solid #e0e0e0;
+      white-space: nowrap;
+    }
+    .wf-table tr:nth-child(even) td { background: #f8f8f8; }
+    .wf-badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 12px;
+      font-size: 10px;
+      font-weight: 700;
+      border: 1px solid #222;
+    }
+    .wf-badge.confirmed { background: #222; color: #fff; }
+    .wf-badge.active    { background: #f0f0f0; }
+    .wf-badge.locked    { background: #ccc; }
+
+    /* Tabs */
+    .wf-tabs { display: flex; gap: 0; border-bottom: 2px solid #222; margin-bottom: 16px; flex-wrap: wrap; }
+    .wf-tab {
+      padding: 8px 18px;
+      font-size: 12px;
+      font-weight: 600;
+      border: 1.5px solid #bbb;
+      border-bottom: none;
+      border-radius: 4px 4px 0 0;
+      cursor: pointer;
+      background: #f4f4f4;
+      margin-right: 4px;
+    }
+    .wf-tab.active { background: #222; color: #fff; border-color: #222; }
+
+    /* Sidebar + main two-col */
+    .wf-twocol { display: flex; gap: 20px; flex-wrap: wrap; }
+    .wf-main-col { flex: 2; min-width: 280px; }
+    .wf-side-col { flex: 1; min-width: 200px; display: flex; flex-direction: column; gap: 14px; }
+    .wf-sidebar-card {
+      border: 1.5px solid #bbb;
+      border-radius: 6px;
+      padding: 14px;
+    }
+    .wf-sidebar-card h3 { font-size: 12px; font-weight: 700; margin-bottom: 8px; padding-bottom: 6px; border-bottom: 1px solid #ddd; }
+    .wf-stat-big { font-size: 32px; font-weight: 900; margin-bottom: 2px; }
+    .wf-sidebar-item {
+      border: 1.5px solid #ddd;
+      border-radius: 4px;
+      padding: 7px 10px;
+      font-size: 11px;
+      margin-bottom: 5px;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    /* Booking list item */
+    .wf-booking-item {
+      border: 1.5px solid #ddd;
+      border-radius: 6px;
+      padding: 12px 14px;
+      margin-bottom: 10px;
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+      flex-wrap: wrap;
+    }
+    .wf-booking-poster {
+      width: 50px;
+      height: 70px;
+      background: #ccc;
+      border-radius: 4px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+    }
+    .wf-booking-info { flex: 1; min-width: 160px; }
+    .wf-booking-info h3 { font-size: 13px; font-weight: 700; margin-bottom: 3px; }
+    .wf-booking-info p  { font-size: 11px; color: #666; margin-bottom: 3px; }
+    .wf-booking-actions { display: flex; gap: 6px; flex-direction: column; }
+
+    /* Form container */
+    .wf-form-container {
+      border: 1.5px dashed #bbb;
+      border-radius: 6px;
+      padding: 16px;
+      margin-bottom: 20px;
+    }
+    .wf-form-container h2 { font-size: 14px; font-weight: 700; margin-bottom: 14px; }
+    .wf-form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px 16px;
+    }
+    .wf-field-sm label { display: block; font-size: 10px; font-weight: 600; margin-bottom: 3px; }
+    .wf-field-sm .wf-input { width: 100%; height: 30px; border: 1.5px solid #bbb; border-radius: 3px; background: #f7f7f7; }
+    .wf-field-sm textarea { width: 100%; height: 60px; border: 1.5px solid #bbb; border-radius: 3px; background: #f7f7f7; resize: none; }
+    .wf-schedule-box {
+      border: 1.5px solid #ccc;
+      border-radius: 6px;
+      padding: 12px;
+      background: #fafafa;
+      margin-top: 4px;
+    }
+    .wf-date-chips { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px; }
+    .wf-chip {
+      padding: 4px 10px;
+      border: 1.5px solid #555;
+      border-radius: 20px;
+      font-size: 10px;
+      font-weight: 600;
+    }
+    .wf-chip.active { background: #222; color: #fff; border-color: #222; }
+    .wf-hall-row { display: flex; gap: 6px; margin-bottom: 8px; flex-wrap: wrap; }
+
+    /* Error page */
+    .wf-error-page {
+      text-align: center;
+      padding: 60px 40px;
+    }
+    .wf-error-code { font-size: 80px; font-weight: 900; color: #ccc; line-height: 1; }
+    .wf-error-msg  { font-size: 16px; font-weight: 700; margin: 12px 0; }
+    .wf-error-sub  { font-size: 12px; color: #888; margin-bottom: 20px; }
+
+    /* Profile avatar */
+    .wf-profile-avatar {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background: #ccc;
+      border: 2px solid #555;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 22px;
+      margin: 0 auto 16px;
+    }
+
+    /* Footer */
+    .wf-footer {
+      border-top: 2px dashed #ccc;
+      padding: 14px 24px;
+      text-align: center;
+      font-size: 11px;
+      color: #888;
+      background: #fafafa;
+    }
+
+    /* Annotation */
+    .wf-annotation {
+      background: #fffde7;
+      border: 1px solid #f0d55a;
+      border-radius: 4px;
+      font-size: 10px;
+      color: #856404;
+      padding: 2px 7px;
+      display: inline-block;
+      margin-left: 6px;
+      font-weight: 500;
+    }
+
+    /* Input long */
+    .wf-input-long {
+      flex: 1;
+      height: 36px;
+      border: 1.5px solid #999;
+      border-radius: 4px;
+      background: #f7f7f7;
+      min-width: 180px;
+    }
+
+    /* ─── Responsive ── */
+    @media (max-width: 700px) {
+      .wf-stats-grid { grid-template-columns: 1fr 1fr; }
+      .wf-chart-grid { grid-template-columns: 1fr; }
+      .wf-split      { flex-direction: column; }
+      .wf-form-grid  { grid-template-columns: 1fr; }
+      .wf-twocol     { flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ───────────── Doc Header ───────────── -->
+  <h1 class="doc-title">MovieMint — Wireframe Document</h1>
+  <p class="doc-subtitle">Black &amp; White low-fidelity wireframes &nbsp;·&nbsp; 18 pages &nbsp;·&nbsp; Based on src/main/webapp/WEB-INF/pages/*.jsp</p>
+
+  <!-- ───────────── Table of Contents ───────────── -->
+  <div class="toc">
+    <h2>Pages Index</h2>
+    <ol>
+      <li><a href="#pg-login">01 · Login</a></li>
+      <li><a href="#pg-register">02 · Register</a></li>
+      <li><a href="#pg-forgot">03 · Forgot Password</a></li>
+      <li><a href="#pg-userhome">04 · User Home</a></li>
+      <li><a href="#pg-browse">05 · Browse Movies</a></li>
+      <li><a href="#pg-details">06 · Movie Details</a></li>
+      <li><a href="#pg-book">07 · Book Ticket</a></li>
+      <li><a href="#pg-mybookings">08 · My Bookings</a></li>
+      <li><a href="#pg-profile">09 · User Profile</a></li>
+      <li><a href="#pg-adminhome">10 · Admin Home (Dashboard + Charts)</a></li>
+      <li><a href="#pg-admindashboard">11 · Admin Dashboard (Show Times)</a></li>
+      <li><a href="#pg-managemovies">12 · Manage Movies</a></li>
+      <li><a href="#pg-manageusers">13 · Manage Users</a></li>
+      <li><a href="#pg-managebookings">14 · Manage Bookings</a></li>
+      <li><a href="#pg-about">15 · About Us</a></li>
+      <li><a href="#pg-contact">16 · Contact Us</a></li>
+      <li><a href="#pg-500">17 · Error 500</a></li>
+      <li><a href="#pg-404">18 · Error 404</a></li>
+    </ol>
+  </div>
+
+
+  <!-- ════════════════════════════════════════════════════ -->
+  <!-- 01 · LOGIN                                          -->
+  <!-- ════════════════════════════════════════════════════ -->
+  <p class="section-label">Authentication Pages</p>
+  <div class="page-block" id="pg-login">
+    <div class="page-title-bar">
+      <span class="page-name">01 · LOGIN</span>
+      <span class="page-url">/login &nbsp;·&nbsp; login.jsp</span>
+    </div>
+    <div class="page-content">
+      <div class="wf-split">
+        <div class="wf-split-left">
+          <div class="wf-brand-block">
+            <div class="wf-brand-name">MovieMint</div>
+            <p class="wf-tagline">Book Your Favorite Movies</p>
+            <ul class="wf-feature-list">
+              <li>Easy ticket booking</li>
+              <li>Multiple seat options</li>
+              <li>Secure payments</li>
+              <li>Instant confirmation</li>
+            </ul>
+          </div>
+        </div>
+        <div class="wf-split-right">
+          <div class="wf-form-box">
+            <h2>Welcome Back</h2>
+            <p class="subtitle">Sign in to your account</p>
+            <div style="border:1.5px dashed #bbb;border-radius:4px;padding:8px;font-size:11px;color:#999;margin-bottom:14px;text-align:center;">[Error / Success Message Banner]</div>
+            <div class="wf-field"><label>Email Address</label><div class="wf-input"></div></div>
+            <div class="wf-field"><label>Password</label><div class="wf-input"></div></div>
+            <div class="wf-btn-full">Sign In</div>
+            <div class="wf-links">
+              <p><a href="#">Forgot your password?</a></p>
+              <p>Don't have an account? <a href="#">Create one</a></p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ════════════════════════════════════════════════════ -->
+  <!-- 02 · REGISTER                                       -->
+  <!-- ════════════════════════════════════════════════════ -->
+  <div class="page-block" id="pg-register">
+    <div class="page-title-bar">
+      <span class="page-name">02 · REGISTER</span>
+      <span class="page-url">/register &nbsp;·&nbsp; register.jsp</span>
+    </div>
+    <div class="page-content">
+      <div class="wf-split">
+        <div class="wf-split-left">
+          <div class="wf-brand-block">
+            <div class="wf-brand-name">MovieMint</div>
+            <p class="wf-tagline">Join Our Community</p>
+            <ul class="wf-feature-list">
+              <li>Book tickets instantly</li>
+              <li>Choose your favourite seats</li>
+              <li>Get exclusive offers</li>
+              <li>Manage your bookings</li>
+            </ul>
+          </div>
+        </div>
+        <div class="wf-split-right">
+          <div class="wf-form-box">
+            <h2>Create Account</h2>
+            <p class="subtitle">Join MovieMint today</p>
+            <div style="border:1.5px dashed #bbb;border-radius:4px;padding:8px;font-size:11px;color:#999;margin-bottom:14px;text-align:center;">[Error Message Banner]</div>
+            <div class="wf-field"><label>Full Name</label><div class="wf-input"></div></div>
+            <div class="wf-field"><label>Email Address</label><div class="wf-input"></div></div>
+            <div class="wf-field"><label>Phone Number (max 10 digits)</label><div class="wf-input"></div></div>
+            <div class="wf-field"><label>Password</label><div class="wf-input"></div></div>
+            <div class="wf-field"><label>Confirm Password</label><div class="wf-input"></div></div>
+            <div class="wf-btn-full">Create Account</div>
+            <div class="wf-links">
+              <p>Already have an account? <a href="#">Sign in</a></p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ════════════════════════════════════════════════════ -->
+  <!-- 03 · FORGOT PASSWORD                                -->
+  <!-- ════════════════════════════════════════════════════ -->
+  <div class="page-block" id="pg-forgot">
+    <div class="page-title-bar">
+      <span class="page-name">03 · FORGOT PASSWORD</span>
+      <span class="page-url">/forgotPassword &nbsp;·&nbsp; forgotPassword.jsp</span>
+    </div>
+    <div class="page-content">
+      <div class="wf-split">
+        <div class="wf-split-left">
+          <div class="wf-brand-block">
+            <div class="wf-brand-name">MovieMint</div>
+            <p class="wf-tagline">Recover Your Access</p>
+            <div style="margin-top:20px;text-align:left;max-width:240px;background:rgba(255,255,255,0.6);padding:12px;border-radius:6px;">
+              <p style="font-size:13px;font-weight:700;margin-bottom:6px;">Password Reset</p>
+              <p style="font-size:11px;color:#444;line-height:1.6;">Enter your email address and create a new password to regain access to your MovieMint account.</p>
+            </div>
+          </div>
+        </div>
+        <div class="wf-split-right">
+          <div class="wf-form-box">
+            <h2>Reset Password</h2>
+            <p class="subtitle">Create a new password</p>
+            <div style="border:1.5px dashed #bbb;border-radius:4px;padding:8px;font-size:11px;color:#999;margin-bottom:14px;text-align:center;">[Error / Success Message Banner]</div>
+            <div class="wf-field"><label>Email Address</label><div class="wf-input"></div></div>
+            <div class="wf-field"><label>New Password</label><div class="wf-input"></div></div>
+            <div class="wf-field"><label>Confirm Password</label><div class="wf-input"></div></div>
+            <div class="wf-btn-full">Reset Password</div>
+            <div class="wf-links"><p><a href="#">Back to Login</a></p></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ════════════════════════════════════════════════════ -->
+  <!-- 04 · USER HOME                                      -->
+  <!-- ════════════════════════════════════════════════════ -->
+  <p class="section-label">User Pages</p>
+  <div class="page-block" id="pg-userhome">
+    <div class="page-title-bar">
+      <span class="page-name">04 · USER HOME</span>
+      <span class="page-url">/userHome &nbsp;·&nbsp; userHome.jsp</span>
+    </div>
+    <div class="page-content">
+      <div class="wf-navbar">
+        <div class="wf-logo">MovieMint</div>
+        <div class="wf-nav-links">
+          <span class="active">Home</span>
+          <span>Browse Movies</span>
+          <span>My Bookings</span>
+          <span>Profile</span>
+          <span>About</span>
+          <span>Contact</span>
+        </div>
+        <div class="wf-nav-actions">
+          <span style="font-weight:600;">Welcome, User</span>
+          <span class="wf-btn-sm solid">Logout</span>
+        </div>
+      </div>
+      <div class="wf-main">
+        <div class="wf-welcome">
+          <h1>Welcome back, User!</h1>
+          <p>user@example.com</p>
+        </div>
+        <p style="font-size:13px;font-weight:700;margin-bottom:10px;">Recently Added Movies</p>
+        <div class="wf-card-grid">
+          <div class="wf-movie-card">
+            <div class="wf-poster">Movie Poster</div>
+            <div class="wf-card-body"><h3>Movie Title</h3><p><strong>Genre:</strong> Action</p><div class="wf-btn-sm" style="font-size:10px;margin-top:4px;">View Details</div></div>
+          </div>
+          <div class="wf-movie-card">
+            <div class="wf-poster">Movie Poster</div>
+            <div class="wf-card-body"><h3>Movie Title</h3><p><strong>Genre:</strong> Drama</p><div class="wf-btn-sm" style="font-size:10px;margin-top:4px;">View Details</div></div>
+          </div>
+          <div class="wf-movie-card">
+            <div class="wf-poster">Movie Poster</div>
+            <div class="wf-card-body"><h3>Movie Title</h3><p><strong>Genre:</strong> Comedy</p><div class="wf-btn-sm" style="font-size:10px;margin-top:4px;">View Details</div></div>
+          </div>
+          <div class="wf-movie-card">
+            <div class="wf-poster">Movie Poster</div>
+            <div class="wf-card-body"><h3>Movie Title</h3><p><strong>Genre:</strong> Sci-Fi</p><div class="wf-btn-sm" style="font-size:10px;margin-top:4px;">View Details</div></div>
+          </div>
+        </div>
+        <div class="wf-actions">
+          <div class="wf-btn-sm solid">Browse All Movies</div>
+          <div class="wf-btn-sm">My Bookings</div>
+        </div>
+      </div>
+      <div class="wf-footer">© MovieMint · All Rights Reserved</div>
+    </div>
+  </div>
+
+
+  <!-- ════════════════════════════════════════════════════ -->
+  <!-- 05 · BROWSE MOVIES                                  -->
+  <!-- ════════════════════════════════════════════════════ -->
+  <div class="page-block" id="pg-browse">
+    <div class="page-title-bar">
+      <span class="page-name">05 · BROWSE MOVIES</span>
+      <span class="page-url">/browseMovies &nbsp;·&nbsp; browseMovies.jsp</span>
+    </div>
+    <div class="page-content">
+      <div class="wf-navbar">
+        <div class="wf-logo">MovieMint</div>
+        <div class="wf-nav-links">
+          <span>Home</span><span class="active">Browse Movies</span><span>My Bookings</span><span>Profile</span><span>About</span><span>Contact</span>
+        </div>
+        <div class="wf-nav-actions">
+          <span style="font-weight:600;">Welcome, User</span>
+          <span class="wf-btn-sm solid">Logout</span>
+        </div>
+      </div>
+      <div class="wf-main">
+        <p class="wf-page-h1">Browse Movies</p>
+        <div class="wf-search-bar">
+          <div class="wf-input-long"></div>
+          <div class="wf-btn-sm solid">Search</div>
+        </div>
+        <div class="wf-filter-row">
+          <label style="font-weight:600;">Genre:</label>
+          <select class="wf-select">
+            <option>All Genres</option><option>Action</option><option>Comedy</option>
+            <option>Drama</option><option>Horror</option><option>Romance</option><option>Sci-Fi</option>
+          </select>
+          <label style="font-weight:600;">Language:</label>
+          <select class="wf-select">
+            <option>All Languages</option><option>English</option><option>Hindi</option><option>Nepali</option>
+          </select>
+        </div>
+        <div class="wf-card-grid" style="grid-template-columns:repeat(auto-fill,minmax(180px,1fr));">
+          <div class="wf-movie-card">
+            <div class="wf-poster">Poster</div>
+            <div class="wf-card-body"><h3>Movie Title</h3><p><strong>Genre:</strong> Action</p><p><strong>Language:</strong> English</p><p><strong>Duration:</strong> 120 mins</p><div class="wf-btn-sm solid" style="font-size:10px;margin-top:5px;">View Details</div></div>
+          </div>
+          <div class="wf-movie-card">
+            <div class="wf-poster">Poster</div>
+            <div class="wf-card-body"><h3>Movie Title</h3><p><strong>Genre:</strong> Drama</p><p><strong>Language:</strong> Hindi</p><p><strong>Duration:</strong> 150 mins</p><div class="wf-btn-sm solid" style="font-size:10px;margin-top:5px;">View Details</div></div>
+          </div>
+          <div class="wf-movie-card">
+            <div class="wf-poster">Poster</div>
+            <div class="wf-card-body"><h3>Movie Title</h3><p><strong>Genre:</strong> Comedy</p><p><strong>Language:</strong> Nepali</p><p><strong>Duration:</strong> 100 mins</p><div class="wf-btn-sm solid" style="font-size:10px;margin-top:5px;">View Details</div></div>
+          </div>
+          <div class="wf-movie-card">
+            <div class="wf-poster">Poster</div>
+            <div class="wf-card-body"><h3>Movie Title</h3><p><strong>Genre:</strong> Sci-Fi</p><p><strong>Language:</strong> English</p><p><strong>Duration:</strong> 135 mins</p><div class="wf-btn-sm solid" style="font-size:10px;margin-top:5px;">View Details</div></div>
+          </div>
+        </div>
+        <div style="border:1.5px dashed #ccc;border-radius:4px;padding:8px;font-size:11px;color:#aaa;text-align:center;">[No movies found – shown when search returns empty]</div>
+      </div>
+      <div class="wf-footer">© MovieMint · All Rights Reserved</div>
+    </div>
+  </div>
+
+
+  <!-- ════════════════════════════════════════════════════ -->
+  <!-- 06 · MOVIE DETAILS                                  -->
+  <!-- ════════════════════════════════════════════════════ -->
+  <div class="page-block" id="pg-details">
+    <div class="page-title-bar">
+      <span class="page-name">06 · MOVIE DETAILS</span>
+      <span class="page-url">/movieDetails?id={movieId} &nbsp;·&nbsp; movieDetails.jsp</span>
+    </div>
+    <div class="page-content">
+      <div class="wf-navbar">
+        <div class="wf-logo">MovieMint</div>
+        <div class="wf-nav-links">
+          <span>Home</span><span class="active">Browse Movies</span><span>My Bookings</span><span>Profile</span><span>About</span><span>Contact</span>
+        </div>
+        <div class="wf-nav-actions">
+          <span style="font-weight:600;">Welcome, User</span>
+          <span class="wf-btn-sm solid">Logout</span>
+        </div>
+      </div>
+      <div class="wf-main">
+        <div class="wf-detail-layout">
+          <div class="wf-poster-large">Movie Poster<br>(Large Image)</div>
+          <div class="wf-detail-info">
+            <h1>Movie Title Here</h1>
+            <div class="wf-detail-row"><strong>Director:</strong> Director Name</div>
+            <div class="wf-detail-row"><strong>Genre:</strong> Action · Thriller</div>
+            <div class="wf-detail-row"><strong>Language:</strong> English</div>
+            <div class="wf-detail-row"><strong>Duration:</strong> 130 mins</div>
+            <div class="wf-detail-row" style="line-height:1.6;"><strong>Description:</strong><br>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ut perspiciatis unde omnis iste natus error.</div>
+            <div style="margin-top:20px;">
+              <div class="wf-btn-sm solid" style="padding:10px 28px;font-size:13px;display:inline-flex;">Book Tickets</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="wf-footer">© MovieMint · All Rights Reserved</div>
+    </div>
+  </div>
+
+
+  <!-- ════════════════════════════════════════════════════ -->
+  <!-- 07 · BOOK TICKET                                    -->
+  <!-- ════════════════════════════════════════════════════ -->
+  <div class="page-block" id="pg-book">
+    <div class="page-title-bar">
+      <span class="page-name">07 · BOOK TICKET</span>
+      <span class="page-url">/bookTicket?movieId={id} &nbsp;·&nbsp; bookTicket.jsp</span>
+    </div>
+    <div class="page-content">
+      <div class="wf-navbar">
+        <div class="wf-logo">MovieMint</div>
+        <div class="wf-nav-links">
+          <span>Home</span><span class="active">Browse Movies</span><span>My Bookings</span><span>Profile</span><span>About</span><span>Contact</span>
+        </div>
+        <div class="wf-nav-actions">
+          <span style="font-weight:600;">Welcome, User</span>
+          <span class="wf-btn-sm solid">Logout</span>
+        </div>
+      </div>
+      <div class="wf-main">
+        <p class="wf-page-h1">Book Ticket</p>
+        <p style="font-size:14px;font-weight:700;border-left:4px solid #222;padding-left:12px;margin-bottom:20px;">Movie Title Here</p>
+        <div style="border:1.5px dashed #bbb;border-radius:4px;padding:8px;font-size:11px;color:#999;margin-bottom:16px;text-align:center;">[Error Message Area]</div>
+        <div style="max-width:420px;">
+          <div class="wf-field">
+            <label style="font-size:12px;font-weight:600;">Show Time:</label>
+            <select class="wf-select" style="width:100%;height:36px;margin-top:4px;">
+              <option>Select Time</option><option>10:00 AM</option>
+              <option>1:00 PM</option><option>4:00 PM</option><option>7:00 PM</option>
+            </select>
+          </div>
+          <div class="wf-field" style="margin-top:12px;">
+            <label style="font-size:12px;font-weight:600;">Seat Type:</label>
+            <select class="wf-select" style="width:100%;height:36px;margin-top:4px;">
+              <option>Standard – Rs. 250</option>
+              <option>Premium – Rs. 400</option>
+              <option>Recliner – Rs. 600</option>
+              <option>VIP – Rs. 800</option>
+            </select>
+          </div>
+          <div class="wf-field" style="margin-top:12px;">
+            <label style="font-size:12px;font-weight:600;">Number of Seats: (min 1, max 10)</label>
+            <div class="wf-input" style="margin-top:4px;"></div>
+          </div>
+          <!-- Dynamic pricing display -->
+          <div style="border:2px solid #bbb;border-radius:6px;padding:14px;margin:16px 0;background:#f8f8f8;">
+            <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:8px;">
+              <span>Price per seat:</span><span style="font-weight:700;">Rs. 250</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;font-size:14px;">
+              <span style="font-weight:700;">Total Price:</span><span style="font-size:18px;font-weight:900;">Rs. 250</span>
+            </div>
+            <p style="font-size:9px;color:#aaa;margin-top:6px;">[Updates dynamically via JS when seat type/count changes]</p>
+          </div>
+          <div style="display:flex;gap:10px;">
+            <div class="wf-btn-full" style="flex:1;">Confirm Booking</div>
+            <div class="wf-btn-sm" style="flex:1;display:flex;align-items:center;justify-content:center;height:40px;">Cancel</div>
+          </div>
+        </div>
+      </div>
+      <div class="wf-footer">© MovieMint · All Rights Reserved</div>
+    </div>
+  </div>
+
+
+  <!-- ════════════════════════════════════════════════════ -->
+  <!-- 08 · MY BOOKINGS                                    -->
+  <!-- ════════════════════════════════════════════════════ -->
+  <div class="page-block" id="pg-mybookings">
+    <div class="page-title-bar">
+      <span class="page-name">08 · MY BOOKINGS</span>
+      <span class="page-url">/myBookings &nbsp;·&nbsp; myBookings.jsp</span>
+    </div>
+    <div class="page-content">
+      <div class="wf-navbar">
+        <div class="wf-logo">MovieMint</div>
+        <div class="wf-nav-links">
+          <span>Home</span><span>Browse Movies</span><span class="active">My Bookings</span><span>Profile</span><span>About</span><span>Contact</span>
+        </div>
+        <div class="wf-nav-actions">
+          <span style="font-weight:600;">Welcome, User</span>
+          <span class="wf-btn-sm solid">Logout</span>
+        </div>
+      </div>
+      <div class="wf-main">
+        <h1 style="font-size:28px;font-weight:900;margin-bottom:16px;">My Bookings</h1>
+        <div style="border:1.5px dashed #bbb;border-radius:6px;padding:14px;margin-bottom:20px;">
+          <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:12px;">
+            <div class="wf-input-long"></div>
+            <div class="wf-btn-sm solid">Search</div>
+          </div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            <div class="wf-btn-sm">Sort by Date</div>
+            <div class="wf-btn-sm">Sort by Movie</div>
+            <div class="wf-btn-sm">All</div>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:14px;">
+          <div style="border:1.5px solid #ddd;border-radius:6px;padding:14px;">
+            <h3 style="font-size:14px;font-weight:700;margin-bottom:8px;">Movie Title A</h3>
+            <p style="font-size:11px;color:#666;margin-bottom:4px;"><strong>Booking ID:</strong> 1001</p>
+            <p style="font-size:11px;color:#666;margin-bottom:4px;"><strong>Show Time:</strong> 2024-04-15 7:00 PM</p>
+            <p style="font-size:11px;color:#666;margin-bottom:4px;"><strong>Number of Seats:</strong> 2</p>
+            <p style="font-size:11px;color:#666;margin-bottom:4px;"><strong>Total Price:</strong> Rs. 500</p>
+            <p style="font-size:11px;color:#666;margin-bottom:4px;"><strong>Status:</strong> <span class="wf-badge confirmed">Confirmed</span></p>
+            <p style="font-size:11px;color:#666;"><strong>Booking Date:</strong> 2024-04-10 11:20 AM</p>
+          </div>
+          <div style="border:1.5px solid #ddd;border-radius:6px;padding:14px;">
+            <h3 style="font-size:14px;font-weight:700;margin-bottom:8px;">Movie Title B</h3>
+            <p style="font-size:11px;color:#666;margin-bottom:4px;"><strong>Booking ID:</strong> 1002</p>
+            <p style="font-size:11px;color:#666;margin-bottom:4px;"><strong>Show Time:</strong> 2024-04-18 4:00 PM</p>
+            <p style="font-size:11px;color:#666;margin-bottom:4px;"><strong>Number of Seats:</strong> 3</p>
+            <p style="font-size:11px;color:#666;margin-bottom:4px;"><strong>Total Price:</strong> Rs. 750</p>
+            <p style="font-size:11px;color:#666;margin-bottom:4px;"><strong>Status:</strong> <span class="wf-badge">Completed</span></p>
+            <p style="font-size:11px;color:#666;"><strong>Booking Date:</strong> 2024-04-12 02:30 PM</p>
+          </div>
+          <div style="border:1.5px dashed #ccc;border-radius:6px;padding:14px;text-align:center;font-size:11px;color:#aaa;">No bookings found. Browse movies to make your first booking.</div>
+        </div>
+      </div>
+
+      <div class="wf-footer">© MovieMint · All Rights Reserved</div>
+    </div>
+  </div>
+
+
+  <!-- ════════════════════════════════════════════════════ -->
+  <!-- 09 · USER PROFILE                                   -->
+  <!-- ════════════════════════════════════════════════════ -->
+  <div class="page-block" id="pg-profile">
+    <div class="page-title-bar">
+      <span class="page-name">09 · USER PROFILE</span>
+      <span class="page-url">/userProfile &nbsp;·&nbsp; userProfile.jsp</span>
+    </div>
+    <div class="page-content">
+      <div class="wf-navbar">
+        <div class="wf-logo">MovieMint</div>
+        <div class="wf-nav-links">
+          <span>Home</span><span>Browse Movies</span><span>My Bookings</span><span class="active">Profile</span><span>About</span><span>Contact</span>
+        </div>
+        <div class="wf-nav-actions">
+          <span style="font-weight:600;">Welcome, User</span>
+          <span class="wf-btn-sm solid">Logout</span>
+        </div>
+      </div>
+      <div class="wf-main">
+        <p class="wf-page-h1">My Profile</p>
+        <div style="border:1.5px dashed #bbb;border-radius:4px;padding:8px;font-size:11px;color:#999;margin-bottom:16px;text-align:center;">[Success / Error Message Area]</div>
+        <div style="max-width:380px;margin:0 auto;">
+          <div class="wf-field"><label style="font-size:12px;font-weight:600;">Full Name</label><div class="wf-input" style="margin-top:4px;"></div></div>
+          <div class="wf-field"><label style="font-size:12px;font-weight:600;">Email</label><div class="wf-input" style="margin-top:4px;"></div></div>
+          <div class="wf-field"><label style="font-size:12px;font-weight:600;">Phone (max 10 digits)</label><div class="wf-input" style="margin-top:4px;"></div></div>
+          <div class="wf-btn-full" style="margin-top:8px;">Update Profile</div>
+        </div>
+      </div>
+      <div class="wf-footer">© MovieMint · All Rights Reserved</div>
+    </div>
+  </div>
+
+
+  <!-- ════════════════════════════════════════════════════ -->
+  <!-- 10 · ADMIN HOME (Charts Dashboard)                  -->
+  <!-- ════════════════════════════════════════════════════ -->
+  <p class="section-label">Admin Pages</p>
+  <div class="page-block" id="pg-adminhome">
+    <div class="page-title-bar">
+      <span class="page-name">10 · ADMIN HOME (DASHBOARD + CHARTS)</span>
+      <span class="page-url">/adminHome &nbsp;·&nbsp; adminHome.jsp</span>
+    </div>
+    <div class="page-content">
+      <div class="wf-navbar">
+        <div class="wf-logo">MovieMint Admin</div>
+        <div class="wf-nav-links">
+          <span class="active">Dashboard</span><span>Movies</span><span>Users</span><span>Bookings</span>
+        </div>
+        <div class="wf-nav-actions">
+          <span style="font-size:12px;font-weight:600;">Admin Name</span>
+          <span class="wf-btn-sm solid">Logout</span>
+        </div>
+      </div>
+      <div class="wf-main">
+        <div class="wf-welcome">
+          <h1>Admin Dashboard</h1>
+          <p>Manage your movie booking platform</p>
+        </div>
+        <!-- Stats row -->
+        <div class="wf-stats-grid">
+          <div class="wf-stat-card"><div class="wf-stat-num">24</div><div class="wf-stat-lbl">Total Movies</div></div>
+          <div class="wf-stat-card"><div class="wf-stat-num">182</div><div class="wf-stat-lbl">Total Users</div></div>
+          <div class="wf-stat-card"><div class="wf-stat-num">341</div><div class="wf-stat-lbl">Total Bookings</div></div>
+          <div class="wf-stat-card"><div class="wf-stat-num">Rs. 85K</div><div class="wf-stat-lbl">Total Revenue</div></div>
+        </div>
+        <!-- Chart row -->
+        <div class="wf-chart-grid">
+          <div class="wf-chart-box">
+            <div class="wf-chart-title">
+              Revenue Analysis
+              <select class="wf-select" style="font-size:10px;height:22px;margin-left:10px;">
+                <option>Monthly (Last 12 Months)</option>
+                <option>Daily (Last 30 Days)</option>
+                <option>Yearly</option>
+              </select>
+            </div>
+            <div class="wf-chart-body">
+              <div class="wf-bar" style="height:55%;"></div><div class="wf-bar" style="height:80%;"></div>
+              <div class="wf-bar" style="height:40%;"></div><div class="wf-bar" style="height:90%;"></div>
+              <div class="wf-bar" style="height:65%;"></div><div class="wf-bar" style="height:72%;"></div>
+              <div class="wf-bar" style="height:50%;"></div>
+            </div>
+          </div>
+          <div class="wf-chart-box">
+            <div class="wf-chart-title">All Movies – Booking Count (Bar Chart)</div>
+            <div class="wf-chart-body">
+              <div class="wf-bar" style="height:50%;"></div><div class="wf-bar" style="height:90%;"></div>
+              <div class="wf-bar" style="height:30%;"></div><div class="wf-bar" style="height:70%;"></div>
+              <div class="wf-bar" style="height:45%;"></div>
+            </div>
+          </div>
+          <div class="wf-chart-box">
+            <div class="wf-chart-title">Seat Category Distribution (Doughnut)</div>
+            <div style="flex:1;display:flex;align-items:center;justify-content:center;">
+              <div style="width:120px;height:120px;border-radius:50%;background:conic-gradient(#222 0% 40%,#888 40% 65%,#bbb 65% 85%,#e0e0e0 85% 100%);border:2px solid #999;position:relative;">
+                <div style="position:absolute;inset:25%;border-radius:50%;background:#fff;"></div>
+              </div>
+              <div style="margin-left:16px;font-size:10px;line-height:2;">
+                <p><span style="display:inline-block;width:10px;height:10px;background:#222;margin-right:5px;border-radius:2px;"></span>Standard</p>
+                <p><span style="display:inline-block;width:10px;height:10px;background:#888;margin-right:5px;border-radius:2px;"></span>Premium</p>
+                <p><span style="display:inline-block;width:10px;height:10px;background:#bbb;margin-right:5px;border-radius:2px;"></span>Recliner</p>
+                <p><span style="display:inline-block;width:10px;height:10px;background:#e0e0e0;border:1px solid #ccc;margin-right:5px;border-radius:2px;"></span>VIP</p>
+              </div>
+            </div>
+          </div>
+          <div class="wf-chart-box">
+            <div class="wf-chart-title">Most Booked Movies (Table)</div>
+            <div class="wf-table-wrap" style="flex:1;">
+              <table class="wf-table">
+                <thead><tr><th>Movie Title</th><th>Bookings</th><th>Total Seats</th></tr></thead>
+                <tbody>
+                  <tr><td>Movie A</td><td>45</td><td>120</td></tr>
+                  <tr><td>Movie B</td><td>38</td><td>95</td></tr>
+                  <tr><td>Movie C</td><td>29</td><td>72</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        <!-- Quick links -->
+        <div class="wf-actions">
+          <div class="wf-btn-sm solid">Add New Movie</div>
+          <div class="wf-btn-sm">View All Users</div>
+          <div class="wf-btn-sm">View All Bookings</div>
+        </div>
+      </div>
+      <div class="wf-footer">© MovieMint Admin</div>
+    </div>
+  </div>
+
+
+  <!-- ════════════════════════════════════════════════════ -->
+  <!-- 11 · ADMIN DASHBOARD (Show Times / Recent Bookings) -->
+  <!-- ════════════════════════════════════════════════════ -->
+  <div class="page-block" id="pg-admindashboard">
+    <div class="page-title-bar">
+      <span class="page-name">11 · ADMIN DASHBOARD (SHOW TIMES)</span>
+      <span class="page-url">/adminDashboard &nbsp;·&nbsp; adminDashboard.jsp</span>
+    </div>
+    <div class="page-content">
+      <div class="wf-navbar">
+        <div class="wf-logo">MovieMint Admin</div>
+        <div class="wf-nav-links">
+          <span class="active">Dashboard</span><span>Movies</span><span>Users</span><span>Bookings</span>
+        </div>
+        <div class="wf-nav-actions">
+          <span style="font-size:12px;font-weight:600;">Admin</span>
+          <span class="wf-btn-sm solid">Logout</span>
+        </div>
+      </div>
+      <div class="wf-main">
+        <p class="wf-page-h1">Admin Dashboard</p>
+        <div class="wf-stats-grid">
+          <div class="wf-stat-card"><div class="wf-stat-num">24</div><div class="wf-stat-lbl">Total Movies</div></div>
+          <div class="wf-stat-card"><div class="wf-stat-num">182</div><div class="wf-stat-lbl">Total Users</div></div>
+          <div class="wf-stat-card"><div class="wf-stat-num">341</div><div class="wf-stat-lbl">Total Bookings</div></div>
+          <div class="wf-stat-card"><div class="wf-stat-num">Rs. 85K</div><div class="wf-stat-lbl">Total Revenue</div></div>
+        </div>
+        <div class="wf-tabs">
+          <div class="wf-tab active">Show Times</div>
+          <div class="wf-tab">Recent Bookings</div>
+        </div>
+        <!-- Tab 1: Show Times -->
+        <p style="font-size:13px;font-weight:700;margin-bottom:12px;">Upcoming Show Times</p>
+        <div style="border:1.5px solid #ddd;border-radius:6px;padding:12px;display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;background:#f8f8f8;flex-wrap:wrap;gap:8px;">
+          <div>
+            <p style="font-size:13px;font-weight:700;">Movie Title A</p>
+            <p style="font-size:11px;color:#666;margin-top:2px;">Date: 2024-05-10 &nbsp;|&nbsp; Time: 10:00 AM &nbsp;|&nbsp; Hall: Audi 01</p>
+          </div>
+          <div class="wf-btn-sm" style="color:#c00;border-color:#c00;">Delete</div>
+        </div>
+        <div style="border:1.5px solid #ddd;border-radius:6px;padding:12px;display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;background:#f8f8f8;flex-wrap:wrap;gap:8px;">
+          <div>
+            <p style="font-size:13px;font-weight:700;">Movie Title B</p>
+            <p style="font-size:11px;color:#666;margin-top:2px;">Date: 2024-05-10 &nbsp;|&nbsp; Time: 4:00 PM &nbsp;|&nbsp; Hall: Audi 02</p>
+          </div>
+          <div class="wf-btn-sm" style="color:#c00;border-color:#c00;">Delete</div>
+        </div>
+        <!-- Tab 2 placeholder -->
+        <div style="border:1.5px dashed #ccc;border-radius:4px;padding:10px;font-size:11px;color:#aaa;text-align:center;margin-top:14px;">[Tab 2: Recent Bookings — shows booking list: User, Movie, Seats, Amount, Date, Status=Confirmed]</div>
+      </div>
+      <div class="wf-footer">© MovieMint Admin</div>
+    </div>
+  </div>
+
+
+  <!-- ════════════════════════════════════════════════════ -->
+  <!-- 12 · MANAGE MOVIES                                  -->
+  <!-- ════════════════════════════════════════════════════ -->
+  <div class="page-block" id="pg-managemovies">
+    <div class="page-title-bar">
+      <span class="page-name">12 · MANAGE MOVIES</span>
+      <span class="page-url">/manageMovies &nbsp;·&nbsp; manageMovies.jsp</span>
+    </div>
+    <div class="page-content">
+      <div class="wf-navbar">
+        <div class="wf-logo">MovieMint Admin</div>
+        <div class="wf-nav-links">
+          <span>Dashboard</span><span class="active">Movies</span><span>Users</span><span>Bookings</span>
+        </div>
+        <div class="wf-nav-actions">
+          <span style="font-size:12px;font-weight:600;">Admin</span>
+          <span class="wf-btn-sm solid">Logout</span>
+        </div>
+      </div>
+      <div class="wf-main">
+        <p class="wf-page-h1">Manage Movies</p>
+        <div style="border:1.5px dashed #bbb;border-radius:4px;padding:8px;font-size:11px;color:#999;margin-bottom:12px;text-align:center;">[Success / Error Message Area]</div>
+        <!-- Toolbar -->
+        <div style="display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap;">
+          <div class="wf-btn-sm solid">+ Add New Movie</div>
+          <div class="wf-input-long" style="border:1.5px solid #999;border-radius:4px;height:34px;background:#f7f7f7;flex:1;min-width:180px;"></div>
+          <div class="wf-btn-sm solid">Search</div>
+          <div class="wf-btn-sm">Clear</div>
+        </div>
+
+        <!-- Add Movie Form -->
+        <div class="wf-form-container">
+          <h2>Add New Movie <span class="wf-annotation">Toggles on "Add New Movie" click · Hidden by default</span></h2>
+          <div class="wf-form-grid">
+            <div class="wf-field-sm"><label>Title *</label><div class="wf-input"></div></div>
+            <div class="wf-field-sm"><label>Genre (select / custom) *</label><div class="wf-input"></div></div>
+            <div class="wf-field-sm"><label>Director *</label><div class="wf-input"></div></div>
+            <div class="wf-field-sm"><label>Duration (minutes) *</label><div class="wf-input"></div></div>
+            <div class="wf-field-sm"><label>Language *</label><div class="wf-input"></div></div>
+            <div class="wf-field-sm"><label>Release Date *</label><div class="wf-input"></div></div>
+            <div class="wf-field-sm"><label>Airing Start Date *</label><div class="wf-input"></div></div>
+            <div class="wf-field-sm"><label>Airing End Date *</label><div class="wf-input"></div></div>
+            <div class="wf-field-sm" style="grid-column:span 2"><label>Description *</label><textarea></textarea></div>
+            <div class="wf-field-sm" style="grid-column:span 2">
+              <label>Poster Image * (JPG / PNG / GIF)</label>
+              <div style="border:1.5px dashed #ccc;border-radius:4px;padding:12px;font-size:11px;color:#aaa;text-align:center;">[File Upload Field]</div>
+            </div>
+          </div>
+          <!-- Show Schedule Builder -->
+          <div style="margin-top:16px;">
+            <label style="font-size:12px;font-weight:700;display:block;margin-bottom:6px;">Show Schedule Builder</label>
+            <div class="wf-schedule-box">
+              <p style="font-size:10px;color:#777;margin-bottom:10px;">Dates auto-generated from Start–End range. Click a date → pick halls → add show times.</p>
+              <p style="font-size:10px;font-weight:700;margin-bottom:4px;">Date Tabs:</p>
+              <div class="wf-date-chips">
+                <div class="wf-chip active">Mon, Apr 10</div>
+                <div class="wf-chip">Tue, Apr 11</div>
+                <div class="wf-chip">Wed, Apr 12</div>
+                <div class="wf-chip">Thu, Apr 13</div>
+              </div>
+              <p style="font-size:10px;font-weight:700;margin-bottom:4px;">Select Halls for selected date:</p>
+              <div class="wf-hall-row">
+                <div class="wf-chip active">Audi 01</div>
+                <div class="wf-chip">Audi 02</div>
+                <div class="wf-chip">Audi 03</div>
+                <div class="wf-chip">Audi 04</div>
+                <div class="wf-chip">Audi 05</div>
+              </div>
+              <!-- Hall time input example -->
+              <div style="border:1.5px solid #ddd;border-radius:4px;padding:10px;background:#fff;margin-top:8px;">
+                <p style="font-size:11px;font-weight:700;color:#444;margin-bottom:6px;">Audi 01 – Time Slots</p>
+                <div style="display:flex;gap:8px;align-items:center;">
+                  <div style="border:1.5px solid #bbb;border-radius:4px;height:28px;width:100px;background:#f7f7f7;"></div>
+                  <div class="wf-btn-sm">Add Time</div>
+                </div>
+                <div style="margin-top:6px;">
+                  <span class="wf-chip active" style="font-size:10px;">10:00 AM ×</span>
+                  <span class="wf-chip active" style="font-size:10px;margin-left:4px;">1:00 PM ×</span>
+                </div>
+                <p style="font-size:9px;color:#c00;margin-top:4px;">[Conflict warning: "Time slot unavailable – conflicts with another show"]</p>
+              </div>
+            </div>
+          </div>
+          <div style="display:flex;gap:10px;margin-top:14px;">
+            <div class="wf-btn-sm solid">Add Movie</div>
+            <div class="wf-btn-sm">Cancel</div>
+          </div>
+        </div>
+
+        <!-- Edit Movie Form placeholder -->
+        <div style="border:1.5px dashed #ccc;border-radius:6px;padding:12px;font-size:11px;color:#aaa;margin-bottom:16px;text-align:center;">[Edit Movie Form — same fields pre-filled. Shows current poster thumbnail + optional new image upload. Hidden by default; shown when "Edit" clicked on a movie row.]</div>
+
+        <!-- Movie list table -->
+        <div class="wf-table-wrap">
+          <table class="wf-table">
+            <thead>
+              <tr>
+                <th>ID</th><th>Poster</th><th>Title</th><th>Genre</th><th>Director</th>
+                <th>Duration</th><th>Language</th><th>Airing Dates</th><th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>1</td>
+                <td><div style="width:36px;height:50px;background:#ccc;border-radius:3px;"></div></td>
+                <td>Movie Title A</td><td>Action</td><td>Director X</td>
+                <td>130 min</td><td>English</td><td>Apr 10 – Apr 20</td>
+                <td style="white-space:nowrap;">
+                  <div class="wf-btn-sm" style="margin-right:4px;display:inline-block;">Edit</div>
+                  <div class="wf-btn-sm" style="color:#c00;border-color:#c00;display:inline-block;">Delete</div>
+                </td>
+              </tr>
+              <tr>
+                <td>2</td>
+                <td><div style="width:36px;height:50px;background:#ccc;border-radius:3px;"></div></td>
+                <td>Movie Title B</td><td>Drama</td><td>Director Y</td>
+                <td>150 min</td><td>Hindi</td><td>Apr 12 – Apr 25</td>
+                <td style="white-space:nowrap;">
+                  <div class="wf-btn-sm" style="margin-right:4px;display:inline-block;">Edit</div>
+                  <div class="wf-btn-sm" style="color:#c00;border-color:#c00;display:inline-block;">Delete</div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="wf-footer">© MovieMint Admin</div>
+    </div>
+  </div>
+
+
+  <!-- ════════════════════════════════════════════════════ -->
+  <!-- 13 · MANAGE USERS                                   -->
+  <!-- ════════════════════════════════════════════════════ -->
+  <div class="page-block" id="pg-manageusers">
+    <div class="page-title-bar">
+      <span class="page-name">13 · MANAGE USERS</span>
+      <span class="page-url">/manageUsers &nbsp;·&nbsp; manageUsers.jsp</span>
+    </div>
+    <div class="page-content">
+      <div class="wf-navbar">
+        <div class="wf-logo">MovieMint Admin</div>
+        <div class="wf-nav-links">
+          <span>Dashboard</span><span>Movies</span><span class="active">Users</span><span>Bookings</span>
+        </div>
+        <div class="wf-nav-actions">
+          <span style="font-size:12px;font-weight:600;">Admin</span>
+          <span class="wf-btn-sm solid">Logout</span>
+        </div>
+      </div>
+      <div class="wf-main">
+        <p class="wf-page-h1">Manage Users</p>
+        <div style="border:1.5px dashed #bbb;border-radius:4px;padding:8px;font-size:11px;color:#999;margin-bottom:12px;text-align:center;">[Success / Error Message Area]</div>
+        <!-- Search + sort -->
+        <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:14px;">
+          <div class="wf-input-long" style="border:1.5px solid #999;border-radius:4px;height:34px;background:#f7f7f7;flex:1;min-width:180px;"></div>
+          <div class="wf-btn-sm solid">Search</div>
+          <div class="wf-btn-sm">Sort by Name</div>
+          <div class="wf-btn-sm">Sort by Date</div>
+          <div class="wf-btn-sm">Sort by Bookings</div>
+        </div>
+        <!-- Table -->
+        <div class="wf-table-wrap">
+          <table class="wf-table">
+            <thead>
+              <tr>
+                <th>ID</th><th>Full Name</th><th>Email</th><th>Role</th>
+                <th>Phone</th><th>Bookings</th><th>Status</th><th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>1</td><td>Alice Smith</td><td>alice@email.com</td><td>user</td>
+                <td>9800000001</td><td>5</td>
+                <td><span class="wf-badge active">Active</span></td>
+                <td style="white-space:nowrap;">
+                  <div class="wf-btn-sm" style="color:#c00;border-color:#c00;margin-right:4px;display:inline-block;">Block</div>
+                  <div class="wf-btn-sm" style="color:#c00;border-color:#c00;display:inline-block;">Delete</div>
+                </td>
+              </tr>
+              <tr>
+                <td>2</td><td>Bob Jones</td><td>bob@email.com</td><td>user</td>
+                <td>9800000002</td><td>2</td>
+                <td><span class="wf-badge locked">Locked</span></td>
+                <td style="white-space:nowrap;">
+                  <div class="wf-btn-sm" style="margin-right:4px;display:inline-block;">Unblock</div>
+                  <div class="wf-btn-sm" style="color:#c00;border-color:#c00;display:inline-block;">Delete</div>
+                </td>
+              </tr>
+              <tr>
+                <td>3</td><td>Carol White</td><td>carol@email.com</td><td>admin</td>
+                <td>9800000003</td><td>0</td>
+                <td><span class="wf-badge active">Active</span></td>
+                <td style="white-space:nowrap;">
+                  <div class="wf-btn-sm" style="color:#c00;border-color:#c00;margin-right:4px;display:inline-block;">Block</div>
+                  <div class="wf-btn-sm" style="color:#c00;border-color:#c00;display:inline-block;">Delete</div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="wf-footer">© MovieMint Admin</div>
+    </div>
+  </div>
+
+
+  <!-- ════════════════════════════════════════════════════ -->
+  <!-- 14 · MANAGE BOOKINGS                                -->
+  <!-- ════════════════════════════════════════════════════ -->
+  <div class="page-block" id="pg-managebookings">
+    <div class="page-title-bar">
+      <span class="page-name">14 · MANAGE BOOKINGS</span>
+      <span class="page-url">/manageBookings &nbsp;·&nbsp; manageBookings.jsp</span>
+    </div>
+    <div class="page-content">
+      <div class="wf-navbar">
+        <div class="wf-logo">MovieMint Admin</div>
+        <div class="wf-nav-links">
+          <span>Dashboard</span><span>Movies</span><span>Users</span><span class="active">Bookings</span>
+        </div>
+        <div class="wf-nav-actions">
+          <span style="font-size:12px;font-weight:600;">Admin</span>
+          <span class="wf-btn-sm solid">Logout</span>
+        </div>
+      </div>
+      <div class="wf-main">
+        <p class="wf-page-h1">Manage Bookings</p>
+        <div style="border:1.5px dashed #bbb;border-radius:4px;padding:8px;font-size:11px;color:#999;margin-bottom:12px;text-align:center;">[Success / Error Message Area]</div>
+        <!-- Search -->
+        <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:14px;">
+          <div class="wf-input-long" style="border:1.5px solid #999;border-radius:4px;height:34px;background:#f7f7f7;flex:1;min-width:200px;"></div>
+          <div class="wf-btn-sm solid">Search</div>
+        </div>
+        <!-- Table -->
+        <div class="wf-table-wrap">
+          <table class="wf-table">
+            <thead>
+              <tr>
+                <th>Booking ID</th><th>User</th><th>Movie</th><th>Booking Date</th>
+                <th>Show Time</th><th>Seats</th><th>Total Price</th><th>Status</th><th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>#1001</td><td>Alice Smith</td><td>Movie A</td><td>2024-04-15</td>
+                <td>7:00 PM</td><td>2</td><td>Rs. 500</td>
+                <td><span class="wf-badge confirmed">Confirmed</span></td>
+                <td>
+                  <select class="wf-select" style="font-size:10px;height:26px;min-width:90px;">
+                    <option selected>Confirmed</option><option>Cancelled</option><option>Completed</option>
+                  </select>
+                  <div class="wf-btn-sm" style="margin-top:5px;color:#c00;border-color:#c00;display:block;">Delete</div>
+                </td>
+              </tr>
+              <tr>
+                <td>#1002</td><td>Bob Jones</td><td>Movie B</td><td>2024-04-13</td>
+                <td>4:00 PM</td><td>3</td><td>Rs. 750</td>
+                <td><span class="wf-badge">Completed</span></td>
+                <td>
+                  <select class="wf-select" style="font-size:10px;height:26px;min-width:90px;">
+                    <option>Confirmed</option><option>Cancelled</option><option selected>Completed</option>
+                  </select>
+                  <div class="wf-btn-sm" style="margin-top:5px;color:#c00;border-color:#c00;display:block;">Delete</div>
+                </td>
+              </tr>
+              <tr>
+                <td>#1003</td><td>Carol White</td><td>Movie C</td><td>2024-04-10</td>
+                <td>1:00 PM</td><td>1</td><td>Rs. 250</td>
+                <td><span class="wf-badge">Cancelled</span></td>
+                <td>
+                  <select class="wf-select" style="font-size:10px;height:26px;min-width:90px;">
+                    <option>Confirmed</option><option selected>Cancelled</option><option>Completed</option>
+                  </select>
+                  <div class="wf-btn-sm" style="margin-top:5px;color:#c00;border-color:#c00;display:block;">Delete</div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="wf-footer">© MovieMint Admin</div>
+    </div>
+  </div>
+
+
+  <!-- ════════════════════════════════════════════════════ -->
+  <!-- 15 · ABOUT US                                        -->
+  <!-- ════════════════════════════════════════════════════ -->
+  <p class="section-label">General & Utility Pages</p>
+  <div class="page-block" id="pg-about">
+    <div class="page-title-bar">
+      <span class="page-name">15 · ABOUT US</span>
+      <span class="page-url">/about &nbsp;·&nbsp; about.jsp</span>
+    </div>
+    <div class="page-content">
+      <div class="wf-navbar">
+        <div class="wf-logo">MovieMint</div>
+        <div class="wf-nav-links">
+          <span>Home</span><span>Browse Movies</span><span>My Bookings</span><span>Profile</span><span class="active">About</span><span>Contact</span>
+        </div>
+        <div class="wf-nav-actions">
+           <span style="font-weight:600;">Welcome, User</span>
+           <span class="wf-btn-sm solid">Logout</span>
+        </div>
+      </div>
+      <div class="wf-main">
+        <div style="max-width:800px;margin:0 auto;padding:20px;">
+          <h1 style="font-size:24px;font-weight:900;margin-bottom:20px;">About MovieMint System</h1>
+          <div style="margin-bottom:20px;">
+            <h2 style="font-size:16px;font-weight:700;margin-bottom:8px;">Our Mission</h2>
+            <p style="font-size:12px;color:#555;line-height:1.6;">We provide a seamless movie booking experience for cinema lovers. Our platform connects moviegoers with their favorite films, making ticket booking simple, fast, and convenient.</p>
+          </div>
+          <div style="margin-bottom:20px;">
+            <h2 style="font-size:16px;font-weight:700;margin-bottom:8px;">Features</h2>
+            <ul style="font-size:12px;color:#555;line-height:1.8;padding-left:20px;">
+              <li>Browse latest movies with detailed information</li>
+              <li>Easy online ticket booking</li>
+              <li>Multiple show times and seat options</li>
+              <li>Secure payment processing</li>
+              <li>Booking history and management</li>
+            </ul>
+          </div>
+          <div style="margin-bottom:20px;">
+            <h2 style="font-size:16px;font-weight:700;margin-bottom:8px;">Why Choose Us?</h2>
+            <ul style="font-size:12px;color:#555;line-height:1.8;padding-left:20px;">
+              <li>24/7 online booking availability</li>
+              <li>Real-time seat availability</li>
+              <li>Instant booking confirmation</li>
+            </ul>
+          </div>
+          <div style="margin-bottom:20px;">
+            <h2 style="font-size:16px;font-weight:700;margin-bottom:8px;">Contact Information</h2>
+            <p style="font-size:12px;color:#555;line-height:1.6;"><strong>Email:</strong> support@moviemint.com<br><strong>Phone:</strong> +1 234 567 8900<br><strong>Address:</strong> 123 Movie Street, Cinema City, CC 12345</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ════════════════════════════════════════════════════ -->
+  <!-- 16 · CONTACT US                                      -->
+  <!-- ════════════════════════════════════════════════════ -->
+  <div class="page-block" id="pg-contact">
+    <div class="page-title-bar">
+      <span class="page-name">16 · CONTACT US</span>
+      <span class="page-url">/contact &nbsp;·&nbsp; contact.jsp</span>
+    </div>
+    <div class="page-content">
+      <div class="wf-navbar">
+        <div class="wf-logo">MovieMint</div>
+        <div class="wf-nav-links">
+          <span>Home</span><span>Browse Movies</span><span>My Bookings</span><span>Profile</span><span>About</span><span class="active">Contact</span>
+        </div>
+        <div class="wf-nav-actions">
+          <span style="font-weight:600;">Welcome, User</span>
+          <span class="wf-btn-sm solid">Logout</span>
+        </div>
+      </div>
+      <div class="wf-main">
+        <div style="max-width:600px;margin:0 auto;padding:20px;">
+          <h1 style="font-size:24px;font-weight:900;margin-bottom:20px;">Contact Us</h1>
+          <div style="border:1.5px dashed #bbb;border-radius:4px;padding:8px;font-size:11px;color:#999;margin-bottom:16px;text-align:center;">[Success / Error Message Area]</div>
+          <div style="display:flex;gap:30px;flex-wrap:wrap;">
+            <div style="flex:1;min-width:280px;">
+              <div class="wf-field"><label>Name:</label><div class="wf-input"></div></div>
+              <div class="wf-field"><label>Email:</label><div class="wf-input"></div></div>
+              <div class="wf-field"><label>Subject:</label><div class="wf-input"></div></div>
+              <div class="wf-field"><label>Message:</label><div class="wf-input" style="height:100px;"></div></div>
+              <div class="wf-btn-full" style="max-width:150px;">Send Message</div>
+            </div>
+            <div style="flex:1;min-width:200px;">
+              <h2 style="font-size:16px;font-weight:700;margin-bottom:12px;">Get In Touch</h2>
+              <p style="font-size:12px;color:#555;line-height:1.8;"><strong>Email:</strong> support@moviemint.com<br><strong>Phone:</strong> +1 234 567 8900<br><strong>Address:</strong> 123 Movie Street, Cinema City, CC 12345<br><strong>Business Hours:</strong> Mon-Sun, 9:00 AM - 10:00 PM</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ════════════════════════════════════════════════════ -->
+  <!-- 17 · ERROR 500                                       -->
+  <!-- ════════════════════════════════════════════════════ -->
+  <div class="page-block" id="pg-500">
+    <div class="page-title-bar">
+      <span class="page-name">17 · ERROR 500</span>
+      <span class="page-url">/error500 &nbsp;·&nbsp; error500.jsp</span>
+    </div>
+    <div class="page-content">
+      <div class="wf-error-page">
+        <div class="wf-error-code">500</div>
+        <div class="wf-error-msg">Internal Server Error</div>
+        <div class="wf-error-sub">Something went wrong. Please try again later.</div>
+        <div class="wf-btn-sm solid" style="padding:10px 24px;font-size:14px;">Go to Login</div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ════════════════════════════════════════════════════ -->
+  <!-- 18 · ERROR 404                                       -->
+  <!-- ════════════════════════════════════════════════════ -->
+  <div class="page-block" id="pg-404">
+    <div class="page-title-bar">
+      <span class="page-name">18 · ERROR 404</span>
+      <span class="page-url">/error404 &nbsp;·&nbsp; error404.jsp</span>
+    </div>
+    <div class="page-content">
+      <div class="wf-error-page">
+        <div class="wf-error-code">404</div>
+        <div class="wf-error-msg">Page Not Found</div>
+        <div class="wf-error-sub">The page you are looking for does not exist.</div>
+        <div class="wf-btn-sm solid" style="padding:10px 24px;font-size:14px;">Go to Login</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── End of document ─── -->
+  <div style="max-width:1000px;margin:0 auto;text-align:center;padding:24px;font-size:11px;color:#999;border-top:2px dashed #ccc;margin-top:16px;">
+    <strong>MovieMint Wireframe Document</strong> &nbsp;·&nbsp; 18 pages &nbsp;·&nbsp; Black &amp; White Low-Fidelity &nbsp;·&nbsp; wireframe.html
+  </div>
+
+</body>
+</html>
+
+

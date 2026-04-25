@@ -1,0 +1,138 @@
+# ==========================================
+# MovieMint - Movie Booking System
+# .gitignore - Protect sensitive files
+# ==========================================
+
+# Compiled class files
+*.class
+build/
+target/
+bin/
+out/
+
+# Eclipse IDE files
+.classpath
+.project
+.settings/
+.metadata/
+.recommenders/
+
+# IntelliJ IDEA files
+.idea/
+*.iml
+*.iws
+*.ipr
+
+# NetBeans files
+nbproject/
+nbbuild/
+dist/
+nbdist/
+
+# VS Code files
+.vscode/
+
+# Tomcat deployment
+Servers/
+.tomcat/
+
+# Log files
+*.log
+logs/
+*.log.*
+
+# Environment files (CRITICAL - Never commit these!)
+.env
+.env.local
+.env.production
+.env.development
+*.properties
+config.properties
+database.properties
+
+# Secrets and credentials (CRITICAL!)
+**/secrets/
+**/credentials/
+**/*-key.json
+**/*-credentials.json
+**/keystore
+**/*.pem
+**/*.key
+
+# Database files
+*.db
+*.sqlite
+*.sql.backup
+*.dump
+
+# OS files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# Temporary files
+*.tmp
+*.temp
+*.swp
+*.swo
+*~
+*.bak
+*.orig
+
+# Package files (JARs should be in WEB-INF/lib, not tracked individually)
+# Uncomment if you want to track JARs in version control
+# *.jar
+*.war
+*.ear
+*.zip
+*.tar.gz
+*.rar
+
+# Dependency directories
+.m2/
+.gradle/
+node_modules/
+
+# User-specific files
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Build results
+[Dd]ebug/
+[Dd]ebugPublic/
+[Rr]elease/
+[Rr]eleases/
+x64/
+x86/
+[Aa][Rr][Mm]/
+[Aa][Rr][Mm]64/
+bld/
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+
+# Backup files
+*.backup
+*~
+
+# Local configuration (IMPORTANT!)
+config.local.xml
+application-local.properties
+local.properties
+
+# Test coverage
+coverage/
+*.cover
+.coverage
+.coverage.*
+
+# Documentation build
+docs/_build/
+site/

@@ -12,13 +12,15 @@ import java.io.IOException;
  * Servlet for user login.
  * GET: Shows the login form page.
  * POST: Checks email and password, creates session if correct.
- * Also handles account locking after too many failed login attempts.
+ * Supports both plain text and hashed passwords during migration period.
  */
 @WebServlet("/login")
 public class LoginServlet extends HttpServlet {
     private final UserService userService = new UserService();
 
-    // Show the login form page
+    /**
+     * Show the login form page.
+     */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) 
             throws ServletException, IOException {
@@ -27,8 +29,8 @@ public class LoginServlet extends HttpServlet {
 
     /**
      * Handle login form submission.
-     * Checks email and password, locks account if too many wrong tries.
-     * Creates a session with user info if login is successful.
+     * Checks email and password, creates session if login is successful.
+     * Stores user info in session for use throughout the application.
      */
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) 
@@ -44,20 +46,27 @@ public class LoginServlet extends HttpServlet {
             return;
         }
 
+        // Attempt login
         UserService.LoginResult result = userService.login(email, password);
         if (result.isSuccess()) {
             User user = result.getUser();
+            
+            // Create session and store user information
             HttpSession session = request.getSession();
             session.setAttribute("user", user);
             session.setAttribute("userId", user.getUserId());
             session.setAttribute("userName", user.getFullName());
+            session.setAttribute("userEmail", user.getEmail());  // Added for email functionality
             session.setAttribute("role", user.getRole());
+            
+            // Redirect based on role
             if ("admin".equals(user.getRole())) {
                 response.sendRedirect(request.getContextPath() + "/adminHome");
             } else {
                 response.sendRedirect(request.getContextPath() + "/userHome");
             }
         } else {
+            // Login failed - show error message
             request.setAttribute("error", result.getMessage());
             request.getRequestDispatcher("/WEB-INF/pages/login.jsp").forward(request, response);
         }

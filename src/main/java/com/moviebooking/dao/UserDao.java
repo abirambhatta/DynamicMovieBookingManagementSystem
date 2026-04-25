@@ -8,14 +8,16 @@ import java.util.List;
 
 /**
  * This class handles all database operations for users.
- * It can register, login, update, delete users, and manage account locking.
+ * It can register, login, update, delete users, and manage OTP for password reset.
  * Used by servlets to work with user data in the database.
+ * NOTE: Password verification is now done in UserService using PasswordUtil.verifyPassword()
  */
 public class UserDao {
     
     /**
      * Save a new user to the database (register).
-     * @param user the user object with name, email, phone, password, role
+     * Password should be hashed before calling this method.
+     * @param user the user object with name, email, phone, hashed password, role
      * @return true if user was saved, false if it failed
      */
     public boolean registerUser(User user) {
@@ -37,39 +39,11 @@ public class UserDao {
     /**
      * Create a new user (admin function).
      * Same as registerUser but clearer name for admin context.
-     * @param user the user object with name, email, phone, password, role
+     * @param user the user object with name, email, phone, hashed password, role
      * @return true if user was created, false if it failed
      */
     public boolean createUser(User user) {
         return registerUser(user);
-    }
-
-    /**
-     * Check if email and password match a user in the database (login check).
-     * @param email the email entered by the user
-     * @param password the password entered by the user
-     * @return User object if login is correct, null if email/password is wrong
-     */
-    public User validateUser(String email, String password) {
-        String query = "SELECT * FROM users WHERE email = ? AND password = ?";
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(query)) {
-            pstmt.setString(1, email);
-            pstmt.setString(2, password);
-            ResultSet rs = pstmt.executeQuery();
-            if (rs.next()) {
-                User user = new User();
-                user.setUserId(rs.getInt("user_id"));
-                user.setFullName(rs.getString("full_name"));
-                user.setEmail(rs.getString("email"));
-                user.setPhone(rs.getString("phone"));
-                user.setRole(rs.getString("role"));
-                return user;
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return null;
     }
 
     /**
@@ -174,6 +148,7 @@ public class UserDao {
                 user.setEmail(rs.getString("email"));
                 user.setPhone(rs.getString("phone"));
                 user.setRole(rs.getString("role"));
+                user.setPassword(rs.getString("password"));
                 user.setBookingCount(rs.getInt("booking_count"));
                 user.setTotalSpent(rs.getDouble("total_spent"));
                 return user;
@@ -186,6 +161,7 @@ public class UserDao {
 
     /**
      * Get a single user by their email.
+     * Returns the hashed password for verification in UserService.
      * @param email the email of the user to find
      * @return the User object if found, null if not found
      */
@@ -202,6 +178,7 @@ public class UserDao {
                 user.setEmail(rs.getString("email"));
                 user.setPhone(rs.getString("phone"));
                 user.setRole(rs.getString("role"));
+                user.setPassword(rs.getString("password"));
                 return user;
             }
         } catch (SQLException e) {
@@ -251,10 +228,11 @@ public class UserDao {
     }
 
     /**
-     * Update password for a user and reset their failed attempts and unlock account.
+     * Update password for a user.
+     * Password should be hashed before calling this method.
      * Used in the forgot password feature.
      * @param email the email of the user
-     * @param newPassword the new password to set
+     * @param newPassword the new hashed password to set
      * @return true if updated, false if failed
      */
     public boolean updatePassword(String email, String newPassword) {
@@ -270,6 +248,10 @@ public class UserDao {
         }
     }
 
+    /**
+     * Get total count of users in the system.
+     * @return total number of users
+     */
     public int getTotalUsers() {
         String query = "SELECT COUNT(*) FROM users";
         try (Connection conn = DBConnection.getConnection();
@@ -338,6 +320,14 @@ public class UserDao {
         return 0;
     }
     
+    /**
+     * Get users filtered by role and date range.
+     * @param role the role to filter by (admin/user/all)
+     * @param period the period to filter by (today/week/month)
+     * @param startDate custom start date
+     * @param endDate custom end date
+     * @return list of filtered users
+     */
     public List<User> getUsersByFilter(String role, String period, String startDate, String endDate) {
         List<User> users = new ArrayList<>();
         StringBuilder query = new StringBuilder(
@@ -406,5 +396,73 @@ public class UserDao {
             e.printStackTrace();
         }
         return users;
+    }
+
+    /**
+     * Store OTP for password reset.
+     * OTP is valid for 10 minutes.
+     * @param email the email of the user
+     * @param otp the 6-digit OTP to store
+     * @param expiryTime the expiry time in milliseconds
+     * @return true if stored, false if failed
+     */
+    public boolean storeOtp(String email, String otp, long expiryTime) {
+        String query = "UPDATE users SET reset_otp = ?, otp_expiry = FROM_UNIXTIME(?) WHERE email = ?";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(query)) {
+            pstmt.setString(1, otp);
+            pstmt.setLong(2, expiryTime / 1000);
+            pstmt.setString(3, email);
+            return pstmt.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    /**
+     * Verify OTP for a user during password reset.
+     * Checks if OTP matches and hasn't expired.
+     * @param email the email of the user
+     * @param otp the OTP to verify
+     * @return true if OTP is valid and not expired, false otherwise
+     */
+    public boolean verifyOtp(String email, String otp) {
+        String query = "SELECT reset_otp, otp_expiry FROM users WHERE email = ?";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(query)) {
+            pstmt.setString(1, email);
+            ResultSet rs = pstmt.executeQuery();
+            if (rs.next()) {
+                String storedOtp = rs.getString("reset_otp");
+                Timestamp expiryTime = rs.getTimestamp("otp_expiry");
+                
+                // Check if OTP matches and hasn't expired
+                if (storedOtp != null && storedOtp.equals(otp) && expiryTime != null) {
+                    return expiryTime.getTime() > System.currentTimeMillis();
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    /**
+     * Clear OTP after successful password reset.
+     * Removes OTP and expiry time from database.
+     * @param email the email of the user
+     * @return true if cleared, false if failed
+     */
+    public boolean clearOtp(String email) {
+        String query = "UPDATE users SET reset_otp = NULL, otp_expiry = NULL WHERE email = ?";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(query)) {
+            pstmt.setString(1, email);
+            return pstmt.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 }
