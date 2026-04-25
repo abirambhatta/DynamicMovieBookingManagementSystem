@@ -1,0 +1,44 @@
+# Environment variables
+.env
+
+# Eclipse project files
+.classpath
+.project
+.settings/
+
+# Build directories
+build/
+target/
+bin/
+
+# IDE files
+*.iml
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Temporary files
+*.tmp
+*.bak
+
+# Compiled class files
+*.class
+
+# Database files
+*.db
+*.sqlite
+
+# Documentation (optional - remove if you want to commit these)
+ITEXT_SETUP.md
+SECURITY_FEATURES.md
+Project_Wireframes.html
+wireframe.html
+add_otp_columns.sql

@@ -3,18 +3,22 @@ package com.moviebooking.config;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import com.moviebooking.util.EnvLoader;
 
 /**
  * This class connects the app to MySQL database.
  * Has details for database URL, username, password.
  */
 public class DBConnection {
-    // Database connection URL - points to the movie_booking_db database on localhost
-    private static final String URL = "jdbc:mysql://localhost:3306/movie_booking_db?useSSL=false&serverTimezone=UTC";
-    // Database username
-    private static final String USER = "root";
-    // Database password (empty for default local setup)
-    private static final String PASSWORD = "";
+    // Database connection URL - loaded from environment variables
+    private static final String URL = EnvLoader.get("DB_URL") != null ? 
+        EnvLoader.get("DB_URL") : "jdbc:mysql://localhost:3306/movie_booking_db?useSSL=false&serverTimezone=UTC";
+    // Database username - loaded from environment variables
+    private static final String USER = EnvLoader.get("DB_USER") != null ? 
+        EnvLoader.get("DB_USER") : "root";
+    // Database password - loaded from environment variables
+    private static final String PASSWORD = EnvLoader.get("DB_PASSWORD") != null ? 
+        EnvLoader.get("DB_PASSWORD") : "";
 
     // This block runs once when the class is first loaded
     // It loads the MySQL driver so we can connect to the database

@@ -6,6 +6,7 @@ import javax.activation.*;
 import javax.mail.util.ByteArrayDataSource;
 import java.util.Properties;
 import com.moviebooking.util.HtmlToPdfConverter;
+import com.moviebooking.util.EnvLoader;
 
 /**
  * Service class for sending emails via Google SMTP.
@@ -13,8 +14,8 @@ import com.moviebooking.util.HtmlToPdfConverter;
  * Uses Gmail SMTP server with TLS encryption.
  */
 public class EmailService {
-    private static final String SENDER_EMAIL = "abiramsad@gmail.com";
-    private static final String APP_PASSWORD = "olmo cxvo ufdm ilac";
+    private static final String SENDER_EMAIL = EnvLoader.get("SENDER_EMAIL");
+    private static final String APP_PASSWORD = EnvLoader.get("EMAIL_APP_PASSWORD");
 
     /**
      * Send OTP email for password reset.

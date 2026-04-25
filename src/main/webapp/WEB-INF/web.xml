@@ -22,12 +22,12 @@
 
   <!-- =============================================
        TMDB API CONFIGURATION
-       Replace YOUR_API_KEY_HERE with your actual
-       TMDB v3 API key from themoviedb.org/settings/api
+       API key loaded from environment variable
+       Set TMDB_API_KEY in .env file
        ============================================= -->
   <context-param>
     <param-name>TMDB_API_KEY</param-name>
-    <param-value>652c60c2e093d9dffe3502468aeddb25</param-value>
+    <param-value>${TMDB_API_KEY}</param-value>
   </context-param>
 
 </web-app>
