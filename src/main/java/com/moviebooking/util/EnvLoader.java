@@ -22,27 +22,49 @@ public class EnvLoader {
     }
 
     private static void load() {
-        String projectRoot = System.getProperty("user.dir");
-        String envPath = projectRoot + "/.env";
+        // Try multiple possible locations for .env file
+        String[] possiblePaths = {
+            System.getProperty("user.dir") + "/.env",
+            System.getProperty("user.dir") + "\\.env",
+            System.getProperty("catalina.base") + "/webapps/MovieBookingManagementSystem/.env"
+        };
         
-        try (BufferedReader reader = new BufferedReader(new FileReader(envPath))) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                line = line.trim();
-                if (line.isEmpty() || line.startsWith("#")) {
-                    continue;
+        boolean found = false;
+        for (String envPath : possiblePaths) {
+            try (BufferedReader reader = new BufferedReader(new FileReader(envPath))) {
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    line = line.trim();
+                    if (line.isEmpty() || line.startsWith("#")) {
+                        continue;
+                    }
+                    int equalsIndex = line.indexOf('=');
+                    if (equalsIndex > 0) {
+                        String key = line.substring(0, equalsIndex).trim();
+                        String value = line.substring(equalsIndex + 1).trim();
+                        envVars.put(key, value);
+                    }
                 }
-                int equalsIndex = line.indexOf('=');
-                if (equalsIndex > 0) {
-                    String key = line.substring(0, equalsIndex).trim();
-                    String value = line.substring(equalsIndex + 1).trim();
-                    envVars.put(key, value);
-                }
+                System.out.println("✓ Loaded .env from: " + envPath);
+                found = true;
+                break;
+            } catch (IOException e) {
+                // Try next path
             }
-            loaded = true;
-        } catch (IOException e) {
-            System.err.println("Warning: .env file not found. Using system environment variables.");
-            loaded = true;
         }
+        
+        if (!found) {
+            System.err.println("\n" + "=".repeat(80));
+            System.err.println("ERROR: .env file not found!");
+            System.err.println("=".repeat(80));
+            System.err.println("Please create a .env file in your project root with:");
+            System.err.println("  1. Copy .env.example to .env");
+            System.err.println("  2. Fill in your database, email, and TMDB API credentials");
+            System.err.println("  3. Restart the server");
+            System.err.println("\nSee README.md for detailed setup instructions.");
+            System.err.println("=".repeat(80) + "\n");
+        }
+        
+        loaded = true;
     }
 }
