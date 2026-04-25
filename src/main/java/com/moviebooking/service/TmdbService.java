@@ -22,6 +22,7 @@ public class TmdbService {
 
     public TmdbService(String apiKey) {
         this.apiKey = apiKey;
+        System.out.println("[TmdbService] Initialized with API key: " + (apiKey != null ? apiKey.substring(0, Math.min(8, apiKey.length())) + "..." : "NULL"));
     }
 
     /**

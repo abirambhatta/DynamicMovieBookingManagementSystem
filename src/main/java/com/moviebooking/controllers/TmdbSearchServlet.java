@@ -1,6 +1,7 @@
 package com.moviebooking.controllers;
 
 import com.moviebooking.service.TmdbService;
+import com.moviebooking.util.EnvLoader;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
@@ -25,10 +26,10 @@ public class TmdbSearchServlet extends HttpServlet {
 
     @Override
     public void init() throws ServletException {
-        // Read API key from web.xml context-param
-        String apiKey = getServletContext().getInitParameter("TMDB_API_KEY");
-        if (apiKey == null || apiKey.trim().isEmpty() || apiKey.equals("YOUR_API_KEY_HERE")) {
-            System.err.println("[TmdbSearchServlet] WARNING: TMDB_API_KEY not set in web.xml!");
+        // Read API key from environment variables
+        String apiKey = EnvLoader.get("TMDB_API_KEY");
+        if (apiKey == null || apiKey.trim().isEmpty()) {
+            System.err.println("[TmdbSearchServlet] WARNING: TMDB_API_KEY not set in .env file!");
         }
         tmdbService = new TmdbService(apiKey);
     }

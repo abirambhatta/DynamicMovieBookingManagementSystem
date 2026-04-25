@@ -128,18 +128,9 @@ TMDB_API_KEY=your_tmdb_api_key
 3. Request API key (free)
 4. Copy the API Key (v3 auth) to `.env`
 
-### 4. Configure Tomcat
-For the TMDB API key to work in web.xml, you need to enable environment variable substitution in Tomcat:
+### 4. Deploy to Tomcat
 
-**Option A: Set environment variables in Tomcat**
-- Edit `[TOMCAT_HOME]/bin/setenv.bat` (Windows) or `setenv.sh` (Linux/Mac)
-- Add: `set TMDB_API_KEY=your_api_key_here`
-
-**Option B: Modify web.xml directly**
-- Replace `${TMDB_API_KEY}` in `web.xml` with your actual API key (not recommended for production)
-
-### 5. Add Required JAR Files
-The following JAR files are already included in `src/main/webapp/WEB-INF/lib/`:
+**Required JAR Files** (already included in `src/main/webapp/WEB-INF/lib/`):
 - mysql-connector-j-9.6.0.jar
 - jakarta.servlet-api-5.0.0.jar
 - jakarta.servlet.jsp.jstl-2.0.0.jar
@@ -152,7 +143,7 @@ The following JAR files are already included in `src/main/webapp/WEB-INF/lib/`:
 - itextpdf-5.5.13.3.jar
 - xmlworker-5.5.13.3.jar
 
-### 6. Deploy to Tomcat
+**Deployment Steps:**
 1. Build the project (if using Eclipse: Export → WAR file)
 2. Copy the WAR file to `[TOMCAT_HOME]/webapps/`
 3. Start Tomcat server
@@ -194,8 +185,8 @@ MovieBookingManagementSystem/
 - Ensure firewall allows SMTP port 587
 
 ### TMDB API Not Working
-- Verify API key is valid
-- Check if environment variable is set in Tomcat
+- Verify API key is valid in `.env` file
+- Ensure `.env` file is in the correct location (project root or Tomcat working directory)
 - Ensure internet connection is active
 
 ### Tomcat Deployment Issues

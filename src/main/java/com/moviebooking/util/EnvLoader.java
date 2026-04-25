@@ -22,15 +22,24 @@ public class EnvLoader {
     }
 
     private static void load() {
+        System.out.println("[EnvLoader] user.dir = " + System.getProperty("user.dir"));
+        System.out.println("[EnvLoader] catalina.base = " + System.getProperty("catalina.base"));
+        
         // Try multiple possible locations for .env file
         String[] possiblePaths = {
             System.getProperty("user.dir") + "/.env",
             System.getProperty("user.dir") + "\\.env",
-            System.getProperty("catalina.base") + "/webapps/MovieBookingManagementSystem/.env"
+            System.getProperty("catalina.base") + "/webapps/MovieBookingManagementSystem/.env",
+            System.getProperty("catalina.base") + "\\webapps\\MovieBookingManagementSystem\\.env",
+            System.getProperty("catalina.base") + "/.env",
+            System.getProperty("catalina.base") + "\\.env",
+            "./src/main/webapp/.env",
+            "./.env"
         };
         
         boolean found = false;
         for (String envPath : possiblePaths) {
+            System.out.println("[EnvLoader] Trying: " + envPath);
             try (BufferedReader reader = new BufferedReader(new FileReader(envPath))) {
                 String line;
                 while ((line = reader.readLine()) != null) {
