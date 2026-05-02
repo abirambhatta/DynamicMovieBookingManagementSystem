@@ -1,20 +1,22 @@
 # MovieMint - Movie Booking Management System
 
-A full-stack web application for booking movie tickets with admin management features.
+A full-stack web application for booking movie tickets with advanced admin management features, dynamic seat mapping, and real-time revenue analytics.
 
 ## Features
-- User authentication with OTP-based password reset
-- Browse movies with TMDB API integration
-- Book tickets with seat selection
-- Email confirmation with PDF tickets
-- Admin dashboard for managing movies, shows, and bookings
+- **Security**: Role-Based Access Control (Admin/User) and OTP-based password reset.
+- **Catalog Management**: Deep TMDB API integration for auto-filling movie details and downloading posters, with YouTube trailer fallback.
+- **Dynamic Booking Engine**: Interactive JSON-powered seat maps that update in real-time.
+- **Advanced Pricing**: Support for 4-Tier pricing (Standard, Premium, Recliner, VIP) with global fallbacks.
+- **Hall Configuration**: Dynamic theater layouts (e.g., Audi 01, Audi 02) with custom row-to-tier mappings.
+- **Admin Dashboard**: Real-time business intelligence using Chart.js to track revenue, popular movies, and seat distribution.
+- **Data Integrity**: Soft-delete architecture for preserving financial history.
 
 ## Technology Stack
 - **Backend**: Java 21, Jakarta EE (Servlets, JSP, JSTL)
-- **Frontend**: JSP, Tailwind CSS
+- **Frontend**: JSP, Vanilla CSS3, Vanilla JS, Chart.js
 - **Database**: MySQL 8.0+
 - **Server**: Apache Tomcat 10.1+
-- **APIs**: TMDB API for movie data
+- **APIs**: TMDB API (The Movie Database), YouTube Search Fallback
 
 ## Prerequisites
 - Java 21 or higher
@@ -32,65 +34,21 @@ cd DynamicMovieBookingManagementSystem
 ```
 
 ### 2. Database Setup
-Create a MySQL database and import the schema:
+Create a MySQL database and import the schema. **Note:** See `DATABASE_SCHEMA.sql` for the full, detailed initialization script.
 
 ```sql
 CREATE DATABASE movie_booking_db;
 USE movie_booking_db;
 
--- Create users table
-CREATE TABLE users (
-    user_id INT PRIMARY KEY AUTO_INCREMENT,
-    name VARCHAR(100) NOT NULL,
-    email VARCHAR(100) UNIQUE NOT NULL,
-    password VARCHAR(255) NOT NULL,
-    role ENUM('user', 'admin') DEFAULT 'user',
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    otp VARCHAR(6),
-    otp_expiry TIMESTAMP
-);
+-- Core Tables (Simplified Overview)
+-- Refer to DATABASE_SCHEMA.sql or the Total Code Breakdown for full schema details.
 
--- Create movies table
-CREATE TABLE movies (
-    movie_id INT PRIMARY KEY AUTO_INCREMENT,
-    title VARCHAR(200) NOT NULL,
-    description TEXT,
-    genre VARCHAR(100),
-    duration INT,
-    release_date DATE,
-    poster_url VARCHAR(500),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
--- Create showtimes table
-CREATE TABLE showtimes (
-    showtime_id INT PRIMARY KEY AUTO_INCREMENT,
-    movie_id INT,
-    show_date DATE NOT NULL,
-    show_time TIME NOT NULL,
-    hall VARCHAR(50),
-    available_seats INT DEFAULT 100,
-    price DECIMAL(10,2),
-    FOREIGN KEY (movie_id) REFERENCES movies(movie_id) ON DELETE CASCADE
-);
-
--- Create bookings table
-CREATE TABLE bookings (
-    booking_id INT PRIMARY KEY AUTO_INCREMENT,
-    user_id INT,
-    showtime_id INT,
-    seats VARCHAR(255),
-    number_of_seats INT,
-    total_price DECIMAL(10,2),
-    booking_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    status ENUM('confirmed', 'cancelled') DEFAULT 'confirmed',
-    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
-    FOREIGN KEY (showtime_id) REFERENCES showtimes(showtime_id) ON DELETE CASCADE
-);
-
--- Admin user will be auto-created on first application startup
--- Email: admin@moviemint.com
--- Password: admin123
+-- users: Stores admins and users, hashed passwords, and OTP logic.
+-- movies: Stores catalog data, 4-tier custom pricing, and soft-delete status.
+-- hall_config: Defines theater layouts (e.g., "S S | P P | V V") and tier mappings.
+-- system_settings: Global constants and default ticket prices.
+-- show_times: The schedule linking movies, dates, times, and halls.
+-- bookings: The transactional record of sold seats and revenue.
 ```
 
 ### 3. Environment Configuration
@@ -149,50 +107,16 @@ TMDB_API_KEY=your_tmdb_api_key
 3. Start Tomcat server
 4. Access the application at `http://localhost:8080/MovieBookingManagementSystem/`
 
+## Documentation & Viva Prep
+This project includes extensive internal documentation for academic defense:
+1. **Total Code Breakdown (Vol 1-9)**: Line-by-line explanations of complex logic.
+2. **DATABASE_SCHEMA.sql**: Complete database blueprint with foreign key rules and seed data.
+3. **MovieBooking_MCP.md**: The Master Context Prompt for architectural overview.
+4. **Project_Wireframes.html**: A 1:1 visual structural replica of the entire application.
+
 ## Default Login Credentials
-- **Admin**: admin@moviemint.com / admin123
+- **Admin**: admin@moviebooking.com / admin123
 - **User**: Create new account via registration
-
-## Project Structure
-```
-MovieBookingManagementSystem/
-├── src/main/java/com/moviebooking/
-│   ├── config/          # Database connection
-│   ├── controllers/     # Servlets
-│   ├── dao/            # Data Access Objects
-│   ├── models/         # Entity classes
-│   ├── service/        # Business logic
-│   └── util/           # Utility classes
-├── src/main/webapp/
-│   ├── WEB-INF/
-│   │   ├── pages/      # JSP files
-│   │   ├── lib/        # JAR dependencies
-│   │   └── web.xml     # Deployment descriptor
-│   └── index.jsp       # Landing page
-└── .env                # Environment variables (create this)
-```
-
-## Troubleshooting
-
-### Database Connection Issues
-- Verify MySQL is running
-- Check database name, username, and password in `.env`
-- Ensure MySQL port 3306 is not blocked
-
-### Email Not Sending
-- Verify Gmail App Password is correct (16 characters, no spaces)
-- Check if 2FA is enabled on Gmail account
-- Ensure firewall allows SMTP port 587
-
-### TMDB API Not Working
-- Verify API key is valid in `.env` file
-- Ensure `.env` file is in the correct location (project root or Tomcat working directory)
-- Ensure internet connection is active
-
-### Tomcat Deployment Issues
-- Check Tomcat logs in `[TOMCAT_HOME]/logs/catalina.out`
-- Verify Java version is 21+
-- Ensure all JAR files are in WEB-INF/lib
 
 ## Security Notes
 - Never commit `.env` file to version control
