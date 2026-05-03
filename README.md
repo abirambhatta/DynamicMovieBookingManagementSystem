@@ -52,10 +52,10 @@ USE movie_booking_db;
 ```
 
 ### 3. Environment Configuration
-Create a `.env` file in the project root directory:
+Create a `.env` file. For an Eclipse/Tomcat deployment, you must place this file inside the `src/main/webapp/` directory so it is deployed with your server.
 
 ```bash
-cp .env.example .env
+cp .env.example src/main/webapp/.env
 ```
 
 Edit `.env` with your credentials:
@@ -126,6 +126,12 @@ This project includes extensive internal documentation for academic defense:
 
 ## Author
 Abiram Bhatta
+
+## Troubleshooting
+- **UnsupportedClassVersionError (500 Internal Server Error)**: If Tomcat fails to start or throws a 500 error, ensure your Java compiler targets the exact same Java version that your Tomcat server runs (e.g., compile with `javac --release 21` if Tomcat runs Java 21).
+- **Silent Database Failures**: If adding a movie or showtime silently fails or doesn't appear, check that your `DATABASE_SCHEMA.sql` table columns exactly match the `String` names queried in your DAO classes (e.g. `show_id` vs `show_time_id`).
+- **Old Javascript Running**: If you edit a `.jsp` file or Javascript logic but do not see the changes in your browser, perform a Hard Refresh (`Ctrl + F5`) to bypass the browser's script cache.
+- **Null Environment Variables**: If your application crashes claiming credentials are null, ensure your `.env` file is actually deployed to the server. For Eclipse/Tomcat, the `.env` file MUST be placed inside the `src/main/webapp/` directory.
 
 ## License
 This project is for educational purposes.

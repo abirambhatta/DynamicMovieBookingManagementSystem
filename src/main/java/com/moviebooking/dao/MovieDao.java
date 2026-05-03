@@ -337,8 +337,8 @@ public class MovieDao {
     public List<Movie> getRecentMovies(int limit) {
         checkSchema();
         List<Movie> movies = new ArrayList<>();
-        // Get only active movies sorted by newest release date, limited to the given number
-        String query = "SELECT * FROM movies WHERE is_active = 1 ORDER BY release_date DESC LIMIT ?";
+        // Get only active, currently showing movies sorted by newest release date, limited to the given number
+        String query = "SELECT * FROM movies WHERE is_active = 1 AND CURDATE() BETWEEN start_date AND end_date ORDER BY release_date DESC LIMIT ?";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(query)) {
             pstmt.setInt(1, limit);

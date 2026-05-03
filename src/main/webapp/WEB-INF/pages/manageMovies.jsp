@@ -625,6 +625,7 @@
                     </c:forEach>
                     </c:if>
                 ];
+                console.log('[DEBUG] allShowTimesData:', JSON.stringify(allShowTimesData));
                 
                 // Store movie-specific show times if editing
                 const movieShowTimesData = [
@@ -646,13 +647,12 @@
                 };
 
                 // Store titles of all movies for detailed error messages
-                const movieTitles = {
-                    <c:if test="${not empty movies}">
-                    <c:forEach var="m" items="${movies}" varStatus="status">
-                        ${m.movieId}: "${m.title.replace('\"', '\\\"')}"<c:if test="${!status.last}">,</c:if>
-                    </c:forEach>
-                    </c:if>
-                };
+                const movieTitles = {};
+                <c:if test="${not empty movies}">
+                <c:forEach var="m" items="${movies}">
+                movieTitles[${m.movieId}] = '<c:out value="${m.title}" escapeXml="false"/>'.replace(/'/g, "\\'");
+                </c:forEach>
+                </c:if>
                 
                 // This clever function checks if a new showtime overlaps with any existing ones in the same hall.
                 function checkTimeConflict(dateStr, hallId, newTime, newDuration, currentMovieId, scheduleObj) {
@@ -681,9 +681,10 @@
 
                                 if (newStartMinutes < existingEndMinutes && newEndMinutes > existingStartMinutes) {
                                     const movieTitle = movieTitles[st.movieId] || 'another movie';
-                                    const formattedHall = hallId.replace('audi', 'Audi ');
+                                    const conflictHall = st.hall || hallId;
                                     const formattedTime = formatTime(st.time.substring(0, 5));
-                                    return { valid: false, message: `Conflicts with "${movieTitle}" at ${formattedTime} in ${formattedHall} (including buffer).` };
+                                    const conflictDate = st.date;
+                                    return { valid: false, message: "Conflict! \"" + movieTitle + "\" is already scheduled in " + conflictHall + " on " + conflictDate + " at " + formattedTime + " (including movie duration + 30 min buffer)." };
                                 }
                             }
                         }
@@ -699,7 +700,7 @@
                             if (newStartMinutes < existingEndMinutes && newEndMinutes > existingStartMinutes) {
                                 const formattedHall = hallId.replace('audi', 'Audi ');
                                 const formattedTime = formatTime(time);
-                                return { valid: false, message: `Conflicts with another time you added (${formattedTime}) in ${formattedHall}.` };
+                                return { valid: false, message: "Conflict with another time you added (" + formattedTime + ") in " + formattedHall + "." };
                             }
                         }
                     }

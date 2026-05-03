@@ -47,22 +47,22 @@ public class ShowTimeDao {
      * @return ShowTime object or null if not found
      */
     public ShowTime getShowTimeById(int showTimeId) {
-        String query = "SELECT * FROM show_times WHERE show_time_id = ?";
+        String query = "SELECT * FROM show_times WHERE show_id = ?";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(query)) {
             pstmt.setInt(1, showTimeId);
             ResultSet rs = pstmt.executeQuery();
             if (rs.next()) {
                 ShowTime st = new ShowTime();
-                st.setShowTimeId(rs.getInt("show_time_id"));
+                st.setShowTimeId(rs.getInt("show_id"));
                 st.setMovieId(rs.getInt("movie_id"));
                 st.setShowDate(rs.getDate("show_date"));
                 st.setShowTime(rs.getTime("show_time"));
                 try {
                     String hall = rs.getString("hall");
-                    st.setHall(hall != null ? hall : "audi01");
+                    st.setHall(hall != null ? hall : "Audi 01");
                 } catch(Exception e) {
-                    st.setHall("audi01");
+                    st.setHall("Audi 01");
                 }
                 return st;
             }
@@ -88,15 +88,15 @@ public class ShowTimeDao {
             // Loop through each row and create a ShowTime object
             while (rs.next()) {
                 ShowTime st = new ShowTime();
-                st.setShowTimeId(rs.getInt("show_time_id"));
+                st.setShowTimeId(rs.getInt("show_id"));
                 st.setMovieId(rs.getInt("movie_id"));
                 st.setShowDate(rs.getDate("show_date"));
                 st.setShowTime(rs.getTime("show_time"));
                 try {
                     String hall = rs.getString("hall");
-                    st.setHall(hall != null ? hall : "audi01");
+                    st.setHall(hall != null ? hall : "Audi 01");
                 } catch(Exception e) {
-                    st.setHall("audi01");
+                    st.setHall("Audi 01");
                 }
                 showTimes.add(st);
             }
@@ -112,7 +112,7 @@ public class ShowTimeDao {
      * @return true if deleted, false if failed
      */
     public boolean deleteShowTime(int showTimeId) {
-        String query = "DELETE FROM show_times WHERE show_time_id = ?";
+        String query = "DELETE FROM show_times WHERE show_id = ?";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(query)) {
             pstmt.setInt(1, showTimeId);
@@ -151,15 +151,15 @@ public class ShowTimeDao {
              ResultSet rs = stmt.executeQuery(query)) {
             while (rs.next()) {
                 ShowTime st = new ShowTime();
-                st.setShowTimeId(rs.getInt("show_time_id"));
+                st.setShowTimeId(rs.getInt("show_id"));
                 st.setMovieId(rs.getInt("movie_id"));
                 st.setShowDate(rs.getDate("show_date"));
                 st.setShowTime(rs.getTime("show_time"));
                 try {
                     String hall = rs.getString("hall");
-                    st.setHall(hall != null ? hall : "audi01");
+                    st.setHall(hall != null ? hall : "Audi 01");
                 } catch(Exception e) {
-                    st.setHall("audi01");
+                    st.setHall("Audi 01");
                 }
                 st.setMovieTitle(rs.getString("movie_title"));
                 showTimes.add(st);
@@ -178,15 +178,15 @@ public class ShowTimeDao {
              ResultSet rs = stmt.executeQuery(query)) {
             while (rs.next()) {
                 ShowTime st = new ShowTime();
-                st.setShowTimeId(rs.getInt("show_time_id"));
+                st.setShowTimeId(rs.getInt("show_id"));
                 st.setMovieId(rs.getInt("movie_id"));
                 st.setShowDate(rs.getDate("show_date"));
                 st.setShowTime(rs.getTime("show_time"));
                 try {
                     String hall = rs.getString("hall");
-                    st.setHall(hall != null ? hall : "audi01");
+                    st.setHall(hall != null ? hall : "Audi 01");
                 } catch(Exception e) {
-                    st.setHall("audi01");
+                    st.setHall("Audi 01");
                 }
                 showTimes.add(st);
             }
@@ -205,15 +205,15 @@ public class ShowTimeDao {
             ResultSet rs = pstmt.executeQuery();
             while (rs.next()) {
                 ShowTime st = new ShowTime();
-                st.setShowTimeId(rs.getInt("show_time_id"));
+                st.setShowTimeId(rs.getInt("show_id"));
                 st.setMovieId(rs.getInt("movie_id"));
                 st.setShowDate(rs.getDate("show_date"));
                 st.setShowTime(rs.getTime("show_time"));
                 try {
                     String hall = rs.getString("hall");
-                    st.setHall(hall != null ? hall : "audi01");
+                    st.setHall(hall != null ? hall : "Audi 01");
                 } catch(Exception e) {
-                    st.setHall("audi01");
+                    st.setHall("Audi 01");
                 }
                 showTimes.add(st);
             }

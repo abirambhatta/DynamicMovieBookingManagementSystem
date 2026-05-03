@@ -4,7 +4,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import com.moviebooking.dao.UserDao;
-import com.moviebooking.models.User;
+import com.moviebooking.model.User;
 import com.moviebooking.util.PasswordUtil;
 
 /**
@@ -30,7 +30,7 @@ public class DatabaseInitServlet extends HttpServlet {
             if (existingAdmin == null) {
                 // Create admin user with hashed password
                 User admin = new User();
-                admin.setName("Admin");
+                admin.setFullName("Super Admin");
                 admin.setEmail("admin@moviemint.com");
                 admin.setPassword(PasswordUtil.hashPassword("admin123"));
                 admin.setRole("admin");

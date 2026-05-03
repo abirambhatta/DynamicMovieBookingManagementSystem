@@ -10,7 +10,7 @@
     <style>
         .forgot-password-container {
             max-width: 420px;
-            margin: 60px auto;
+            margin: 100px auto;
             background: white;
             padding: 40px;
             border-radius: 8px;
@@ -160,8 +160,6 @@
     </style>
 </head>
 <body>
-    <jsp:include page="userHeader.jsp" />
-
     <div class="forgot-password-container">
         <h2>Reset Password</h2>
 
