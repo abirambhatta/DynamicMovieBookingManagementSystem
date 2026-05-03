@@ -115,7 +115,7 @@ This project includes extensive internal documentation for academic defense:
 4. **Project_Wireframes.html**: A 1:1 visual structural replica of the entire application.
 
 ## Default Login Credentials
-- **Admin**: admin@moviebooking.com / admin123
+- **Admin**: admin@moviemint.com / admin123
 - **User**: Create new account via registration
 
 ## Security Notes
