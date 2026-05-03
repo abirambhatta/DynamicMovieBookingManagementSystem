@@ -107,13 +107,6 @@ TMDB_API_KEY=your_tmdb_api_key
 3. Start Tomcat server
 4. Access the application at `http://localhost:8080/MovieBookingManagementSystem/`
 
-## Documentation & Viva Prep
-This project includes extensive internal documentation for academic defense:
-1. **Total Code Breakdown (Vol 1-9)**: Line-by-line explanations of complex logic.
-2. **DATABASE_SCHEMA.sql**: Complete database blueprint with foreign key rules and seed data.
-3. **MovieBooking_MCP.md**: The Master Context Prompt for architectural overview.
-4. **Project_Wireframes.html**: A 1:1 visual structural replica of the entire application.
-
 ## Default Login Credentials
 - **Admin**: admin@moviemint.com / admin123
 - **User**: Create new account via registration
