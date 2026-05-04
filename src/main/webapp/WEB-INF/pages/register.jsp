@@ -337,7 +337,7 @@
                     <!-- Full name input field -->
                     <div class="form-group">
                         <label for="fullName">Full Name</label>
-                        <input type="text" id="fullName" name="fullName" value="${param.fullName}" placeholder="John Doe" required>
+                        <input type="text" id="fullName" name="fullName" value="${param.fullName}" placeholder="Your Name" required>
                     </div>
                     
                     <!-- Email input field -->
@@ -349,7 +349,7 @@
                     <!-- Phone number input field (max 10 digits) -->
                     <div class="form-group">
                         <label for="phone">Phone Number</label>
-                        <input type="text" id="phone" name="phone" value="${param.phone}" placeholder="9876543210" maxlength="10" required>
+                        <input type="text" id="phone" name="phone" value="${param.phone}" placeholder="Your Number" maxlength="10" required>
                     </div>
                     
                     <!-- Password input field -->

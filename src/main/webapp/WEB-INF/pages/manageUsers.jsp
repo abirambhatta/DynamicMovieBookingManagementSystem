@@ -261,19 +261,18 @@
                                         </td>
                                         <td class="px-6 py-4 text-right">
                                             <div class="flex justify-end gap-2">
-                                                <div class="relative inline-block text-left group/dropdown">
-                                                    <button class="p-2 rounded-md flex items-center justify-center" style="background-color: white; color: #6c757d; border: 1px solid #ced4da;" onmouseover="this.style.borderColor='#dc143c'; this.style.color='#dc143c';" onmouseout="this.style.borderColor='#ced4da'; this.style.color='#6c757d';">
-                                                        <span class="material-symbols-outlined text-[18px]">manage_accounts</span>
-                                                    </button>
-                                                    <div class="absolute right-0 bottom-full mb-2 w-32 rounded-md overflow-hidden hidden group-hover/dropdown:block z-10" style="background-color: white; border: 1px solid #e9ecef; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
-                                                        <c:if test="${u.role != 'admin'}">
-                                                            <a href="${pageContext.request.contextPath}/manageUsers?action=changeRole&id=${u.userId}&role=admin" onclick="return confirm('Make ${u.fullName} an Admin?')" class="block px-4 py-2 text-[11px] font-bold uppercase tracking-wider text-left" style="color: #212529;" onmouseover="this.style.backgroundColor='#f8f9fa';" onmouseout="this.style.backgroundColor='white';">Make Admin</a>
-                                                        </c:if>
-                                                        <c:if test="${u.role != 'user'}">
-                                                            <a href="${pageContext.request.contextPath}/manageUsers?action=changeRole&id=${u.userId}&role=user" onclick="return confirm('Make ${u.fullName} a User?')" class="block px-4 py-2 text-[11px] font-bold uppercase tracking-wider text-left" style="color: #212529;" onmouseover="this.style.backgroundColor='#f8f9fa';" onmouseout="this.style.backgroundColor='white';">Make User</a>
-                                                        </c:if>
-                                                    </div>
-                                                </div>
+                                                <c:choose>
+                                                    <c:when test="${u.role != 'admin'}">
+                                                        <a href="${pageContext.request.contextPath}/manageUsers?action=changeRole&id=${u.userId}&role=admin" onclick="return confirm('Promote ${u.fullName} to Admin?')" class="p-2 rounded-md flex items-center justify-center" style="background-color: white; color: #6c757d; border: 1px solid #ced4da;" onmouseover="this.style.borderColor='#28a745'; this.style.color='#28a745';" onmouseout="this.style.borderColor='#ced4da'; this.style.color='#6c757d';" title="Make Admin">
+                                                            <span class="material-symbols-outlined text-[18px]">admin_panel_settings</span>
+                                                        </a>
+                                                    </c:when>
+                                                    <c:otherwise>
+                                                        <a href="${pageContext.request.contextPath}/manageUsers?action=changeRole&id=${u.userId}&role=user" onclick="return confirm('Demote ${u.fullName} to User?')" class="p-2 rounded-md flex items-center justify-center" style="background-color: white; color: #dc143c; border: 1px solid #ced4da;" onmouseover="this.style.borderColor='#dc143c'; this.style.color='#dc143c';" onmouseout="this.style.borderColor='#ced4da'; this.style.color='#dc143c';" title="Make User">
+                                                            <span class="material-symbols-outlined text-[18px]">person</span>
+                                                        </a>
+                                                    </c:otherwise>
+                                                </c:choose>
                                                 
                                                 <button onclick="viewUserDetails(${u.userId}, '${u.fullName.replace("'", "\\'")}', '${u.email}', '${u.phone}', '${u.role}', '<fmt:formatDate value="${u.registrationDate}" pattern="MMM dd, yyyy"/>', ${u.bookingCount}, ${u.totalSpent})" class="p-2 rounded-md flex items-center justify-center" style="background-color: white; color: #6c757d; border: 1px solid #ced4da;" onmouseover="this.style.borderColor='#dc143c'; this.style.color='#dc143c';" onmouseout="this.style.borderColor='#ced4da'; this.style.color='#6c757d';">
                                                     <span class="material-symbols-outlined text-[18px]">visibility</span>

@@ -200,13 +200,13 @@
                                                 </div>
                                                 <div class="flex items-center justify-end gap-4">
                                                     <c:if test="${booking.status == 'Completed'}">
-                                                        <button class="text-primary hover:bg-primary/5 p-2 rounded-full transition-all" title="Download Receipt">
+                                                        <a href="${pageContext.request.contextPath}/ticketConfirmation?bookingId=${booking.bookingId}" class="text-primary hover:bg-primary/5 p-2 rounded-full transition-all inline-block text-center" title="Download Receipt">
                                                             <span class="material-symbols-outlined">file_download</span>
-                                                        </button>
-                                                        <button class="text-secondary hover:text-primary transition-colors text-[11px] font-bold uppercase tracking-tight">Review</button>
+                                                        </a>
+                                                        <a href="${pageContext.request.contextPath}/ticketConfirmation?bookingId=${booking.bookingId}" class="text-secondary hover:text-primary transition-colors text-[11px] font-bold uppercase tracking-tight">Details</a>
                                                     </c:if>
                                                     <c:if test="${booking.status == 'Cancelled'}">
-                                                        <button class="text-secondary hover:text-primary transition-colors text-[11px] font-bold uppercase tracking-tight" title="Booking Cancelled">Details</button>
+                                                        <a href="${pageContext.request.contextPath}/ticketConfirmation?bookingId=${booking.bookingId}" class="text-secondary hover:text-primary transition-colors text-[11px] font-bold uppercase tracking-tight" title="Booking Cancelled">Details</a>
                                                     </c:if>
                                                 </div>
                                             </div>

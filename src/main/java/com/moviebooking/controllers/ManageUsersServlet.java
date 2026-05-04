@@ -293,9 +293,19 @@ public class ManageUsersServlet extends HttpServlet {
             boolean updated = userDao.updateUser(user);
             
             if (updated) {
-                response.sendRedirect(request.getContextPath() + "/manageUsers?success=Role changed successfully");
+                HttpSession session = request.getSession(false);
+                User loggedInUser = (session != null) ? (User) session.getAttribute("user") : null;
+                
+                // Log the user out if they demoted themselves
+                if (loggedInUser != null && loggedInUser.getUserId() == userId && "user".equals(newRole)) {
+                    session.invalidate();
+                    response.sendRedirect(request.getContextPath() + "/login?message=You+have+been+logged+out+because+your+admin+privileges+were+removed.");
+                    return;
+                }
+                
+                response.sendRedirect(request.getContextPath() + "/manageUsers?success=Role+changed+successfully");
             } else {
-                response.sendRedirect(request.getContextPath() + "/manageUsers?error=Failed to change role");
+                response.sendRedirect(request.getContextPath() + "/manageUsers?error=Failed+to+change+role");
             }
         } catch (Exception e) {
             e.printStackTrace();
