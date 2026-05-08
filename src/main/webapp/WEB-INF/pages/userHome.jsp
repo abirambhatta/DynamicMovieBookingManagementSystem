@@ -190,31 +190,82 @@
             gap: 4px;
         }
 
+        /* Green available / Red past showtime pills */
         .show-time-btn {
             font-size: 11px;
-            padding: 3px 8px;
+            font-weight: 600;
+            padding: 3px 9px;
             border-radius: 3px;
-            border: 1px solid #ccc;
-            color: #333;
+            border: 1px solid #1a7a35;
+            color: #1a7a35;
+            background: #eaf7ee;
             text-decoration: none;
             display: inline-block;
+            transition: background 0.15s;
         }
 
         .show-time-btn:hover {
-            border-color: #c9152f;
-            color: #c9152f;
+            background: #c8ead2;
             text-decoration: none;
+            color: #1a7a35;
         }
 
         .show-time-past {
             font-size: 11px;
-            padding: 3px 8px;
+            font-weight: 600;
+            padding: 3px 9px;
             border-radius: 3px;
-            border: 1px solid #ecd0d3;
-            color: #c0737a;
-            background: #fdf5f6;
+            border: 1px solid #c82333;
+            color: #c82333;
+            background: #fde8ec;
             cursor: not-allowed;
+            text-decoration: line-through;
+            opacity: 0.7;
         }
+
+        /* Hover overlay: Book Ticket + Watch Trailer */
+        .movie-hover-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(0,0,0,0.55);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            opacity: 0;
+            transition: opacity 0.2s;
+            padding: 12px;
+        }
+
+        .movie-item:hover .movie-hover-overlay { opacity: 1; }
+
+        .overlay-btn {
+            width: 100%;
+            padding: 8px 0;
+            border-radius: 4px;
+            font-size: 13px;
+            font-weight: 600;
+            text-align: center;
+            text-decoration: none;
+            cursor: pointer;
+            border: none;
+            display: block;
+        }
+
+        .overlay-btn-book {
+            background: #c9152f;
+            color: #fff;
+        }
+
+        .overlay-btn-book:hover { background: #a01026; color: #fff; text-decoration: none; }
+
+        .overlay-btn-trailer {
+            background: rgba(255,255,255,0.9);
+            color: #1a1a1a;
+        }
+
+        .overlay-btn-trailer:hover { background: #fff; color: #1a1a1a; text-decoration: none; }
 
         .no-shows {
             font-size: 11px;
@@ -321,6 +372,12 @@
                                     </c:if>
                                     <c:if test="${not empty movie.ageRating}">
                                         <span class="badge badge-rating">${movie.ageRating}</span>
+                                    </c:if>
+                                </div>
+                                <div class="movie-hover-overlay">
+                                    <a href="${pageContext.request.contextPath}/bookTicket?movieId=${movie.movieId}" class="overlay-btn overlay-btn-book" onclick="event.stopPropagation()">🎟 Book Ticket</a>
+                                    <c:if test="${not empty movie.trailerUrl}">
+                                        <button type="button" class="overlay-btn overlay-btn-trailer" onclick="event.stopPropagation(); openTrailer('${movie.trailerUrl}');">▶ Watch Trailer</button>
                                     </c:if>
                                 </div>
                             </div>
