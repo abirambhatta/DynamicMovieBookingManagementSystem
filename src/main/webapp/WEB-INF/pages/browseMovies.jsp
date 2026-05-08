@@ -2,353 +2,507 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <!DOCTYPE html>
-<html class="light" lang="en">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Browse Movies - MovieMint</title>
     <link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath}/css/style.css">
-    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
-    <script id="tailwind-config">
-    tailwind.config = {
-      darkMode: "class",
-      theme: {
-        extend: {
-          "colors": {
-            "primary": "#dc143c",
-            "primary-dark": "#b71c1c",
-            "secondary": "#5d5f5f",
-            "surface": "#f6faff",
-            "surface-container": "#e6eff8",
-            "surface-container-low": "#ecf5fe",
-            "surface-container-lowest": "#ffffff",
-            "surface-container-high": "#e0e9f2",
-            "surface-container-highest": "#dbe4ed",
-            "on-surface": "#141d23",
-            "on-surface-variant": "#5c3f3f"
-          },
-          "fontFamily": {
-            "headline": ["Manrope"],
-            "body": ["Inter"]
-          }
-        },
-      },
-    }
-    </script>
     <style>
-    .material-symbols-outlined {
-        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
-    }
-    body { font-family: 'Inter', sans-serif; }
-    h1, h2, h3 { font-family: 'Manrope', sans-serif; }
-    
-    /* Search autocomplete styles tailored for Tailwind */
-    .autocomplete-results {
-        position: absolute;
-        top: 100%;
-        left: 0;
-        right: 0;
-        background: white;
-        border: 1px solid #dbe4ed;
-        border-top: none;
-        max-height: 300px;
-        overflow-y: auto;
-        z-index: 1000;
-        border-bottom-left-radius: 0.5rem;
-        border-bottom-right-radius: 0.5rem;
-        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-        display: none;
-    }
-    .autocomplete-results.show { display: block; }
-    .autocomplete-item {
-        padding: 12px;
-        cursor: pointer;
-        border-bottom: 1px solid #f6faff;
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        transition: background-color 0.2s;
-    }
-    .autocomplete-item:last-child { border-bottom: none; }
-    .autocomplete-item:hover { background-color: #ecf5fe; }
+        body { background: #f4f4f5; }
+
+        .page-wrap {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Tab strip */
+        .status-tabs {
+            display: flex;
+            gap: 0;
+            border-bottom: 1px solid #ddd;
+            margin-bottom: 16px;
+        }
+
+        .status-tab {
+            padding: 10px 20px;
+            font-size: 14px;
+            font-weight: 500;
+            color: #666;
+            text-decoration: none;
+            border-bottom: 2px solid transparent;
+            margin-bottom: -1px;
+        }
+
+        .status-tab:hover { color: #333; text-decoration: none; }
+        .status-tab.active { color: #c9152f; border-bottom-color: #c9152f; font-weight: 600; }
+
+        /* Date tabs */
+        .date-strip {
+            display: flex;
+            gap: 6px;
+            overflow-x: auto;
+            padding-bottom: 12px;
+            margin-bottom: 16px;
+        }
+
+        .date-tab {
+            flex-shrink: 0;
+            padding: 6px 14px;
+            border-radius: 4px;
+            font-size: 13px;
+            font-weight: 500;
+            text-decoration: none;
+            background: #fff;
+            border: 1px solid #ddd;
+            color: #444;
+        }
+
+        .date-tab:hover { border-color: #c9152f; color: #c9152f; text-decoration: none; }
+        .date-tab.active { background: #c9152f; border-color: #c9152f; color: #fff; }
+
+        /* Filters */
+        .filter-bar {
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 14px 16px;
+            margin-bottom: 20px;
+            display: flex;
+            gap: 10px;
+            align-items: flex-end;
+            flex-wrap: wrap;
+        }
+
+        .filter-bar .field {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .filter-bar label {
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            color: #888;
+        }
+
+        .filter-bar input, .filter-bar select {
+            padding: 7px 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 13px;
+            font-family: inherit;
+            height: 34px;
+        }
+
+        .filter-bar input:focus, .filter-bar select:focus {
+            outline: none;
+            border-color: #c9152f;
+        }
+
+        .filter-bar input { min-width: 200px; }
+
+        .btn-filter {
+            padding: 0 16px;
+            height: 34px;
+            background: #c9152f;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+        .btn-filter:hover { background: #a01026; }
+
+        /* Autocomplete */
+        .search-wrap { position: relative; }
+
+        .autocomplete-results {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: #fff;
+            border: 1px solid #ccc;
+            border-top: none;
+            border-radius: 0 0 4px 4px;
+            max-height: 280px;
+            overflow-y: auto;
+            z-index: 50;
+            display: none;
+        }
+
+        .autocomplete-results.show { display: block; }
+
+        .autocomplete-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 9px 12px;
+            cursor: pointer;
+            border-bottom: 1px solid #f4f4f5;
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .autocomplete-item:hover { background: #f9f9f9; text-decoration: none; }
+        .autocomplete-item:last-child { border-bottom: none; }
+
+        .autocomplete-thumb {
+            width: 32px;
+            height: 44px;
+            object-fit: cover;
+            border-radius: 3px;
+            background: #e4e4e4;
+            flex-shrink: 0;
+        }
+
+        .autocomplete-title { font-size: 13px; font-weight: 600; color: #1a1a1a; }
+        .autocomplete-meta { font-size: 11px; color: #888; margin-top: 1px; }
+
+        /* Movie grid */
+        .movie-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 14px;
+        }
+
+        .movie-item {
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            overflow: hidden;
+            cursor: pointer;
+        }
+
+        .movie-item:hover { border-color: #bbb; }
+
+        .movie-poster-wrap { position: relative; }
+
+        .movie-poster-img {
+            width: 100%;
+            aspect-ratio: 2/3;
+            object-fit: cover;
+            display: block;
+            background: #e4e4e4;
+        }
+
+        .movie-poster-placeholder {
+            width: 100%;
+            aspect-ratio: 2/3;
+            background: #e4e4e4;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #aaa;
+            font-size: 12px;
+        }
+
+        .movie-badges {
+            position: absolute;
+            top: 7px;
+            right: 7px;
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+            align-items: flex-end;
+        }
+
+        .badge {
+            font-size: 10px;
+            font-weight: 700;
+            padding: 2px 5px;
+            border-radius: 3px;
+            text-transform: uppercase;
+        }
+
+        .badge-format { background: rgba(255,255,255,0.92); color: #a01026; }
+        .badge-rating { background: rgba(0,0,0,0.65); color: #fff; }
+
+        .movie-info { padding: 11px; }
+
+        .movie-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-bottom: 2px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .movie-meta { font-size: 12px; color: #888; margin-bottom: 8px; }
+
+        .show-times { display: flex; flex-wrap: wrap; gap: 4px; }
+
+        .show-time-btn {
+            font-size: 11px;
+            padding: 3px 8px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+            color: #333;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .show-time-btn:hover { border-color: #c9152f; color: #c9152f; text-decoration: none; }
+
+        .show-time-past {
+            font-size: 11px;
+            padding: 3px 8px;
+            border: 1px solid #ecd0d3;
+            border-radius: 3px;
+            color: #c0737a;
+            background: #fdf5f6;
+        }
+
+        .no-shows { font-size: 11px; color: #aaa; font-style: italic; }
+
+        /* Empty / error state */
+        .empty-state {
+            grid-column: 1 / -1;
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 48px;
+            text-align: center;
+            color: #888;
+        }
+
+        .empty-state a { color: #c9152f; font-size: 13px; }
+
+        /* Trailer modal */
+        #trailerModal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 999;
+            background: rgba(0,0,0,0.85);
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        #trailerModal.open { display: flex; }
+
+        .trailer-inner {
+            position: relative;
+            width: 100%;
+            max-width: 880px;
+            aspect-ratio: 16/9;
+            background: #000;
+            border-radius: 4px;
+        }
+
+        .trailer-inner iframe { width: 100%; height: 100%; border: none; }
+
+        .trailer-close {
+            position: absolute;
+            top: -34px;
+            right: 0;
+            background: none;
+            border: none;
+            color: #fff;
+            font-size: 14px;
+            cursor: pointer;
+            opacity: 0.8;
+        }
+
+        .trailer-close:hover { opacity: 1; }
     </style>
 </head>
-<body class="bg-surface text-on-surface">
-    <!-- Check if user is logged in, if not redirect to login page -->
-    <c:if test="${empty user}">
-        <c:redirect url="login"/>
-    </c:if>
-    
+<body>
+    <c:if test="${empty user}"><c:redirect url="login"/></c:if>
+
     <jsp:include page="userHeader.jsp" />
-    
-    <main class="p-8 min-h-screen">
-        <div class="max-w-7xl mx-auto">
-            <!-- Header section -->
-            <!-- Header / Status Tabs -->
-            <div class="mb-6 flex flex-col md:flex-row items-start md:items-center gap-6 pb-2">
-                <div class="flex items-center gap-6">
-                    <a href="${pageContext.request.contextPath}/browseMovies?status=now_showing" class="flex items-center gap-2 text-2xl font-bold font-headline transition-colors ${currentStatus == 'now_showing' ? 'text-primary' : 'text-on-surface hover:text-primary/80'}">
-                        <span class="material-symbols-outlined text-[28px] ${currentStatus == 'now_showing' ? 'text-primary' : 'text-secondary'}">smart_display</span>
-                        Now Showing
-                    </a>
-                    <div class="w-px h-6 bg-surface-variant/50"></div>
-                    <a href="${pageContext.request.contextPath}/browseMovies?status=coming_soon" class="flex items-center gap-2 text-2xl font-bold font-headline transition-colors ${currentStatus == 'coming_soon' ? 'text-primary' : 'text-secondary hover:text-primary/80'}">
-                        <span class="material-symbols-outlined text-[28px] ${currentStatus == 'coming_soon' ? 'text-primary' : 'text-secondary'}">schedule</span>
-                        Coming Soon
-                    </a>
+
+    <div class="page-wrap">
+        <div class="status-tabs">
+            <a href="${pageContext.request.contextPath}/browseMovies?status=now_showing"
+               class="status-tab ${currentStatus == 'now_showing' ? 'active' : ''}">Now Showing</a>
+            <a href="${pageContext.request.contextPath}/browseMovies?status=coming_soon"
+               class="status-tab ${currentStatus == 'coming_soon' ? 'active' : ''}">Coming Soon</a>
+        </div>
+
+        <c:if test="${currentStatus == 'now_showing'}">
+            <div class="date-strip">
+                <c:forEach var="tab" items="${dateTabs}">
+                    <a href="${pageContext.request.contextPath}/browseMovies?status=now_showing&date=${tab.value}${not empty param.genre ? '&genre='.concat(param.genre) : ''}${not empty param.language ? '&language='.concat(param.language) : ''}"
+                       class="date-tab ${currentDate == tab.value ? 'active' : ''}">${tab.display}</a>
+                </c:forEach>
+            </div>
+        </c:if>
+
+        <form action="${pageContext.request.contextPath}/browseMovies" method="get" class="filter-bar">
+            <input type="hidden" name="status" value="${currentStatus}">
+
+            <div class="field">
+                <label for="searchInput">Search</label>
+                <div class="search-wrap">
+                    <input type="text" name="search" id="searchInput" placeholder="Title..." value="${param.search}" autocomplete="off">
+                    <div class="autocomplete-results" id="autocompleteResults"></div>
                 </div>
             </div>
 
-            <!-- Date Filters (Only visible if Now Showing) -->
-            <c:if test="${currentStatus == 'now_showing'}">
-                <div class="mb-10 overflow-x-auto pb-4 scrollbar-hide">
-                    <div class="flex gap-3 min-w-max">
-                        <c:forEach var="tab" items="${dateTabs}">
-                            <a href="${pageContext.request.contextPath}/browseMovies?status=now_showing&date=${tab.value}${not empty param.genre ? '&genre=' += param.genre : ''}${not empty param.language ? '&language=' += param.language : ''}" 
-                               class="px-5 py-3 text-sm font-bold transition-all rounded-lg ${currentDate == tab.value ? 'bg-surface-container-lowest border-b-2 border-primary text-primary shadow-sm' : 'bg-surface-container-high text-secondary hover:bg-surface-container-lowest hover:text-primary border-b-2 border-transparent'}">
-                                ${tab.display}
-                            </a>
-                        </c:forEach>
-                    </div>
-                </div>
-            </c:if>
-            
-            <!-- Search and Filter Section -->
-            <div class="bg-white p-6 rounded-xl shadow-[0_10px_30px_rgba(20,29,35,0.03)] border border-surface-container mb-8">
-                <form action="${pageContext.request.contextPath}/browseMovies" method="get" class="flex flex-col md:flex-row gap-4 items-end">
-                    
-                    <!-- Search Input -->
-                    <div class="w-full md:flex-1 relative">
-                        <label for="searchInput" class="block text-[10px] font-bold text-secondary uppercase tracking-widest mb-2">Search Title</label>
-                        <div class="relative">
-                            <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-secondary text-[20px]">search</span>
-                            <input type="text" name="search" id="searchInput" placeholder="Search movies..." value="${param.search}" autocomplete="off" class="w-full pl-10 pr-4 py-3 bg-surface-container-lowest border border-gray-300 text-on-surface rounded-lg focus:ring-2 focus:ring-primary focus:border-primary text-sm transition-all shadow-sm">
-                            <!-- Autocomplete results container -->
-                            <div class="autocomplete-results" id="autocompleteResults"></div>
-                        </div>
-                    </div>
-                    
-                    <!-- Genre Filter -->
-                    <div class="w-full md:w-48">
-                        <label for="genreFilter" class="block text-[10px] font-bold text-secondary uppercase tracking-widest mb-2">Genre</label>
-                        <select name="genre" id="genreFilter" class="w-full bg-surface-container-lowest border border-gray-300 text-on-surface rounded-lg focus:ring-2 focus:ring-primary focus:border-primary px-3 py-3 text-sm transition-all shadow-sm">
-                            <option value="">All Genres</option>
-                            <c:forEach var="g" items="${genres}">
-                                <option value="${g}" ${param.genre == g ? 'selected' : ''}>${g}</option>
-                            </c:forEach>
-                        </select>
-                    </div>
-                    
-                    <!-- Language Filter -->
-                    <div class="w-full md:w-48">
-                        <label for="languageFilter" class="block text-[10px] font-bold text-secondary uppercase tracking-widest mb-2">Language</label>
-                        <select name="language" id="languageFilter" class="w-full bg-surface-container-lowest border border-gray-300 text-on-surface rounded-lg focus:ring-2 focus:ring-primary focus:border-primary px-3 py-3 text-sm transition-all shadow-sm">
-                            <option value="">All Languages</option>
-                            <c:forEach var="entry" items="${languageMap}">
-                                <option value="${entry.key}" ${param.language == entry.key ? 'selected' : ''}>${entry.value}</option>
-                            </c:forEach>
-                        </select>
-                    </div>
-                    
-                    <!-- Search Button -->
-                    <div class="w-full md:w-auto">
-                        <button type="submit" class="w-full md:w-auto px-6 py-3 bg-primary text-white text-xs font-bold uppercase tracking-wider rounded-lg hover:bg-primary-dark transition-colors shadow-md flex items-center justify-center gap-2 h-[46px]">
-                            <span class="material-symbols-outlined text-[18px]">filter_list</span>
-                            Filter
-                        </button>
-                    </div>
-                </form>
+            <div class="field">
+                <label for="genreFilter">Genre</label>
+                <select name="genre" id="genreFilter">
+                    <option value="">All genres</option>
+                    <c:forEach var="g" items="${genres}">
+                        <option value="${g}" ${param.genre == g ? 'selected' : ''}>${g}</option>
+                    </c:forEach>
+                </select>
             </div>
-            
-            <!-- Movies grid display -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
-                <c:choose>
-                    <c:when test="${not empty movies}">
-                        <c:forEach var="movie" items="${movies}">
-                            <div class="bg-[#1c2331] rounded-xl overflow-hidden shadow-lg group flex flex-col h-full border border-surface-variant/20 cursor-pointer" onclick="window.location.href='${pageContext.request.contextPath}/movieDetails?id=${movie.movieId}'">
-                                <div class="relative w-full aspect-[2/3] overflow-hidden bg-black">
-                                    <img src="${pageContext.request.contextPath}/images/${movie.posterImage}" alt="${movie.title}" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" onerror="this.style.display='none'">
-                                    
-                                    <!-- Format and Age Rating Badges overlaid on poster -->
-                                    <div class="absolute top-3 right-3 flex flex-col gap-2 items-end z-20">
-                                        <c:if test="${not empty movie.format}">
-                                            <span class="bg-white/90 backdrop-blur-sm text-primary-dark font-bold text-[10px] uppercase tracking-wider px-2.5 py-1 rounded shadow-sm">${movie.format}</span>
-                                        </c:if>
-                                        <c:if test="${not empty movie.ageRating}">
-                                            <span class="bg-black/70 backdrop-blur-sm text-white font-bold text-[10px] uppercase tracking-wider px-2.5 py-1 rounded border border-white/20 shadow-sm">${movie.ageRating}</span>
-                                        </c:if>
-                                    </div>
-                                    
-                                    <!-- Gradient overlay to make buttons pop -->
-                                    <div class="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-[#1c2331]/90 to-transparent z-0"></div>
-                                    
-                                    <!-- Hover/Bottom Overlay for Buttons -->
-                                    <div class="absolute bottom-6 inset-x-0 flex flex-col items-center gap-3 px-6 z-10 opacity-0 translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300">
-                                        <a href="${pageContext.request.contextPath}/bookTicket?movieId=${movie.movieId}" class="w-full bg-white hover:bg-gray-100 text-primary py-3 rounded-lg flex items-center justify-center gap-2 font-bold shadow-md transition-colors">
-                                            <span class="material-symbols-outlined text-[20px]">local_activity</span>
-                                            Buy Ticket
-                                        </a>
-                                        <c:if test="${not empty movie.trailerUrl}">
-                                            <button type="button" onclick="event.preventDefault(); event.stopPropagation(); openTrailer('${movie.trailerUrl}');" class="w-full bg-white hover:bg-gray-100 text-primary py-3 rounded-lg flex items-center justify-center gap-2 font-bold shadow-md transition-colors">
-                                                <span class="material-symbols-outlined text-[20px]">play_circle</span>
-                                                Play Trailer
-                                            </button>
-                                        </c:if>
-                                    </div>
-                                </div>
-                                <div class="p-5 flex flex-col flex-grow bg-[#1c2331]">
-                                    <a href="${pageContext.request.contextPath}/movieDetails?id=${movie.movieId}" class="hover:underline">
-                                        <h3 class="text-2xl font-bold font-headline text-white mb-1 leading-tight">${movie.title}</h3>
-                                    </a>
-                                    <fmt:parseNumber var="hours" integerOnly="true" type="number" value="${movie.duration / 60}" />
-                                    <p class="text-[14px] text-gray-400 mb-2"><c:if test="${hours > 0}">${hours}h </c:if>${movie.duration % 60}m</p>
-                                    <p class="text-[12px] font-bold text-gray-400 uppercase tracking-widest mb-6">${movie.genre}</p>
-                                    
-                                    <div class="grid grid-cols-2 lg:grid-cols-3 gap-2 mt-auto">
-                                        <c:set var="shows" value="${showTimesMap[movie.movieId]}" />
-                                        <c:choose>
-                                            <c:when test="${not empty shows}">
-                                                <jsp:useBean id="now" class="java.util.Date" />
-                                                <fmt:formatDate var="currentDate" value="${now}" pattern="yyyy-MM-dd" />
-                                                <fmt:formatDate var="currentTime" value="${now}" pattern="HH:mm:ss" />
-                                                
-                                                <c:forEach var="show" items="${shows}">
-                                                    <c:set var="isPast" value="${show.showDate < currentDate || (show.showDate == currentDate && show.showTime.toString() < currentTime)}" />
-                                                    
-                                                    <c:choose>
-                                                        <c:when test="${isPast}">
-                                                            <span class="block text-center border border-red-500/30 text-red-400 bg-red-500/5 cursor-not-allowed rounded py-2 text-[13px] font-medium opacity-60" title="This show has already started">
-                                                                ${show.showTime.toString().substring(0,5)}
-                                                            </span>
-                                                        </c:when>
-                                                        <c:otherwise>
-                                                            <a href="${pageContext.request.contextPath}/bookTicket?movieId=${movie.movieId}&showId=${show.showTimeId}" class="block text-center border border-green-600/50 text-green-500 hover:bg-green-600/10 rounded py-2 text-[13px] font-medium transition-colors">
-                                                                ${show.showTime.toString().substring(0,5)}
-                                                            </a>
-                                                        </c:otherwise>
-                                                    </c:choose>
-                                                </c:forEach>
-                                            </c:when>
-                                            <c:otherwise>
-                                                <div class="col-span-full py-2 text-center text-xs text-gray-500 italic">No shows scheduled today</div>
-                                            </c:otherwise>
-                                        </c:choose>
-                                    </div>
+
+            <div class="field">
+                <label for="langFilter">Language</label>
+                <select name="language" id="langFilter">
+                    <option value="">All languages</option>
+                    <c:forEach var="entry" items="${languageMap}">
+                        <option value="${entry.key}" ${param.language == entry.key ? 'selected' : ''}>${entry.value}</option>
+                    </c:forEach>
+                </select>
+            </div>
+
+            <button type="submit" class="btn-filter">Filter</button>
+            <c:if test="${not empty param.search || not empty param.genre || not empty param.language}">
+                <a href="${pageContext.request.contextPath}/browseMovies?status=${currentStatus}" style="font-size:13px;color:#888;align-self:center;">Clear</a>
+            </c:if>
+        </form>
+
+        <div class="movie-grid">
+            <c:choose>
+                <c:when test="${not empty movies}">
+                    <c:forEach var="movie" items="${movies}">
+                        <div class="movie-item" onclick="window.location.href='${pageContext.request.contextPath}/movieDetails?id=${movie.movieId}'">
+                            <div class="movie-poster-wrap">
+                                <c:choose>
+                                    <c:when test="${not empty movie.posterImage}">
+                                        <img class="movie-poster-img" src="${pageContext.request.contextPath}/images/${movie.posterImage}" alt="${movie.title}" onerror="this.parentNode.innerHTML='<div class=movie-poster-placeholder>No image</div>'">
+                                    </c:when>
+                                    <c:otherwise>
+                                        <div class="movie-poster-placeholder">No image</div>
+                                    </c:otherwise>
+                                </c:choose>
+                                <div class="movie-badges">
+                                    <c:if test="${not empty movie.format}">
+                                        <span class="badge badge-format">${movie.format}</span>
+                                    </c:if>
+                                    <c:if test="${not empty movie.ageRating}">
+                                        <span class="badge badge-rating">${movie.ageRating}</span>
+                                    </c:if>
                                 </div>
                             </div>
-                        </c:forEach>
-                    </c:when>
-                    <c:otherwise>
-                        <div class="col-span-full py-16 flex flex-col items-center justify-center text-secondary bg-surface-container-low rounded-xl border border-surface-variant/50">
-                            <span class="material-symbols-outlined text-5xl mb-4 opacity-50">search_off</span>
-                            <p class="text-lg font-medium text-on-surface">No movies found</p>
-                            <p class="text-sm opacity-80 mt-1">Try adjusting your search or filters.</p>
-                            <a href="${pageContext.request.contextPath}/browseMovies" class="mt-4 text-primary text-sm font-bold border-b border-primary">Clear all filters</a>
+                            <div class="movie-info">
+                                <div class="movie-title" title="${movie.title}">${movie.title}</div>
+                                <fmt:parseNumber var="hrs" integerOnly="true" value="${movie.duration / 60}" />
+                                <div class="movie-meta">${movie.genre} &middot; <c:if test="${hrs > 0}">${hrs}h </c:if>${movie.duration % 60}m</div>
+
+                                <div class="show-times">
+                                    <c:set var="shows" value="${showTimesMap[movie.movieId]}" />
+                                    <c:choose>
+                                        <c:when test="${not empty shows}">
+                                            <jsp:useBean id="now" class="java.util.Date" />
+                                            <fmt:formatDate var="currentDate" value="${now}" pattern="yyyy-MM-dd" />
+                                            <fmt:formatDate var="currentTime" value="${now}" pattern="HH:mm:ss" />
+                                            <c:forEach var="show" items="${shows}">
+                                                <c:set var="isPast" value="${show.showDate < currentDate || (show.showDate == currentDate && show.showTime.toString() < currentTime)}" />
+                                                <c:choose>
+                                                    <c:when test="${isPast}">
+                                                        <span class="show-time-past" title="Show has passed">${show.showTime.toString().substring(0,5)}</span>
+                                                    </c:when>
+                                                    <c:otherwise>
+                                                        <a href="${pageContext.request.contextPath}/bookTicket?movieId=${movie.movieId}&showId=${show.showTimeId}"
+                                                           class="show-time-btn" onclick="event.stopPropagation()">${show.showTime.toString().substring(0,5)}</a>
+                                                    </c:otherwise>
+                                                </c:choose>
+                                            </c:forEach>
+                                        </c:when>
+                                        <c:otherwise>
+                                            <span class="no-shows">No shows available</span>
+                                        </c:otherwise>
+                                    </c:choose>
+                                </div>
+                            </div>
                         </div>
-                    </c:otherwise>
-                </c:choose>
-            </div>
+                    </c:forEach>
+                </c:when>
+                <c:otherwise>
+                    <div class="empty-state">
+                        <p>No movies found for this filter.</p>
+                        <a href="${pageContext.request.contextPath}/browseMovies">Clear filters</a>
+                    </div>
+                </c:otherwise>
+            </c:choose>
         </div>
-    </main>
+    </div>
+
+    <div id="trailerModal">
+        <div class="trailer-inner">
+            <button class="trailer-close" onclick="closeTrailer()">✕ Close</button>
+            <iframe id="trailerIframe" src="" allowfullscreen allow="autoplay"></iframe>
+        </div>
+    </div>
 
     <script>
-        // ===========================
-        // MOVIE SEARCH AUTOCOMPLETE (REST API)
-        // ===========================
         const searchInput = document.getElementById('searchInput');
         const autocompleteResults = document.getElementById('autocompleteResults');
         let searchTimeout = null;
 
         searchInput.addEventListener('input', function() {
-            const query = this.value.trim();
-            
-            // Clear previous timeout
+            const q = this.value.trim();
             if (searchTimeout) clearTimeout(searchTimeout);
-            
-            // Hide results if query is empty
-            if (query.length < 2) {
-                autocompleteResults.classList.remove('show');
-                return;
-            }
-            
-            // Show loading state
-            autocompleteResults.innerHTML = '<div class="p-3 text-center text-sm text-secondary">Searching...</div>';
+            if (q.length < 2) { autocompleteResults.classList.remove('show'); return; }
+
+            autocompleteResults.innerHTML = '<div style="padding:10px;font-size:13px;color:#888;">Searching...</div>';
             autocompleteResults.classList.add('show');
-            
-            // Debounce: wait 300ms after user stops typing
+
             searchTimeout = setTimeout(() => {
-                fetch('${pageContext.request.contextPath}/api/movies/search?q=' + encodeURIComponent(query))
-                    .then(res => res.json())
+                fetch('${pageContext.request.contextPath}/api/movies/search?q=' + encodeURIComponent(q))
+                    .then(r => r.json())
                     .then(data => {
                         if (data.success && data.movies.length > 0) {
-                            let html = '';
-                            data.movies.forEach(movie => {
-                                html += '<a href="${pageContext.request.contextPath}/movieDetails?id=' + movie.movieId + '" class="autocomplete-item">';
-                                html += '<div class="w-10 h-14 bg-surface-container-high rounded overflow-hidden flex-shrink-0"><img src="${pageContext.request.contextPath}/images/' + movie.posterImage + '" alt="' + movie.title + '" class="w-full h-full object-cover" onerror="this.style.display=\'none\'"></div>';
-                                html += '<div class="flex-1">';
-                                html += '<div class="font-bold text-sm text-on-surface">' + movie.title + '</div>';
-                                html += '<div class="text-[10px] text-secondary uppercase tracking-wider mt-0.5">' + movie.genre + ' • ' + movie.language + '</div>';
-                                html += '</div>';
-                                html += '</a>';
-                            });
-                            autocompleteResults.innerHTML = html;
+                            autocompleteResults.innerHTML = data.movies.map(m =>
+                                `<a href="${pageContext.request.contextPath}/movieDetails?id=${m.movieId}" class="autocomplete-item">
+                                    <img class="autocomplete-thumb" src="${pageContext.request.contextPath}/images/${m.posterImage}" onerror="this.style.display='none'" alt="">
+                                    <div>
+                                        <div class="autocomplete-title">${m.title}</div>
+                                        <div class="autocomplete-meta">${m.genre} &middot; ${m.language}</div>
+                                    </div>
+                                </a>`
+                            ).join('');
                         } else {
-                            autocompleteResults.innerHTML = '<div class="p-3 text-center text-sm text-secondary">No movies found</div>';
+                            autocompleteResults.innerHTML = '<div style="padding:10px;font-size:13px;color:#888;">No results</div>';
                         }
                     })
-                    .catch(err => {
-                        console.error('Search error:', err);
-                        autocompleteResults.innerHTML = '<div class="p-3 text-center text-sm text-red-500">Search failed</div>';
+                    .catch(() => {
+                        autocompleteResults.innerHTML = '<div style="padding:10px;font-size:13px;color:#c9152f;">Search failed</div>';
                     });
-            }, 300);
+            }, 280);
         });
 
-        // Hide autocomplete when clicking outside
-        document.addEventListener('click', function(e) {
+        document.addEventListener('click', e => {
             if (!searchInput.contains(e.target) && !autocompleteResults.contains(e.target)) {
                 autocompleteResults.classList.remove('show');
             }
         });
-    </script>
 
-    <!-- Trailer Modal -->
-    <div id="trailerModal" class="fixed inset-0 z-[9999] hidden bg-black/90 backdrop-blur-sm flex items-center justify-center p-4 lg:p-12">
-        <button type="button" onclick="closeTrailer()" class="absolute top-6 right-6 md:top-8 md:right-8 text-white hover:text-primary transition-colors flex items-center justify-center w-12 h-12 z-50 bg-white/10 hover:bg-white/20 rounded-full border border-white/20 backdrop-blur-sm" title="Close">
-            <span class="material-symbols-outlined text-[28px]">close</span>
-        </button>
-        <div class="relative w-full max-w-5xl aspect-video bg-black rounded-2xl shadow-2xl border border-white/10">
-            <div class="w-full h-full overflow-hidden rounded-2xl">
-                <iframe id="trailerIframe" class="w-full h-full" src="" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
-            </div>
-        </div>
-    </div>
-    
-    <script>
         function openTrailer(url) {
-            let embedUrl = url;
-            if (url.includes('watch?v=')) {
-                let videoId = url.split('watch?v=')[1].split('&')[0];
-                embedUrl = 'https://www.youtube.com/embed/' + videoId + '?autoplay=1';
-            } else if (url.includes('youtu.be/')) {
-                let videoId = url.split('youtu.be/')[1].split('?')[0];
-                embedUrl = 'https://www.youtube.com/embed/' + videoId + '?autoplay=1';
-            } else if (!url.includes('?autoplay=')) {
-                // If it's already an embed link but missing autoplay
-                if (url.includes('?')) {
-                    embedUrl += '&autoplay=1';
-                } else {
-                    embedUrl += '?autoplay=1';
-                }
-            }
-            document.getElementById('trailerIframe').src = embedUrl;
-            document.getElementById('trailerModal').classList.remove('hidden');
+            let embed = url;
+            if (url.includes('watch?v=')) embed = 'https://www.youtube.com/embed/' + url.split('watch?v=')[1].split('&')[0] + '?autoplay=1';
+            else if (url.includes('youtu.be/')) embed = 'https://www.youtube.com/embed/' + url.split('youtu.be/')[1].split('?')[0] + '?autoplay=1';
+            document.getElementById('trailerIframe').src = embed;
+            document.getElementById('trailerModal').classList.add('open');
         }
-        
+
         function closeTrailer() {
-            document.getElementById('trailerModal').classList.add('hidden');
-            document.getElementById('trailerIframe').src = ""; // Stop playing
+            document.getElementById('trailerModal').classList.remove('open');
+            document.getElementById('trailerIframe').src = '';
         }
     </script>
 </body>

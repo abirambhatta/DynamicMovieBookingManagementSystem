@@ -2,205 +2,391 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <!DOCTYPE html>
-<html class="light" lang="en">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Home - MovieMint</title>
     <link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath}/css/style.css">
-    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
-    <script id="tailwind-config">
-    tailwind.config = {
-      darkMode: "class",
-      theme: {
-        extend: {
-          "colors": {
-            "primary": "#dc143c",
-            "primary-dark": "#b71c1c",
-            "secondary": "#5d5f5f",
-            "surface": "#f6faff",
-            "surface-container": "#e6eff8",
-            "surface-container-low": "#ecf5fe",
-            "surface-container-lowest": "#ffffff",
-            "surface-container-high": "#e0e9f2",
-            "surface-container-highest": "#dbe4ed",
-            "on-surface": "#141d23",
-            "on-surface-variant": "#5c3f3f"
-          },
-          "fontFamily": {
-            "headline": ["Manrope"],
-            "body": ["Inter"]
-          }
-        },
-      },
-    }
-    </script>
     <style>
-    .material-symbols-outlined {
-        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
-    }
-    body { font-family: 'Inter', sans-serif; }
-    h1, h2, h3 { font-family: 'Manrope', sans-serif; }
+        body { background: #f4f4f5; }
+
+        .page-wrap {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 24px 20px;
+        }
+
+        .user-bar {
+            background: #fff;
+            border: 1px solid #ddd;
+            border-left: 3px solid #c9152f;
+            border-radius: 5px;
+            padding: 16px 20px;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .user-bar h1 {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-bottom: 2px;
+        }
+
+        .user-bar small {
+            font-size: 13px;
+            color: #666;
+        }
+
+        .user-bar-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .user-bar-actions a {
+            padding: 7px 14px;
+            border-radius: 4px;
+            font-size: 13px;
+            font-weight: 500;
+            text-decoration: none;
+        }
+
+        .btn-browse {
+            background: #c9152f;
+            color: #fff;
+        }
+
+        .btn-browse:hover { background: #a01026; }
+
+        .btn-bookings {
+            background: #fff;
+            color: #333;
+            border: 1px solid #ccc;
+        }
+
+        .btn-bookings:hover {
+            border-color: #c9152f;
+            color: #c9152f;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 14px;
+        }
+
+        .section-header h2 {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1a1a1a;
+        }
+
+        .section-header a {
+            font-size: 13px;
+            color: #c9152f;
+        }
+
+        /* Movie card grid */
+        .movie-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 16px;
+        }
+
+        .movie-item {
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            overflow: hidden;
+            cursor: pointer;
+        }
+
+        .movie-item:hover { border-color: #bbb; }
+
+        .movie-item:hover .movie-poster-img { opacity: 0.92; }
+
+        .movie-poster-img {
+            width: 100%;
+            aspect-ratio: 2/3;
+            object-fit: cover;
+            display: block;
+            background: #e4e4e4;
+            transition: opacity 0.15s;
+        }
+
+        .movie-poster-placeholder {
+            width: 100%;
+            aspect-ratio: 2/3;
+            background: #e4e4e4;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #aaa;
+            font-size: 13px;
+        }
+
+        .movie-badges {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            align-items: flex-end;
+        }
+
+        .movie-poster-wrap {
+            position: relative;
+        }
+
+        .badge {
+            font-size: 10px;
+            font-weight: 700;
+            padding: 2px 6px;
+            border-radius: 3px;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        .badge-format {
+            background: rgba(255,255,255,0.92);
+            color: #a01026;
+        }
+
+        .badge-rating {
+            background: rgba(0,0,0,0.65);
+            color: #fff;
+        }
+
+        .movie-info {
+            padding: 12px;
+        }
+
+        .movie-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-bottom: 2px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .movie-meta {
+            font-size: 12px;
+            color: #888;
+            margin-bottom: 8px;
+        }
+
+        .show-times {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+        }
+
+        .show-time-btn {
+            font-size: 11px;
+            padding: 3px 8px;
+            border-radius: 3px;
+            border: 1px solid #ccc;
+            color: #333;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .show-time-btn:hover {
+            border-color: #c9152f;
+            color: #c9152f;
+            text-decoration: none;
+        }
+
+        .show-time-past {
+            font-size: 11px;
+            padding: 3px 8px;
+            border-radius: 3px;
+            border: 1px solid #ecd0d3;
+            color: #c0737a;
+            background: #fdf5f6;
+            cursor: not-allowed;
+        }
+
+        .no-shows {
+            font-size: 11px;
+            color: #aaa;
+            font-style: italic;
+        }
+
+        .empty-state {
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 48px;
+            text-align: center;
+            color: #888;
+        }
+
+        .empty-state p { margin-bottom: 6px; }
+
+        /* Trailer modal */
+        #trailerModal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 999;
+            background: rgba(0,0,0,0.85);
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        #trailerModal.open { display: flex; }
+
+        .trailer-inner {
+            position: relative;
+            width: 100%;
+            max-width: 900px;
+            aspect-ratio: 16/9;
+            background: #000;
+            border-radius: 4px;
+        }
+
+        .trailer-inner iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            border-radius: 4px;
+        }
+
+        .trailer-close {
+            position: absolute;
+            top: -36px;
+            right: 0;
+            background: none;
+            border: none;
+            color: #fff;
+            font-size: 20px;
+            cursor: pointer;
+            padding: 4px 8px;
+            opacity: 0.8;
+        }
+
+        .trailer-close:hover { opacity: 1; }
     </style>
 </head>
-<body class="bg-surface text-on-surface">
-    <!-- Check if user is logged in, if not redirect to login page -->
-    <c:if test="${empty user}">
-        <c:redirect url="login"/>
-    </c:if>
-    
+<body>
+    <c:if test="${empty user}"><c:redirect url="login"/></c:if>
+
     <jsp:include page="userHeader.jsp" />
-    
-    <main class="p-8 min-h-screen">
-        <div class="max-w-7xl mx-auto">
-            <!-- Welcome message with user's name -->
-        <div class="mb-10">
-            <div class="bg-white p-8 rounded-xl shadow-[0_20px_40px_rgba(20,29,35,0.03)] border-l-4 border-primary">
-                <h1 class="text-3xl font-bold tracking-tight text-on-surface mb-2 font-headline">Welcome back, ${user.fullName}!</h1>
-                <p class="text-secondary font-medium flex items-center gap-2">
-                    <span class="material-symbols-outlined text-[18px]">mail</span>
-                    ${user.email}
-                </p>
-                
-                <!-- Quick action buttons -->
-                <div class="flex flex-wrap gap-4 mt-6">
-                    <a href="${pageContext.request.contextPath}/browseMovies" class="inline-flex items-center gap-2 px-6 py-3 bg-primary text-white text-xs font-bold uppercase tracking-wider rounded-lg hover:bg-primary-dark transition-colors shadow-md">
-                        <span class="material-symbols-outlined text-[18px]">movie</span>
-                        Browse Premieres
-                    </a>
-                    <a href="${pageContext.request.contextPath}/myBookings" class="inline-flex items-center gap-2 px-6 py-3 bg-white border border-gray-300 text-gray-700 text-xs font-bold uppercase tracking-wider rounded-lg hover:border-primary hover:text-primary transition-colors shadow-sm">
-                        <span class="material-symbols-outlined text-[18px]">confirmation_number</span>
-                        My Bookings
-                    </a>
-                </div>
+
+    <div class="page-wrap">
+        <div class="user-bar">
+            <div>
+                <h1>Welcome back, ${user.fullName}</h1>
+                <small>${user.email}</small>
+            </div>
+            <div class="user-bar-actions">
+                <a href="${pageContext.request.contextPath}/browseMovies" class="btn-browse">Browse movies</a>
+                <a href="${pageContext.request.contextPath}/myBookings" class="btn-bookings">My bookings</a>
             </div>
         </div>
-        
-        <!-- Section for recently added movies -->
-        <section>
-            <div class="flex justify-between items-center mb-6">
-                <h2 class="text-2xl font-bold tracking-tight text-on-surface font-headline uppercase">Recently Added Movies</h2>
-            </div>
-            
-            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
-                <c:choose>
-                    <c:when test="${not empty recentMovies}">
-                        <c:forEach var="movie" items="${recentMovies}">
-                            <div class="bg-[#1c2331] rounded-xl overflow-hidden shadow-lg group flex flex-col h-full border border-surface-variant/20 cursor-pointer" onclick="window.location.href='${pageContext.request.contextPath}/movieDetails?id=${movie.movieId}'">
-                                <div class="relative w-full aspect-[2/3] overflow-hidden bg-black">
-                                    <img src="${pageContext.request.contextPath}/images/${movie.posterImage}" alt="${movie.title}" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" onerror="this.style.display='none'">
-                                    
-                                    <!-- Format and Age Rating Badges -->
-                                    <div class="absolute top-3 right-3 flex flex-col gap-2 items-end z-20">
-                                        <c:if test="${not empty movie.format}">
-                                            <span class="bg-white/90 backdrop-blur-sm text-primary-dark font-bold text-[10px] uppercase tracking-wider px-2.5 py-1 rounded shadow-sm">${movie.format}</span>
-                                        </c:if>
-                                        <c:if test="${not empty movie.ageRating}">
-                                            <span class="bg-black/70 backdrop-blur-sm text-white font-bold text-[10px] uppercase tracking-wider px-2.5 py-1 rounded border border-white/20 shadow-sm">${movie.ageRating}</span>
-                                        </c:if>
-                                    </div>
-                                    
-                                    <!-- Gradient overlay -->
-                                    <div class="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-[#1c2331]/90 to-transparent z-0"></div>
-                                    
-                                    <!-- Hover Buttons Overlay -->
-                                    <div class="absolute bottom-6 inset-x-0 flex flex-col items-center gap-3 px-6 z-10 opacity-0 translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300">
-                                        <a href="${pageContext.request.contextPath}/bookTicket?movieId=${movie.movieId}" class="w-full bg-white hover:bg-gray-100 text-primary py-3 rounded-lg flex items-center justify-center gap-2 font-bold shadow-md transition-colors">
-                                            <span class="material-symbols-outlined text-[20px]">local_activity</span>
-                                            Buy Ticket
-                                        </a>
-                                        <c:if test="${not empty movie.trailerUrl}">
-                                            <button type="button" onclick="event.preventDefault(); event.stopPropagation(); openTrailer('${movie.trailerUrl}');" class="w-full bg-white hover:bg-gray-100 text-primary py-3 rounded-lg flex items-center justify-center gap-2 font-bold shadow-md transition-colors">
-                                                <span class="material-symbols-outlined text-[20px]">play_circle</span>
-                                                Play Trailer
-                                            </button>
-                                        </c:if>
-                                    </div>
-                                </div>
-                                <div class="p-5 flex flex-col flex-grow bg-[#1c2331]">
-                                    <a href="${pageContext.request.contextPath}/movieDetails?id=${movie.movieId}" class="hover:underline">
-                                        <h3 class="text-2xl font-bold font-headline text-white mb-1 leading-tight">${movie.title}</h3>
-                                    </a>
-                                    <fmt:parseNumber var="hours" integerOnly="true" type="number" value="${movie.duration / 60}" />
-                                    <p class="text-[14px] text-gray-400 mb-2"><c:if test="${hours > 0}">${hours}h </c:if>${movie.duration % 60}m</p>
-                                    <p class="text-[12px] font-bold text-gray-400 uppercase tracking-widest mb-6">${movie.genre}</p>
-                                    
-                                    <div class="grid grid-cols-2 lg:grid-cols-3 gap-2 mt-auto">
-                                        <c:set var="shows" value="${showTimesMap[movie.movieId]}" />
-                                        <c:choose>
-                                            <c:when test="${not empty shows}">
-                                                <jsp:useBean id="now" class="java.util.Date" />
-                                                <fmt:formatDate var="currentDate" value="${now}" pattern="yyyy-MM-dd" />
-                                                <fmt:formatDate var="currentTime" value="${now}" pattern="HH:mm:ss" />
-                                                
-                                                <c:forEach var="show" items="${shows}">
-                                                    <c:set var="isPast" value="${show.showDate < currentDate || (show.showDate == currentDate && show.showTime.toString() < currentTime)}" />
-                                                    
-                                                    <c:choose>
-                                                        <c:when test="${isPast}">
-                                                            <span class="block text-center border border-red-500/30 text-red-400 bg-red-500/5 cursor-not-allowed rounded py-2 text-[13px] font-medium opacity-60" title="This show has already started">
-                                                                ${show.showTime.toString().substring(0,5)}
-                                                            </span>
-                                                        </c:when>
-                                                        <c:otherwise>
-                                                            <a href="${pageContext.request.contextPath}/bookTicket?movieId=${movie.movieId}&showId=${show.showTimeId}" class="block text-center border border-green-600/50 text-green-500 hover:bg-green-600/10 rounded py-2 text-[13px] font-medium transition-colors">
-                                                                ${show.showTime.toString().substring(0,5)}
-                                                            </a>
-                                                        </c:otherwise>
-                                                    </c:choose>
-                                                </c:forEach>
-                                            </c:when>
-                                            <c:otherwise>
-                                                <div class="col-span-full py-2 text-center text-xs text-gray-500 italic">No shows scheduled today</div>
-                                            </c:otherwise>
-                                        </c:choose>
-                                    </div>
+
+        <div class="section-header">
+            <h2>Now showing</h2>
+            <a href="${pageContext.request.contextPath}/browseMovies">View all →</a>
+        </div>
+
+        <c:choose>
+            <c:when test="${not empty recentMovies}">
+                <div class="movie-grid">
+                    <c:forEach var="movie" items="${recentMovies}">
+                        <div class="movie-item" onclick="window.location.href='${pageContext.request.contextPath}/movieDetails?id=${movie.movieId}'">
+                            <div class="movie-poster-wrap">
+                                <c:choose>
+                                    <c:when test="${not empty movie.posterImage}">
+                                        <img class="movie-poster-img" src="${pageContext.request.contextPath}/images/${movie.posterImage}" alt="${movie.title}" onerror="this.parentNode.innerHTML='<div class=movie-poster-placeholder>No image</div>'">
+                                    </c:when>
+                                    <c:otherwise>
+                                        <div class="movie-poster-placeholder">No image</div>
+                                    </c:otherwise>
+                                </c:choose>
+                                <div class="movie-badges">
+                                    <c:if test="${not empty movie.format}">
+                                        <span class="badge badge-format">${movie.format}</span>
+                                    </c:if>
+                                    <c:if test="${not empty movie.ageRating}">
+                                        <span class="badge badge-rating">${movie.ageRating}</span>
+                                    </c:if>
                                 </div>
                             </div>
-                        </c:forEach>
-                    </c:when>
-                    <c:otherwise>
-                        <div class="col-span-full py-16 flex flex-col items-center justify-center text-secondary bg-surface-container-low rounded-xl border border-surface-variant/50">
-                            <span class="material-symbols-outlined text-5xl mb-4 opacity-50">movie</span>
-                            <p class="text-lg font-medium">No movies available at the moment.</p>
-                            <p class="text-sm opacity-80 mt-1">Check back soon for new premieres.</p>
+                            <div class="movie-info">
+                                <div class="movie-title" title="${movie.title}">${movie.title}</div>
+                                <fmt:parseNumber var="hours" integerOnly="true" value="${movie.duration / 60}" />
+                                <div class="movie-meta">${movie.genre} &middot; <c:if test="${hours > 0}">${hours}h </c:if>${movie.duration % 60}m</div>
+
+                                <div class="show-times">
+                                    <c:set var="shows" value="${showTimesMap[movie.movieId]}" />
+                                    <c:choose>
+                                        <c:when test="${not empty shows}">
+                                            <jsp:useBean id="now" class="java.util.Date" />
+                                            <fmt:formatDate var="currentDate" value="${now}" pattern="yyyy-MM-dd" />
+                                            <fmt:formatDate var="currentTime" value="${now}" pattern="HH:mm:ss" />
+                                            <c:forEach var="show" items="${shows}">
+                                                <c:set var="isPast" value="${show.showDate < currentDate || (show.showDate == currentDate && show.showTime.toString() < currentTime)}" />
+                                                <c:choose>
+                                                    <c:when test="${isPast}">
+                                                        <span class="show-time-past" title="Show has passed">${show.showTime.toString().substring(0,5)}</span>
+                                                    </c:when>
+                                                    <c:otherwise>
+                                                        <a href="${pageContext.request.contextPath}/bookTicket?movieId=${movie.movieId}&showId=${show.showTimeId}" class="show-time-btn" onclick="event.stopPropagation()">${show.showTime.toString().substring(0,5)}</a>
+                                                    </c:otherwise>
+                                                </c:choose>
+                                            </c:forEach>
+                                        </c:when>
+                                        <c:otherwise>
+                                            <span class="no-shows">No shows today</span>
+                                        </c:otherwise>
+                                    </c:choose>
+                                </div>
+                            </div>
                         </div>
-                    </c:otherwise>
-                </c:choose>
-            </div>
-        </section>
-        </div>
-    </main>
-    <!-- Trailer Modal -->
-    <div id="trailerModal" class="fixed inset-0 z-[9999] hidden bg-black/90 backdrop-blur-sm flex items-center justify-center p-4 lg:p-12">
-        <button type="button" onclick="closeTrailer()" class="absolute top-6 right-6 md:top-8 md:right-8 text-white hover:text-primary transition-colors flex items-center justify-center w-12 h-12 z-50 bg-white/10 hover:bg-white/20 rounded-full border border-white/20 backdrop-blur-sm" title="Close">
-            <span class="material-symbols-outlined text-[28px]">close</span>
-        </button>
-        <div class="relative w-full max-w-5xl aspect-video bg-black rounded-2xl shadow-2xl border border-white/10">
-            <div class="w-full h-full overflow-hidden rounded-2xl">
-                <iframe id="trailerIframe" class="w-full h-full" src="" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
-            </div>
+                    </c:forEach>
+                </div>
+            </c:when>
+            <c:otherwise>
+                <div class="empty-state">
+                    <p>No movies are currently scheduled.</p>
+                    <small>Check back soon.</small>
+                </div>
+            </c:otherwise>
+        </c:choose>
+    </div>
+
+    <div id="trailerModal">
+        <div class="trailer-inner">
+            <button class="trailer-close" onclick="closeTrailer()">✕ Close</button>
+            <iframe id="trailerIframe" src="" allowfullscreen allow="autoplay"></iframe>
         </div>
     </div>
+
     <script>
         function openTrailer(url) {
-            let embedUrl = url;
+            let embed = url;
             if (url.includes('watch?v=')) {
-                let videoId = url.split('watch?v=')[1].split('&')[0];
-                embedUrl = 'https://www.youtube.com/embed/' + videoId + '?autoplay=1';
+                embed = 'https://www.youtube.com/embed/' + url.split('watch?v=')[1].split('&')[0] + '?autoplay=1';
             } else if (url.includes('youtu.be/')) {
-                let videoId = url.split('youtu.be/')[1].split('?')[0];
-                embedUrl = 'https://www.youtube.com/embed/' + videoId + '?autoplay=1';
-            } else if (!url.includes('?autoplay=')) {
-                embedUrl += url.includes('?') ? '&autoplay=1' : '?autoplay=1';
+                embed = 'https://www.youtube.com/embed/' + url.split('youtu.be/')[1].split('?')[0] + '?autoplay=1';
             }
-            document.getElementById('trailerIframe').src = embedUrl;
-            document.getElementById('trailerModal').classList.remove('hidden');
+            document.getElementById('trailerIframe').src = embed;
+            document.getElementById('trailerModal').classList.add('open');
         }
         function closeTrailer() {
-            document.getElementById('trailerModal').classList.add('hidden');
+            document.getElementById('trailerModal').classList.remove('open');
             document.getElementById('trailerIframe').src = '';
         }
     </script>

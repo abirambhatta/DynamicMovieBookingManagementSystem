@@ -1,335 +1,224 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
-<%-- Login page. Form for email and password. --%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <!DOCTYPE html>
 <html>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - MovieMint</title>
+    <title>Sign In - MovieMint</title>
     <link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath}/css/style.css">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        html, body {
-            height: 100%;
-            width: 100%;
-        }
-        
-        /* Two column layout for login page */
-        .login-container {
+        html, body { height: 100%; background: #f4f4f5; }
+
+        .login-wrap {
             display: flex;
-            height: 100vh;
-            background-color: #f8f9fa;
-            overflow: hidden;
+            min-height: 100vh;
         }
-        
-        /* Left side - Logo section */
-        .login-logo-section {
-            flex: 1;
-            background: linear-gradient(135deg, #dc143c 0%, #b71c1c 100%);
+
+        .login-brand {
+            width: 340px;
+            background: #c9152f;
+            color: #fff;
             display: flex;
             flex-direction: column;
-            align-items: center;
             justify-content: center;
-            padding: 60px 40px;
-            color: white;
-            position: relative;
-            overflow: hidden;
-            height: 100vh;
+            padding: 48px 40px;
+            flex-shrink: 0;
         }
-        
-        /* Decorative elements - contained within section */
-        .login-logo-section::before {
-            content: '';
-            position: absolute;
-            width: 300px;
-            height: 300px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 50%;
-            top: -150px;
-            right: -150px;
-        }
-        
-        .login-logo-section::after {
-            content: '';
-            position: absolute;
-            width: 200px;
-            height: 200px;
-            background: rgba(255, 255, 255, 0.08);
-            border-radius: 50%;
-            bottom: -100px;
-            left: -100px;
-        }
-        
-        .logo-content {
-            text-align: center;
-            position: relative;
-            z-index: 1;
-        }
-        
-        .logo-content h1 {
-            font-size: 56px;
+
+        .login-brand h1 {
+            font-size: 28px;
             font-weight: 700;
-            margin-bottom: 16px;
-            letter-spacing: -1px;
+            margin-bottom: 6px;
+            letter-spacing: -0.5px;
         }
-        
-        .logo-content .tagline {
-            font-size: 20px;
-            opacity: 0.95;
-            margin-bottom: 40px;
-            font-weight: 300;
-        }
-        
-        .features-list {
-            margin-top: 50px;
-            text-align: left;
-            display: inline-block;
-        }
-        
-        .features-list li {
-            list-style: none;
-            margin: 16px 0;
-            font-size: 16px;
-            opacity: 0.9;
-            display: flex;
-            align-items: center;
-        }
-        
-        .features-list li::before {
-            content: '✓';
-            display: inline-block;
-            width: 24px;
-            height: 24px;
-            background: rgba(255, 255, 255, 0.3);
-            border-radius: 50%;
-            text-align: center;
-            line-height: 24px;
-            margin-right: 12px;
-            font-weight: bold;
-        }
-        
-        /* Right side - Form section */
-        .login-form-section {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 60px 40px;
-            background: white;
-            overflow-y: auto;
-            height: 100vh;
-        }
-        
-        .login-form-box {
-            width: 100%;
-            max-width: 380px;
-        }
-        
-        .login-form-box h2 {
-            text-align: center;
-            color: #212529;
-            margin-bottom: 8px;
-            font-size: 32px;
-            font-weight: 600;
-        }
-        
-        .login-form-box .form-subtitle {
-            text-align: center;
-            color: #6c757d;
-            margin-bottom: 32px;
+
+        .login-brand p {
             font-size: 14px;
+            opacity: 0.8;
+            line-height: 1.5;
+            margin-bottom: 32px;
         }
-        
-        .form-group {
+
+        .brand-divider {
+            width: 32px;
+            height: 2px;
+            background: rgba(255,255,255,0.4);
             margin-bottom: 24px;
         }
-        
+
+        .brand-features {
+            list-style: none;
+            font-size: 14px;
+            line-height: 2;
+            opacity: 0.85;
+        }
+
+        .brand-features li::before {
+            content: '→ ';
+            opacity: 0.6;
+        }
+
+        .login-form-wrap {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 24px;
+            background: #fff;
+        }
+
+        .login-form-box {
+            width: 100%;
+            max-width: 360px;
+        }
+
+        .login-form-box h2 {
+            font-size: 20px;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-bottom: 4px;
+        }
+
+        .login-form-box .sub {
+            font-size: 13px;
+            color: #777;
+            margin-bottom: 24px;
+        }
+
+        .form-group { margin-bottom: 14px; }
+
         .form-group label {
             display: block;
-            margin-bottom: 8px;
-            color: #495057;
+            font-size: 13px;
             font-weight: 500;
-            font-size: 14px;
+            color: #444;
+            margin-bottom: 5px;
         }
-        
+
         .form-group input {
             width: 100%;
-            padding: 12px 14px;
-            border: 1px solid #ced4da;
-            border-radius: 6px;
-            font-size: 15px;
-            transition: all 0.2s;
+            padding: 9px 11px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 14px;
+            font-family: inherit;
+            transition: border-color 0.15s;
         }
-        
+
         .form-group input:focus {
             outline: none;
-            border-color: #dc143c;
-            box-shadow: 0 0 0 3px rgba(220, 20, 60, 0.1);
+            border-color: #c9152f;
+            box-shadow: 0 0 0 2px rgba(201,21,47,0.08);
         }
-        
-        .btn-primary {
+
+        .btn-signin {
             width: 100%;
-            padding: 12px;
-            background-color: #dc143c;
-            color: white;
+            padding: 10px;
+            background: #c9152f;
+            color: #fff;
             border: none;
-            border-radius: 6px;
-            font-size: 15px;
+            border-radius: 4px;
+            font-size: 14px;
             font-weight: 600;
             cursor: pointer;
-            transition: background-color 0.2s;
-            margin-top: 8px;
+            margin-top: 6px;
+            transition: background 0.15s;
         }
-        
-        .btn-primary:hover {
-            background-color: #b71c1c;
-        }
-        
-        .links {
+
+        .btn-signin:hover { background: #a01026; }
+
+        .form-links {
+            margin-top: 16px;
             text-align: center;
-            margin-top: 24px;
+            font-size: 13px;
+            color: #666;
+            line-height: 2;
         }
-        
-        .links p {
-            margin: 12px 0;
-            font-size: 14px;
-        }
-        
-        .links a {
-            color: #dc143c;
-            text-decoration: none;
-            font-weight: 500;
-        }
-        
-        .links a:hover {
-            text-decoration: underline;
-        }
-        
+
+        .form-links a { color: #c9152f; }
+
         .error-message {
-            background-color: #f8d7da;
-            color: #721c24;
-            padding: 12px 16px;
-            border-radius: 6px;
-            margin-bottom: 20px;
+            background: #fde8ec;
+            color: #8b1a25;
             border: 1px solid #f5c6cb;
-            font-size: 14px;
+            border-radius: 4px;
+            padding: 9px 13px;
+            font-size: 13px;
+            margin-bottom: 14px;
         }
-        
+
         .success-message {
-            background-color: #d4edda;
-            color: #155724;
-            padding: 12px 16px;
-            border-radius: 6px;
-            margin-bottom: 20px;
-            border: 1px solid #c3e6cb;
-            font-size: 14px;
+            background: #e2f5e8;
+            color: #1a5c2b;
+            border: 1px solid #b8e0c4;
+            border-radius: 4px;
+            padding: 9px 13px;
+            font-size: 13px;
+            margin-bottom: 14px;
         }
-        
-        /* Responsive design */
-        @media (max-width: 768px) {
-            .login-container {
-                flex-direction: column;
-                height: auto;
-                overflow: visible;
-            }
-            
-            .login-logo-section {
-                padding: 40px 20px;
-                height: auto;
-                min-height: 250px;
-            }
-            
-            .login-form-section {
-                padding: 40px 20px;
-                height: auto;
-                overflow-y: visible;
-            }
-            
-            .logo-content h1 {
-                font-size: 40px;
-            }
-            
-            .logo-content .tagline {
-                font-size: 18px;
-            }
-            
-            .features-list {
-                margin-top: 30px;
-            }
-            
-            .features-list li {
-                font-size: 14px;
+
+        @media (max-width: 640px) {
+            .login-brand { display: none; }
+            .login-form-wrap { background: #f4f4f5; }
+            .login-form-box {
+                background: #fff;
+                padding: 28px;
+                border-radius: 6px;
+                border: 1px solid #ddd;
+                box-shadow: 0 1px 4px rgba(0,0,0,0.08);
             }
         }
     </style>
 </head>
 <body>
-    <div class="login-container">
-        <!-- Left side - Logo section -->
-        <div class="login-logo-section">
-            <div class="logo-content">
-                <h1>MovieMint</h1>
-                <p class="tagline">Book Your Favorite Movies</p>
-                
-                <ul class="features-list">
-                    <li>Easy ticket booking</li>
-                    <li>Multiple seat options</li>
-                    <li>Secure payments</li>
-                    <li>Instant confirmation</li>
-                </ul>
-            </div>
-        </div>
-        
-        <!-- Right side - Form section -->
-        <div class="login-form-section">
-            <div class="login-form-box">
-                <h2>Welcome Back</h2>
-                <p class="form-subtitle">Sign in to your account</p>
-                
-                <!-- Show error message if login failed -->
-                <c:if test="${not empty error}">
-                    <div class="error-message">${error}</div>
-                </c:if>
+<div class="login-wrap">
+    <div class="login-brand">
+        <h1>MovieMint</h1>
+        <p>Your local cinema booking system</p>
+        <div class="brand-divider"></div>
+        <ul class="brand-features">
+            <li>Browse now showing films</li>
+            <li>Choose your seat</li>
+            <li>Get ticket confirmation</li>
+        </ul>
+    </div>
 
-                <!-- Show success message if registration was successful -->
-                <c:if test="${not empty param.success}">
-                    <div class="success-message">Registration successful. Please login.</div>
-                </c:if>
+    <div class="login-form-wrap">
+        <div class="login-form-box">
+            <h2>Sign in</h2>
+            <p class="sub">Enter your registered email and password</p>
 
-                <!-- Login form -->
-                <form action="${pageContext.request.contextPath}/login" method="post">
-                    <!-- Email input field -->
-                    <div class="form-group">
-                        <label for="email">Email Address</label>
-                        <input type="email" id="email" name="email" value="${param.email}" placeholder="your@email.com" required>
-                    </div>
-                    
-                    <!-- Password input field -->
-                    <div class="form-group">
-                        <label for="password">Password</label>
-                        <input type="password" id="password" name="password" placeholder="Enter your password" required>
-                    </div>
-                    
-                    <!-- Submit button -->
-                    <button type="submit" class="btn-primary">Sign In</button>
-                </form>
-                
-                <!-- Links for forgot password and registration -->
-                <div class="links">
-                    <!-- Link to forgot password page -->
-                    <p><a href="${pageContext.request.contextPath}/forgotPassword">Forgot your password?</a></p>
-                    <!-- Link to registration page -->
-                    <p>Don't have an account? <a href="${pageContext.request.contextPath}/register">Create one</a></p>
+            <c:if test="${not empty error}">
+                <div class="error-message">${error}</div>
+            </c:if>
+
+            <c:if test="${not empty param.success}">
+                <div class="success-message">Account created. You can now sign in.</div>
+            </c:if>
+
+            <c:if test="${not empty param.message}">
+                <div class="success-message">${param.message}</div>
+            </c:if>
+
+            <form action="${pageContext.request.contextPath}/login" method="post">
+                <div class="form-group">
+                    <label for="email">Email address</label>
+                    <input type="email" id="email" name="email" value="${param.email}" placeholder="you@example.com" required autofocus>
                 </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" placeholder="Your password" required>
+                </div>
+                <button type="submit" class="btn-signin">Sign in</button>
+            </form>
+
+            <div class="form-links">
+                <a href="${pageContext.request.contextPath}/forgotPassword">Forgot password?</a><br>
+                Don't have an account? <a href="${pageContext.request.contextPath}/register">Register</a>
             </div>
         </div>
     </div>
+</div>
 </body>
 </html>
