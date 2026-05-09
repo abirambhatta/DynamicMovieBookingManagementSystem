@@ -19,81 +19,87 @@
 
         /* ── Left brand panel ── */
         .login-brand {
-            width: 380px;
-            background: #c9152f;
+            flex: 1;
+            background: radial-gradient(circle at 30% 30%, #e61937 0%, #c9152f 40%, #5c0008 100%);
             color: #fff;
             display: flex;
             flex-direction: column;
             justify-content: center;
-            padding: 48px 44px;
+            padding: 60px 80px;
             flex-shrink: 0;
             position: relative;
             overflow: hidden;
+            box-shadow: inset -10px 0 30px rgba(0,0,0,0.15);
         }
 
-        /* Subtle background texture — two soft circles */
+        /* Cinematic glowing orbs */
         .login-brand::before {
             content: '';
             position: absolute;
-            width: 260px; height: 260px;
+            width: 600px; height: 600px;
             border-radius: 50%;
-            background: rgba(255,255,255,0.07);
-            top: -80px; right: -80px;
+            background: radial-gradient(circle, rgba(255,255,255,0.08) 0%, transparent 70%);
+            top: -200px; left: -100px;
             pointer-events: none;
         }
 
         .login-brand::after {
             content: '';
             position: absolute;
-            width: 180px; height: 180px;
+            width: 400px; height: 400px;
             border-radius: 50%;
-            background: rgba(255,255,255,0.05);
-            bottom: -60px; left: -60px;
+            background: radial-gradient(circle, rgba(0,0,0,0.3) 0%, transparent 70%);
+            bottom: -100px; right: -100px;
             pointer-events: none;
         }
 
         .brand-inner { position: relative; z-index: 1; }
 
         .brand-logo {
-            font-size: 32px;
-            font-weight: 800;
-            letter-spacing: -1px;
-            margin-bottom: 8px;
+            font-size: 42px;
+            font-weight: 900;
+            letter-spacing: -1.5px;
+            margin-bottom: 12px;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.2);
         }
 
         .brand-tagline {
-            font-size: 14px;
-            opacity: 0.8;
+            font-size: 16px;
+            font-weight: 500;
+            color: rgba(255,255,255,0.9);
             margin-bottom: 40px;
-            font-weight: 400;
+            line-height: 1.4;
+            max-width: 320px;
         }
 
         .brand-divider {
-            width: 36px;
-            height: 2px;
-            background: rgba(255,255,255,0.35);
-            margin-bottom: 32px;
+            width: 40px;
+            height: 3px;
+            background: #fff;
+            border-radius: 2px;
+            margin-bottom: 40px;
+            opacity: 0.8;
         }
 
-        .brand-features {
+        .feature-list {
             list-style: none;
             display: flex;
             flex-direction: column;
-            gap: 14px;
+            gap: 16px;
         }
 
-        .brand-features li {
+        .feature-item {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 12px;
             font-size: 14px;
-            opacity: 0.88;
+            opacity: 0.9;
         }
 
-        .brand-features li::before {
+        .feature-item::before {
             content: '→';
-            opacity: 0.55;
-            flex-shrink: 0;
+            color: rgba(255,255,255,0.6);
+            font-size: 12px;
         }
 
         /* ── Right form panel ── */
@@ -219,11 +225,11 @@
             <div class="brand-logo">MovieMint</div>
             <p class="brand-tagline">Your local cinema booking system</p>
             <div class="brand-divider"></div>
-            <ul class="brand-features">
-                <li>Browse now showing films</li>
-                <li>Choose your seat</li>
-                <li>Get instant ticket confirmation</li>
-                <li>Track all your bookings</li>
+            <ul class="feature-list">
+                <li class="feature-item">Browse now showing films</li>
+                <li class="feature-item">Choose your seat</li>
+                <li class="feature-item">Get instant ticket confirmation</li>
+                <li class="feature-item">Track all your bookings</li>
             </ul>
         </div>
     </div>

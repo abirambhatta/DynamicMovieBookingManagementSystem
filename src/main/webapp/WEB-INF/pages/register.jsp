@@ -31,39 +31,38 @@
         /* Left side - Logo section */
         .register-logo-section {
             flex: 1;
-            background: linear-gradient(135deg, #c9152f 0%, #a01026 100%);
+            background: radial-gradient(circle at 30% 30%, #e61937 0%, #c9152f 40%, #5c0008 100%);
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            padding: 60px 60px;
+            padding: 60px 80px;
             color: white;
             position: relative;
             overflow: hidden;
             height: 100vh;
+            box-shadow: inset -10px 0 30px rgba(0,0,0,0.15);
         }
         
-        /* Decorative elements - contained within section */
+        /* Decorative glowing orbs */
         .register-logo-section::before {
             content: '';
             position: absolute;
-            width: 300px;
-            height: 300px;
-            background: rgba(255, 255, 255, 0.1);
+            width: 600px; height: 600px;
             border-radius: 50%;
-            top: -150px;
-            right: -150px;
+            background: radial-gradient(circle, rgba(255,255,255,0.08) 0%, transparent 70%);
+            top: -200px; left: -100px;
+            pointer-events: none;
         }
         
         .register-logo-section::after {
             content: '';
             position: absolute;
-            width: 200px;
-            height: 200px;
-            background: rgba(255, 255, 255, 0.08);
+            width: 400px; height: 400px;
             border-radius: 50%;
-            bottom: -100px;
-            left: -100px;
+            background: radial-gradient(circle, rgba(0,0,0,0.3) 0%, transparent 70%);
+            bottom: -100px; right: -100px;
+            pointer-events: none;
         }
         
         .logo-content {
