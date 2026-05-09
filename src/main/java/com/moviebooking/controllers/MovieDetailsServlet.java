@@ -1,7 +1,10 @@
 package com.moviebooking.controllers;
 
 import com.moviebooking.dao.MovieDao;
+import com.moviebooking.dao.ShowTimeDao;
 import com.moviebooking.model.Movie;
+import com.moviebooking.model.ShowTime;
+import java.util.List;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
@@ -14,6 +17,7 @@ import java.io.IOException;
 @WebServlet("/movieDetails")
 public class MovieDetailsServlet extends HttpServlet {
     private final MovieDao movieDao = new MovieDao();
+    private final ShowTimeDao showTimeDao = new ShowTimeDao();
 
     /**
      * Get movie details by ID and show the movie details page.
@@ -37,8 +41,25 @@ public class MovieDetailsServlet extends HttpServlet {
             Movie movie = movieDao.getMovieById(movieId);
 
             if (movie != null) {
+                // Fetch showtimes
+                List<ShowTime> showTimes = showTimeDao.getShowTimesByMovie(movieId);
+                StringBuilder json = new StringBuilder("[");
+                for(int i=0; i<showTimes.size(); i++){
+                    ShowTime st = showTimes.get(i);
+                    json.append("{");
+                    json.append("\"id\":").append(st.getShowId()).append(",");
+                    json.append("\"date\":\"").append(st.getShowDate().toString()).append("\",");
+                    java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("hh:mm a");
+                    json.append("\"time\":\"").append(sdf.format(st.getShowTime())).append("\",");
+                    json.append("\"hall\":\"").append(st.getHall() != null ? st.getHall() : "Audi 01").append("\"");
+                    json.append("}");
+                    if(i < showTimes.size() -1) json.append(",");
+                }
+                json.append("]");
+
                 // Movie found - pass it to the JSP page and show details
                 request.setAttribute("movie", movie);
+                request.setAttribute("showTimesJson", json.toString());
                 request.getRequestDispatcher("/WEB-INF/pages/movieDetails.jsp").forward(request, response);
             } else {
                 // Movie not found - go back to browse movies

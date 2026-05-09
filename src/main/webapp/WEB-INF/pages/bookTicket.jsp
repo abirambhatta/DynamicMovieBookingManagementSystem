@@ -343,12 +343,6 @@
 
         .no-showtimes-panel.visible { display: flex; }
 
-        .no-showtimes-panel .ns-icon {
-            font-size: 64px;
-            margin-bottom: 20px;
-            opacity: 0.3;
-        }
-
         .no-showtimes-panel h2 {
             font-size: 22px;
             font-weight: 700;
@@ -383,7 +377,6 @@
 
     <%-- No Showtimes Fallback Panel --%>
     <div class="no-showtimes-panel" id="noShowtimesPanel">
-        <div class="ns-icon">🎬</div>
         <h2>No Upcoming Showtimes</h2>
         <p>There are no available showtimes scheduled for <strong>${movie.title}</strong> right now. Check back later or browse other movies.</p>
         <a href="${pageContext.request.contextPath}/browseMovies" class="ns-back-btn">Browse Other Movies</a>

@@ -248,6 +248,145 @@
             gap: 8px;
         }
 
+        /* ── VIEWING TIMES ── */
+        .viewing-times-section {
+            margin-top: 40px;
+            background: #0b1021;
+            border-radius: 8px;
+            padding: 24px;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .vt-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .vt-title-area h2 {
+            font-size: 26px;
+            font-weight: 400;
+            color: #fff;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: flex-end;
+            gap: 6px;
+        }
+        .vt-title-area h2::after {
+            content: '';
+            display: block;
+            width: 4px;
+            height: 4px;
+            background: #ff3b30;
+            border-radius: 50%;
+            margin-bottom: 8px;
+        }
+
+        .vt-legend {
+            display: flex;
+            gap: 16px;
+            font-size: 11px;
+            font-weight: 700;
+            color: rgba(255,255,255,0.4);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .vt-legend span {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .vt-dot { width: 10px; height: 10px; border-radius: 50%; border: 2px solid; background: transparent; }
+        .vt-dot.sold { border-color: #e50914; }
+        .vt-dot.booked { border-color: #f5b50a; }
+        .vt-dot.avail { border-color: #2e8b57; }
+
+        .vt-dates {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .vt-date-btn {
+            background: rgba(255,255,255,0.05);
+            color: #fff;
+            border: none;
+            padding: 8px 16px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: background 0.2s;
+        }
+        .vt-date-btn:hover { background: rgba(255,255,255,0.1); }
+        .vt-date-btn.active {
+            background: transparent;
+            border-bottom: 2px solid #e50914;
+            border-radius: 4px 4px 0 0;
+            padding-bottom: 6px;
+            color: #e50914;
+        }
+
+        .vt-hall-row {
+            display: flex;
+            background: rgba(255,255,255,0.03);
+            border-radius: 8px;
+            margin-bottom: 12px;
+            overflow: hidden;
+            flex-direction: column;
+        }
+
+        @media (min-width: 600px) {
+            .vt-hall-row { flex-direction: row; }
+        }
+
+        .vt-hall-name {
+            width: 140px;
+            background: #da3232;
+            color: #fff;
+            font-weight: 700;
+            font-size: 15px;
+            display: flex;
+            align-items: center;
+            padding: 16px 20px;
+            flex-shrink: 0;
+        }
+
+        .vt-times {
+            flex: 1;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            padding: 16px 20px;
+        }
+
+        .vt-time-btn {
+            border: 1px solid rgba(255,255,255,0.3);
+            background: transparent;
+            color: rgba(255,255,255,0.8);
+            border-radius: 12px;
+            padding: 12px 24px;
+            font-size: 13px;
+            font-weight: 600;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+            display: inline-flex;
+            flex-direction: column;
+            align-items: center;
+            line-height: 1.4;
+        }
+        .vt-time-btn:hover {
+            border-color: #fff;
+            color: #fff;
+            background: rgba(255,255,255,0.05);
+            text-decoration: none;
+        }
+        .vt-time-btn span { font-size: 11px; font-weight: 500; opacity: 0.7; }
+
         .detail-panel p {
             font-size: 14px;
             line-height: 1.75;
@@ -504,7 +643,7 @@
                         </div>
 
                         <div class="action-row">
-                            <a href="${pageContext.request.contextPath}/bookTicket?movieId=${movie.movieId}" class="btn-book">
+                            <a href="#viewingTimes" class="btn-book">
                                 🎟 Book Tickets Now
                             </a>
                             <c:if test="${not empty movie.trailerUrl}">
@@ -513,6 +652,26 @@
                                 </button>
                             </c:if>
                         </div>
+                    </div>
+                </div>
+
+                <%-- Viewing Times Section --%>
+                <div id="viewingTimes" class="viewing-times-section">
+                    <div class="vt-header">
+                        <div class="vt-title-area">
+                            <h2>Viewing Times</h2>
+                            <div class="vt-legend">
+                                <span><div class="vt-dot sold"></div> SOLD</span>
+                                <span><div class="vt-dot booked"></div> BOOKED</span>
+                                <span><div class="vt-dot avail"></div> AVAILABLE</span>
+                            </div>
+                        </div>
+                        <div class="vt-dates" id="vtDatesContainer">
+                            <%-- Populated by JS --%>
+                        </div>
+                    </div>
+                    <div id="vtHallsContainer">
+                        <%-- Populated by JS --%>
                     </div>
                 </div>
 
@@ -597,7 +756,7 @@
                         <div class="sidebar-book-box">
                             <h3>Experience it on the big screen</h3>
                             <p>Secure your favorite seats today.</p>
-                            <a href="${pageContext.request.contextPath}/bookTicket?movieId=${movie.movieId}" class="btn-book">
+                            <a href="#viewingTimes" class="btn-book">
                                 Book Now
                             </a>
                         </div>
@@ -657,6 +816,128 @@
         document.addEventListener('keydown', function(e) {
             if (e.key === 'Escape') closeTrailer();
         });
+
+        // ── VIEWING TIMES LOGIC ──
+        const rawShowTimes = ${showTimesJson != null ? showTimesJson : '[]'};
+        const movieId = ${movie.movieId};
+        const contextPath = '${pageContext.request.contextPath}';
+
+        const stGrouped = {};
+        rawShowTimes.forEach(st => {
+            if (!stGrouped[st.date]) stGrouped[st.date] = [];
+            stGrouped[st.date].push(st);
+        });
+
+        // Sort dates
+        const sortedDates = Object.keys(stGrouped).sort();
+
+        function renderVTDates() {
+            const container = document.getElementById('vtDatesContainer');
+            if (!container) return;
+            
+            if (sortedDates.length === 0) {
+                container.innerHTML = '<span style="color:#888; font-size:13px;">No upcoming showtimes available.</span>';
+                document.getElementById('vtHallsContainer').innerHTML = '';
+                return;
+            }
+
+            container.innerHTML = '';
+            
+            const today = new Date();
+            const todayStr = today.getFullYear() + '-' + String(today.getMonth()+1).padStart(2,'0') + '-' + String(today.getDate()).padStart(2,'0');
+            
+            const tomm = new Date(today);
+            tomm.setDate(tomm.getDate() + 1);
+            const tommStr = tomm.getFullYear() + '-' + String(tomm.getMonth()+1).padStart(2,'0') + '-' + String(tomm.getDate()).padStart(2,'0');
+
+            sortedDates.forEach(ds => {
+                const btn = document.createElement('button');
+                btn.className = 'vt-date-btn';
+                btn.dataset.date = ds;
+                
+                let label = '';
+                if (ds === todayStr) {
+                    label = 'Today';
+                } else if (ds === tommStr) {
+                    label = 'Tomm';
+                } else {
+                    const d = new Date(ds + 'T00:00:00');
+                    label = d.getDate() + d.toLocaleString('en-US',{month:'short'});
+                }
+                
+                btn.innerText = label;
+                btn.onclick = () => selectVTDate(ds);
+                container.appendChild(btn);
+            });
+            
+            // Select first date by default
+            if (sortedDates.length > 0) {
+                selectVTDate(sortedDates[0]);
+            }
+        }
+
+        function selectVTDate(ds) {
+            document.querySelectorAll('.vt-date-btn').forEach(btn => {
+                if (btn.dataset.date === ds) btn.classList.add('active');
+                else btn.classList.remove('active');
+            });
+            
+            renderVTHalls(ds);
+        }
+
+        function renderVTHalls(ds) {
+            const container = document.getElementById('vtHallsContainer');
+            if (!container) return;
+            container.innerHTML = '';
+            
+            const times = stGrouped[ds] || [];
+            
+            // Group by hall
+            const byHall = {};
+            times.forEach(st => {
+                if (!byHall[st.hall]) byHall[st.hall] = [];
+                byHall[st.hall].push(st);
+            });
+            
+            for (const hall in byHall) {
+                const row = document.createElement('div');
+                row.className = 'vt-hall-row';
+                
+                const nameDiv = document.createElement('div');
+                nameDiv.className = 'vt-hall-name';
+                nameDiv.innerText = hall;
+                row.appendChild(nameDiv);
+                
+                const timesDiv = document.createElement('div');
+                timesDiv.className = 'vt-times';
+                
+                // Sort times
+                byHall[hall].sort((a, b) => {
+                    return new Date(a.date + ' ' + a.time) - new Date(b.date + ' ' + b.time);
+                });
+                
+                byHall[hall].forEach(st => {
+                    const tParts = st.time.split(' ');
+                    const mainTime = tParts[0];
+                    const ampm = tParts[1] || '';
+                    
+                    const a = document.createElement('a');
+                    a.href = contextPath + '/bookTicket?movieId=' + movieId + '&showId=' + st.id;
+                    a.className = 'vt-time-btn';
+                    a.innerHTML = mainTime + (ampm ? ' <br><span>' + ampm + '</span>' : '');
+                    timesDiv.appendChild(a);
+                });
+                
+                row.appendChild(timesDiv);
+                container.appendChild(row);
+            }
+        }
+
+        // Initialize Viewing Times
+        if (typeof rawShowTimes !== 'undefined') {
+            renderVTDates();
+        }
+
     </script>
 </body>
 </html>

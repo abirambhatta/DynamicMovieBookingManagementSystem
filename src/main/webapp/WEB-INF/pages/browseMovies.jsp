@@ -441,7 +441,7 @@
                                     </c:if>
                                 </div>
                                 <div class="movie-hover-overlay">
-                                    <a href="${pageContext.request.contextPath}/bookTicket?movieId=${movie.movieId}" class="overlay-btn overlay-btn-book" onclick="event.stopPropagation()">Book Ticket</a>
+                                    <a href="${pageContext.request.contextPath}/movieDetails?id=${movie.movieId}#viewingTimes" class="overlay-btn overlay-btn-book" onclick="event.stopPropagation()">Book Ticket</a>
                                     <c:if test="${not empty movie.trailerUrl}">
                                         <button type="button" class="overlay-btn overlay-btn-trailer" onclick="event.stopPropagation(); openTrailer('${movie.trailerUrl}');">Watch Trailer</button>
                                     </c:if>

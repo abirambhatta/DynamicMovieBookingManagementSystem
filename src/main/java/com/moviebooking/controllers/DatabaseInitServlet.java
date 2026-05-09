@@ -24,7 +24,15 @@ public class DatabaseInitServlet extends HttpServlet {
         try {
             UserDao userDao = new UserDao();
             
-            // Check if admin already exists
+            // Check if admin from SQL file exists
+            User sqlAdmin = userDao.getUserByEmail("admin@moviebooking.com");
+            if (sqlAdmin != null && !sqlAdmin.getPassword().startsWith("$2a$")) {
+                // The SQL file inserted plaintext 'admin123', so we need to hash it
+                userDao.updatePassword("admin@moviebooking.com", PasswordUtil.hashPassword("admin123"));
+                System.out.println("✓ Updated SQL admin password to hashed version");
+            }
+            
+            // Check if moviemint admin already exists
             User existingAdmin = userDao.getUserByEmail("admin@moviemint.com");
             
             if (existingAdmin == null) {
@@ -32,6 +40,7 @@ public class DatabaseInitServlet extends HttpServlet {
                 User admin = new User();
                 admin.setFullName("Super Admin");
                 admin.setEmail("admin@moviemint.com");
+                admin.setPhone("9999999999"); // Added phone to avoid constraint error
                 admin.setPassword(PasswordUtil.hashPassword("admin123"));
                 admin.setRole("admin");
                 
