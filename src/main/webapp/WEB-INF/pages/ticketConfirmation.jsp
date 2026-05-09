@@ -180,13 +180,14 @@
             border: none;
             border-radius: 4px;
             font-size: 13px;
-            font-weight: 500;
+            font-weight: 600;
+            font-family: inherit;
             cursor: pointer;
         }
 
         .btn-print:hover { background: #a01026; }
 
-        .btn-secondary {
+        .btn-outline {
             padding: 8px 16px;
             background: #fff;
             color: #333;
@@ -194,11 +195,13 @@
             border-radius: 4px;
             font-size: 13px;
             font-weight: 500;
+            font-family: inherit;
             text-decoration: none;
+            display: inline-block;
             cursor: pointer;
         }
 
-        .btn-secondary:hover { border-color: #c9152f; color: #c9152f; text-decoration: none; }
+        .btn-outline:hover { border-color: #c9152f; color: #c9152f; text-decoration: none; }
 
         @media print {
             body { background: white; }
@@ -277,8 +280,8 @@
             <p class="ticket-note">Please carry a photo ID. Doors open 30 mins before showtime.</p>
             <div class="ticket-actions">
                 <button class="btn-print" onclick="window.print()">Print</button>
-                <a href="${pageContext.request.contextPath}/myBookings" class="btn-secondary">My Bookings</a>
-                <a href="${pageContext.request.contextPath}/userHome" class="btn-secondary">Home</a>
+                <a href="${pageContext.request.contextPath}/myBookings" class="btn-outline">My Bookings</a>
+                <a href="${pageContext.request.contextPath}/userHome" class="btn-outline">Home</a>
             </div>
         </div>
     </div>
