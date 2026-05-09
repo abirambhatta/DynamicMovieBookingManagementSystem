@@ -31,12 +31,12 @@
         /* Left side - Logo section */
         .register-logo-section {
             flex: 1;
-            background: linear-gradient(135deg, #dc143c 0%, #b71c1c 100%);
+            background: linear-gradient(135deg, #c9152f 0%, #a01026 100%);
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            padding: 60px 40px;
+            padding: 60px 60px;
             color: white;
             position: relative;
             overflow: hidden;

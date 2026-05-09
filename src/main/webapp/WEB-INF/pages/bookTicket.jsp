@@ -219,12 +219,12 @@
         .date-btn.active {
             background: #c9152f;
             border-color: #c9152f;
-            color: #fff;
+            color: #ffffff;
         }
 
-        .d-month { font-size: 9px; font-weight: 600; text-transform: uppercase; }
-        .d-day   { font-size: 17px; font-weight: 700; line-height: 1.1; }
-        .d-name  { font-size: 9px; font-weight: 500; text-transform: uppercase; }
+        .d-month { font-size: 10px; font-weight: 600; text-transform: uppercase; color: inherit; opacity: 0.8; }
+        .d-day   { font-size: 18px; font-weight: 700; line-height: 1.2; color: inherit; }
+        .d-name  { font-size: 10px; font-weight: 500; text-transform: uppercase; color: inherit; opacity: 0.8; }
 
         /* Time buttons */
         .time-row { display: flex; flex-wrap: wrap; gap: 6px; }
@@ -344,10 +344,10 @@
                     <h1 class="movie-h1">${movie.title}</h1>
                 </div>
                 <div class="legend">
-                    <div class="legend-item"><span class="legend-dot standard"></span> Standard</div>
-                    <div class="legend-item"><span class="legend-dot premium"></span> Premium</div>
-                    <div class="legend-item"><span class="legend-dot recliner"></span> Recliner</div>
-                    <div class="legend-item"><span class="legend-dot vip"></span> VIP</div>
+                    <div class="legend-item"><span class="legend-dot standard"></span> Standard (Rs. ${standardPrice})</div>
+                    <div class="legend-item"><span class="legend-dot premium"></span> Premium (Rs. ${premiumPrice})</div>
+                    <div class="legend-item"><span class="legend-dot recliner"></span> Recliner (Rs. ${reclinerPrice})</div>
+                    <div class="legend-item"><span class="legend-dot vip"></span> VIP (Rs. ${vipPrice})</div>
                     <div class="legend-item"><span class="legend-dot selected"></span> Selected</div>
                     <div class="legend-item"><span class="legend-dot reserved"></span> Taken</div>
                 </div>
@@ -394,12 +394,17 @@
                         <span class="val" id="summaryHallName" style="color:#888;">—</span>
                     </div>
                     <div class="summary-row">
+                        <span class="lbl">Showtime</span>
+                        <span class="val hl" id="selectedShowtimeLabel">—</span>
+                    </div>
+                    <div class="summary-row">
                         <span class="lbl">Seats (<span id="seatCountLabel">0</span>)</span>
                         <span class="val" id="seatIdsLabel">None</span>
                     </div>
-                    <div class="summary-row">
-                        <span class="lbl">Showtime</span>
-                        <span class="val hl" id="selectedShowtimeLabel">—</span>
+                    <!-- Seat type breakdown -->
+                    <div id="seatBreakdown" style="display:none; margin-top:10px; border-top:1px solid #ebebeb; padding-top:10px;">
+                        <div class="panel-section-label" style="margin-bottom:6px;">Seat breakdown</div>
+                        <div id="breakdownRows"></div>
                     </div>
                 </div>
             </div>
@@ -653,6 +658,26 @@
             document.getElementById('selectedSeatIdsInput').value = ids.join(', ');
             document.getElementById('totalPriceInput').value = total.toFixed(2);
             if (currentTime) document.getElementById('finalShowTimeInput').value = currentDate + ' ' + currentTime.time + ' - ' + currentTime.hall;
+
+            // Seat type breakdown
+            const typeLabels = { standard: 'Standard', premium: 'Premium', recliner: 'Recliner', vip: 'VIP' };
+            const typeCounts = {};
+            selectedSeats.forEach(type => { typeCounts[type] = (typeCounts[type] || 0) + 1; });
+            const breakdownEl = document.getElementById('seatBreakdown');
+            const rowsEl = document.getElementById('breakdownRows');
+            if (count > 0) {
+                rowsEl.innerHTML = Object.entries(typeCounts).map(([type, n]) => {
+                    const p = prices[type] || prices.standard;
+                    return `<div style="display:flex;justify-content:space-between;font-size:12px;color:#555;margin-bottom:4px;">`
+                        + `<span>${typeLabels[type] || type} &times; ${n}</span>`
+                        + `<span>Rs. ${(p * n).toFixed(2)}</span>`
+                        + `</div>`;
+                }).join('');
+                breakdownEl.style.display = 'block';
+            } else {
+                breakdownEl.style.display = 'none';
+                rowsEl.innerHTML = '';
+            }
 
             const btn = document.getElementById('submitBtn');
             if (count > 0 && currentTime) { btn.disabled = false; btn.classList.add('ready'); }
