@@ -604,7 +604,7 @@
                 const d = new Date(ds + 'T00:00:00');
                 const el = document.createElement('div');
                 el.className = 'date-btn'; el.dataset.date = ds;
-                el.innerHTML = `<span class="d-month">${d.toLocaleString('en-US',{month:'short'})}</span><span class="d-day">${d.getDate()}</span><span class="d-name">${d.toLocaleString('en-US',{weekday:'short'})}</span>`;
+                el.innerHTML = '<span class="d-month">' + d.toLocaleString('en-US',{month:'short'}) + '</span><span class="d-day">' + d.getDate() + '</span><span class="d-name">' + d.toLocaleString('en-US',{weekday:'short'}) + '</span>';
                 el.onclick = () => selectDate(ds);
                 c.appendChild(el);
             });
@@ -712,10 +712,10 @@
             if (count > 0) {
                 rowsEl.innerHTML = Object.entries(typeCounts).map(([type, n]) => {
                     const p = prices[type] || prices.standard;
-                    return `<div style="display:flex;justify-content:space-between;font-size:12px;color:#555;margin-bottom:4px;">`
-                        + `<span>${typeLabels[type] || type} &times; ${n}</span>`
-                        + `<span>Rs. ${(p * n).toFixed(2)}</span>`
-                        + `</div>`;
+                    return '<div style="display:flex;justify-content:space-between;font-size:12px;color:#555;margin-bottom:4px;">'
+                        + '<span>' + (typeLabels[type] || type) + ' &times; ' + n + '</span>'
+                        + '<span>Rs. ' + (p * n).toFixed(2) + '</span>'
+                        + '</div>';
                 }).join('');
                 breakdownEl.style.display = 'block';
             } else {
