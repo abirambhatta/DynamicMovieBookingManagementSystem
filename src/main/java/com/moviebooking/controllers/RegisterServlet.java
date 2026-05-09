@@ -19,6 +19,19 @@ public class RegisterServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) 
             throws ServletException, IOException {
+        
+        // If user is already logged in, redirect them to their home page
+        HttpSession session = request.getSession(false);
+        if (session != null && session.getAttribute("user") != null) {
+            String role = (String) session.getAttribute("role");
+            if ("admin".equals(role)) {
+                response.sendRedirect(request.getContextPath() + "/adminHome");
+            } else {
+                response.sendRedirect(request.getContextPath() + "/userHome");
+            }
+            return;
+        }
+        
         request.getRequestDispatcher("/WEB-INF/pages/register.jsp").forward(request, response);
     }
 
