@@ -7,108 +7,431 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>System Settings | MovieMint Admin</title>
+    <title>Settings - MovieMint Admin</title>
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/style.css">
     <style>
-        .settings-container { max-width: 980px; margin: 40px auto; padding: 0 20px; }
-        .page-title { font-size: 1.8rem; font-weight: 800; color: #141d23; margin: 0 0 4px; }
-        .page-subtitle { color: #5d5f5f; margin: 0 0 32px; font-size: 0.9rem; }
+        body { background: #f0f0f1; }
 
-        .settings-section { background: #fff; border-radius: 10px; box-shadow: 0 2px 12px rgba(0,0,0,0.07); margin-bottom: 28px; overflow: hidden; }
-        .section-header { background: #dc143c; color: white; padding: 16px 24px; }
-        .section-header h2 { margin: 0; font-size: 1rem; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; }
-        .section-body { padding: 24px; }
+        .admin-wrap {
+            max-width: 960px;
+            margin: 0 auto;
+            padding: 24px 20px 48px;
+        }
 
-        .info-box { background: #fff8f0; border-left: 4px solid #f39c12; border-radius: 0 8px 8px 0; padding: 12px 16px; margin-bottom: 20px; font-size: 0.85rem; color: #555; line-height: 1.6; }
-        .info-box strong { color: #141d23; }
+        .page-header { margin-bottom: 20px; }
+        .page-header h1 { font-size: 20px; font-weight: 700; color: #111; margin-bottom: 2px; }
+        .page-header p { font-size: 13px; color: #666; }
 
-        /* Pricing grid */
-        .price-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px; margin-bottom: 20px; }
-        .price-card { border: 1px solid #e6bdbc; border-radius: 8px; padding: 16px; }
-        .price-card label { display: block; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.12em; color: #5c3f3f; margin-bottom: 8px; }
-        .price-badge { display: inline-block; font-size: 0.65rem; font-weight: 700; padding: 2px 8px; border-radius: 20px; margin-bottom: 8px; text-transform: uppercase; }
-        .badge-standard { background: #e8f4f8; color: #2980b9; }
-        .badge-premium  { background: #f0f9eb; color: #27ae60; }
-        .badge-recliner { background: #fef9e7; color: #f39c12; }
-        .badge-vip      { background: #fdf2f8; color: #8e44ad; }
-        .price-input-wrap { position: relative; }
-        .price-prefix { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); font-weight: 700; color: #5c3f3f; pointer-events: none; font-size: 0.85rem; }
-        .price-input { width: 100%; padding: 9px 10px 9px 40px; border: 1px solid #e0e0e0; border-radius: 6px; font-size: 1.05rem; font-weight: 700; color: #141d23; }
-        .price-input:focus { outline: none; border-color: #dc143c; }
+        .settings-panel {
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            margin-bottom: 16px;
+            overflow: hidden;
+        }
 
-        /* Hall list */
-        .halls-list { display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px; }
-        .hall-card { border: 1px solid #e8edf2; border-radius: 10px; overflow: hidden; }
-        .hall-card-header { background: #f9fbfd; padding: 14px 20px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
-        .hall-card-header h3 { margin: 0; font-size: 0.95rem; font-weight: 800; color: #141d23; }
-        .hall-toggle-btn { background: none; border: 1px solid #e0e0e0; border-radius: 6px; padding: 4px 12px; font-size: 0.75rem; font-weight: 700; cursor: pointer; color: #555; }
-        .hall-card-body { display: none; padding: 20px; border-top: 1px solid #e8edf2; }
-        .hall-card-body.open { display: block; }
+        .panel-head {
+            background: #fafafa;
+            border-bottom: 1px solid #ddd;
+            padding: 11px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
 
-        .hall-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
-        .hall-form-group label { display: block; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; color: #5c3f3f; margin-bottom: 6px; }
-        .hall-form-group input { width: 100%; padding: 9px 12px; border: 1px solid #e0e0e0; border-radius: 6px; font-size: 0.9rem; }
-        .hall-form-group input:focus { outline: none; border-color: #dc143c; }
-        .hall-form-help { font-size: 11px; color: #888; margin-top: 4px; }
-        .seat-info { background: #f9fbfd; border-radius: 6px; padding: 10px 14px; font-size: 12px; color: #555; margin-bottom: 14px; }
-        .seat-info strong { color: #dc143c; }
+        .panel-head h2 {
+            font-size: 13px;
+            font-weight: 700;
+            color: #222;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+        }
 
-        .hall-actions { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
-        .btn-save-hall { background: #dc143c; color: white; border: none; border-radius: 6px; padding: 9px 20px; font-weight: 700; font-size: 0.85rem; cursor: pointer; }
-        .btn-save-hall:hover { background: #b71c1c; }
-        .btn-delete-hall { background: white; border: 1px solid #dc3545; color: #dc3545; border-radius: 6px; padding: 9px 20px; font-weight: 700; font-size: 0.85rem; cursor: pointer; }
-        .btn-delete-hall:hover { background: #dc3545; color: white; }
-        .total-seats-label { font-size: 12px; color: #888; margin-left: auto; }
+        .panel-body { padding: 20px; }
 
-        /* Grid Builder */
-        .layout-grid { display: inline-flex; flex-direction: column; gap: 4px; overflow-x: auto; padding: 10px 0; }
-        .layout-row { display: flex; gap: 4px; }
-        .layout-cell { width: 30px; height: 30px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: bold; color: #fff; user-select: none; border: 1px solid #ccc; transition: all 0.2s; }
-        .layout-cell:hover { transform: scale(1.1); box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
-        .cell-S { background: #e0e0e0; color: #555; }
-        .cell-P { background: #c8e6c9; color: #2e7d32; border-color: #a5d6a7; }
-        .cell-R { background: #ffe0b2; color: #e65100; border-color: #ffcc80; }
-        .cell-V { background: #e1bee7; color: #6a1b9a; border-color: #ce93d8; }
+        .info-note {
+            background: #fffbf0;
+            border-left: 3px solid #e09000;
+            padding: 9px 13px;
+            font-size: 12px;
+            color: #555;
+            margin-bottom: 16px;
+            line-height: 1.6;
+        }
+
+        /* Pricing */
+        .price-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .price-cell {
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            padding: 12px;
+        }
+
+        .price-cell label {
+            display: block;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            color: #666;
+            margin-bottom: 6px;
+        }
+
+        .price-type {
+            display: inline-block;
+            font-size: 10px;
+            font-weight: 700;
+            padding: 1px 6px;
+            border-radius: 2px;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+        }
+
+        .type-s { background: #e8f0fe; color: #1a4a8b; }
+        .type-p { background: #e8f5ee; color: #1a5c2b; }
+        .type-r { background: #fff5e0; color: #7a4800; }
+        .type-v { background: #f5eeff; color: #5a1a8b; }
+
+        .price-wrap { position: relative; }
+        .price-pfx {
+            position: absolute;
+            left: 9px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 12px;
+            font-weight: 700;
+            color: #777;
+            pointer-events: none;
+        }
+
+        .price-input {
+            width: 100%;
+            padding: 7px 8px 7px 36px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+            font-size: 14px;
+            font-weight: 600;
+            font-family: inherit;
+            color: #111;
+        }
+
+        .price-input:focus { outline: none; border-color: #c9152f; }
+
+        /* Halls */
+        .hall-item {
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            margin-bottom: 10px;
+        }
+
+        .hall-item-head {
+            padding: 10px 14px;
+            background: #fafafa;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+        }
+
+        .hall-item-head h3 {
+            font-size: 13px;
+            font-weight: 700;
+            color: #222;
+        }
+
+        .hall-meta { font-size: 12px; color: #999; margin-left: 10px; }
+
+        .hall-item-body {
+            display: none;
+            padding: 16px;
+            border-top: 1px solid #eee;
+        }
+
+        .hall-item-body.open { display: block; }
+
+        .hall-note {
+            font-size: 12px;
+            color: #777;
+            background: #fafafa;
+            border: 1px solid #eee;
+            border-radius: 3px;
+            padding: 7px 11px;
+            margin-bottom: 12px;
+        }
+
+        /* Grid builder */
+        .grid-controls {
+            display: flex;
+            gap: 4px;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+        }
+
+        .btn-grid-ctrl {
+            padding: 4px 10px;
+            font-size: 12px;
+            font-family: inherit;
+            font-weight: 600;
+            border: 1px solid #ccc;
+            background: #f5f5f5;
+            border-radius: 3px;
+            cursor: pointer;
+            color: #444;
+        }
+
+        .btn-grid-ctrl:hover { background: #e8e8e8; }
+
+        .grid-canvas-wrap {
+            overflow-x: auto;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            padding: 10px;
+            background: #fff;
+            margin-bottom: 12px;
+        }
+
+        .layout-grid { display: inline-flex; flex-direction: column; gap: 3px; }
+        .layout-row { display: flex; gap: 3px; align-items: center; }
+
+        .layout-cell {
+            width: 26px;
+            height: 26px;
+            border-radius: 2px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            font-weight: 700;
+            color: #fff;
+            border: 1px solid #ccc;
+            user-select: none;
+        }
+
+        .cell-S { background: #d0d0d0; color: #444; border-color: #bbb; }
+        .cell-P { background: #90c4a0; color: #1a4a1a; border-color: #78b088; }
+        .cell-R { background: #f0c070; color: #5a3000; border-color: #d8a855; }
+        .cell-V { background: #c8a0d8; color: #3a0060; border-color: #b088c4; }
         .cell-_ { background: transparent; border: 1px dashed #ccc; }
-        .btn-grid-control { background: #f9fbfd; border: 1px solid #e0e0e0; border-radius: 4px; padding: 5px 10px; font-size: 11px; font-weight: bold; cursor: pointer; margin-right: 6px; color: #555; }
-        .btn-grid-control:hover { background: #e8edf2; color: #141d23; }
 
-        /* Add Hall form */
-        .add-hall-form { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 16px; padding-top: 16px; border-top: 1px dashed #e0e0e0; }
-        .add-hall-input { flex: 1; min-width: 200px; padding: 10px 14px; border: 1px solid #e0e0e0; border-radius: 6px; font-size: 0.9rem; }
-        .add-hall-input:focus { outline: none; border-color: #dc143c; }
-        .btn-add-hall { background: #28a745; color: white; border: none; border-radius: 6px; padding: 10px 20px; font-weight: 700; font-size: 0.85rem; cursor: pointer; white-space: nowrap; }
-        .btn-add-hall:hover { background: #218838; }
+        .row-label {
+            width: 20px;
+            font-size: 10px;
+            font-weight: 700;
+            color: #aaa;
+            text-align: center;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+
+        .row-label:hover { color: #c9152f; }
+
+        /* Brush palette */
+        .brush-bar {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+        }
+
+        .brush-label {
+            font-size: 11px;
+            font-weight: 700;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        .brush-btn {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            padding: 4px 10px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 11px;
+            font-family: inherit;
+            font-weight: 600;
+            background: #fff;
+            color: #444;
+        }
+
+        .brush-btn.active {
+            border-color: #c9152f;
+            background: #fde8ec;
+            color: #c9152f;
+        }
+
+        .brush-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 2px;
+            flex-shrink: 0;
+        }
+
+        .bd-S { background: #d0d0d0; }
+        .bd-P { background: #90c4a0; }
+        .bd-R { background: #f0c070; }
+        .bd-V { background: #c8a0d8; }
+        .bd-_ { background: #fff; border: 1px dashed #ccc; }
 
         /* Seat type key */
-        .seat-type-key { display: flex; gap: 20px; flex-wrap: wrap; margin-bottom: 20px; }
-        .type-item { display: flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 700; color: #555; }
-        .type-dot { width: 18px; height: 18px; border-radius: 4px; }
-        .dot-standard { background: #e0e0e0; }
-        .dot-premium  { background: #c8e6c9; }
-        .dot-recliner { background: #ffe0b2; }
-        .dot-vip      { background: #e1bee7; }
+        .type-key {
+            display: flex;
+            gap: 14px;
+            flex-wrap: wrap;
+            margin-bottom: 14px;
+        }
 
-        /* Overall save button */
-        .btn-save { background: #dc143c; color: white; border: none; border-radius: 8px; padding: 11px 28px; font-weight: 700; font-size: 0.9rem; cursor: pointer; }
-        .btn-save:hover { background: #b71c1c; }
+        .type-key-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 12px;
+            color: #555;
+            font-weight: 600;
+        }
 
-        .success-message { background: #d4edda; color: #155724; border-radius: 6px; padding: 12px 16px; margin-bottom: 20px; font-weight: 700; font-size: 0.88rem; }
-        .error-message   { background: #f8d7da; color: #721c24; border-radius: 6px; padding: 12px 16px; margin-bottom: 20px; font-weight: 700; font-size: 0.88rem; }
+        .hall-actions {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            margin-top: 4px;
+        }
+
+        /* Add hall form */
+        .add-hall-row {
+            display: flex;
+            gap: 8px;
+            margin-top: 14px;
+            padding-top: 14px;
+            border-top: 1px dashed #ddd;
+            flex-wrap: wrap;
+        }
+
+        .add-hall-row input {
+            flex: 1;
+            min-width: 200px;
+            padding: 7px 10px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+            font-size: 13px;
+            font-family: inherit;
+        }
+
+        .add-hall-row input:focus { outline: none; border-color: #c9152f; }
+
+        .btn-add-hall {
+            padding: 7px 16px;
+            background: #218a3a;
+            color: #fff;
+            border: none;
+            border-radius: 3px;
+            font-size: 13px;
+            font-family: inherit;
+            font-weight: 600;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        .btn-add-hall:hover { background: #196b2d; }
+
+        .btn-save-hall {
+            padding: 6px 14px;
+            background: #c9152f;
+            color: #fff;
+            border: none;
+            border-radius: 3px;
+            font-size: 12px;
+            font-family: inherit;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .btn-save-hall:hover { background: #a01026; }
+
+        .btn-del-hall {
+            padding: 6px 14px;
+            background: #fff;
+            color: #c82333;
+            border: 1px solid #f5c6cb;
+            border-radius: 3px;
+            font-size: 12px;
+            font-family: inherit;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .btn-del-hall:hover { background: #c82333; color: #fff; border-color: #c82333; }
+
+        .btn-save-prices {
+            padding: 8px 18px;
+            background: #c9152f;
+            color: #fff;
+            border: none;
+            border-radius: 3px;
+            font-size: 13px;
+            font-family: inherit;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .btn-save-prices:hover { background: #a01026; }
+
+        .btn-toggle-hall {
+            padding: 3px 10px;
+            font-size: 11px;
+            font-family: inherit;
+            font-weight: 600;
+            border: 1px solid #ccc;
+            background: #fff;
+            border-radius: 3px;
+            cursor: pointer;
+            color: #555;
+        }
+
+        .msg-ok {
+            background: #e2f5e8; color: #1a5c2b; border: 1px solid #b8e0c4;
+            border-radius: 3px; padding: 9px 12px; font-size: 13px; margin-bottom: 14px;
+        }
+
+        .msg-err {
+            background: #fde8ec; color: #8b1a25; border: 1px solid #f5c6cb;
+            border-radius: 3px; padding: 9px 12px; font-size: 13px; margin-bottom: 14px;
+        }
+
+        @media (max-width: 700px) {
+            .price-grid { grid-template-columns: 1fr 1fr; }
+        }
     </style>
 </head>
 <body>
+    <c:if test="${empty user || user.role != 'admin'}">
+        <c:redirect url="login"/>
+    </c:if>
+
     <%@ include file="adminHeader.jsp" %>
 
-    <div class="settings-container">
-        <h1 class="page-title">System Settings</h1>
-        <p class="page-subtitle">Configure ticket pricing, hall layouts, and seat categories for your cinema.</p>
+    <div class="admin-wrap">
+        <div class="page-header">
+            <h1>Settings</h1>
+            <p>Ticket pricing and hall configuration</p>
+        </div>
 
         <c:if test="${not empty param.success}">
-            <div class="success-message">${param.success}</div>
+            <div class="msg-ok">${param.success}</div>
         </c:if>
         <c:if test="${not empty param.error}">
-            <div class="error-message">${param.error}</div>
+            <div class="msg-err">${param.error}</div>
         </c:if>
 
         <%
@@ -119,153 +442,136 @@
             String priceVip      = settings != null ? settings.getOrDefault("PRICE_VIP",      "750.0") : "750.0";
         %>
 
-        <%-- ===== 1. TICKET PRICING ===== --%>
-        <div class="settings-section">
-            <div class="section-header"><h2>Ticket Pricing</h2></div>
-            <div class="section-body">
-                <div class="info-box">
-                    <strong>How it works:</strong> Set the base price for each seat type. Changes apply immediately to all new bookings.
+        <%-- Ticket Pricing --%>
+        <div class="settings-panel">
+            <div class="panel-head">
+                <h2>Ticket Pricing</h2>
+            </div>
+            <div class="panel-body">
+                <div class="info-note">
+                    Base prices for each seat type. Changes apply to all new bookings immediately.
                 </div>
                 <form method="post" action="${pageContext.request.contextPath}/manageSettings">
                     <input type="hidden" name="action" value="updatePrices">
                     <div class="price-grid">
-                        <div class="price-card">
-                            <span class="price-badge badge-standard">Standard</span>
-                            <label for="ps">Standard Seat (Rs.)</label>
-                            <div class="price-input-wrap">
-                                <span class="price-prefix">Rs.</span>
+                        <div class="price-cell">
+                            <span class="price-type type-s">Standard</span>
+                            <label for="ps">Standard seat (Rs.)</label>
+                            <div class="price-wrap">
+                                <span class="price-pfx">Rs.</span>
                                 <input type="number" id="ps" name="PRICE_STANDARD" class="price-input" value="<%= priceStandard %>" min="1" step="0.5" required>
                             </div>
                         </div>
-                        <div class="price-card">
-                            <span class="price-badge badge-premium">Premium</span>
-                            <label for="pp">Premium Seat (Rs.)</label>
-                            <div class="price-input-wrap">
-                                <span class="price-prefix">Rs.</span>
+                        <div class="price-cell">
+                            <span class="price-type type-p">Premium</span>
+                            <label for="pp">Premium seat (Rs.)</label>
+                            <div class="price-wrap">
+                                <span class="price-pfx">Rs.</span>
                                 <input type="number" id="pp" name="PRICE_PREMIUM" class="price-input" value="<%= pricePremium %>" min="1" step="0.5" required>
                             </div>
                         </div>
-                        <div class="price-card">
-                            <span class="price-badge badge-recliner">Recliner</span>
-                            <label for="pr">Recliner Seat (Rs.)</label>
-                            <div class="price-input-wrap">
-                                <span class="price-prefix">Rs.</span>
+                        <div class="price-cell">
+                            <span class="price-type type-r">Recliner</span>
+                            <label for="pr">Recliner seat (Rs.)</label>
+                            <div class="price-wrap">
+                                <span class="price-pfx">Rs.</span>
                                 <input type="number" id="pr" name="PRICE_RECLINER" class="price-input" value="<%= priceRecliner %>" min="1" step="0.5" required>
                             </div>
                         </div>
-                        <div class="price-card">
-                            <span class="price-badge badge-vip">VIP</span>
-                            <label for="pv">VIP / Couple Seat (Rs.)</label>
-                            <div class="price-input-wrap">
-                                <span class="price-prefix">Rs.</span>
+                        <div class="price-cell">
+                            <span class="price-type type-v">VIP</span>
+                            <label for="pv">VIP seat (Rs.)</label>
+                            <div class="price-wrap">
+                                <span class="price-pfx">Rs.</span>
                                 <input type="number" id="pv" name="PRICE_VIP" class="price-input" value="<%= priceVip %>" min="1" step="0.5" required>
                             </div>
                         </div>
                     </div>
-                    <button type="submit" class="btn-save">Save Prices</button>
+                    <button type="submit" class="btn-save-prices">Save prices</button>
                 </form>
             </div>
         </div>
 
-        <%-- ===== 2. HALL MANAGEMENT ===== --%>
-        <div class="settings-section">
-            <div class="section-header"><h2>Hall Management &amp; Seat Layouts</h2></div>
-            <div class="section-body">
-                <div class="info-box">
-                    <strong>How it works:</strong> Each hall has its own seat layout. Define how many seats per row and which row letters belong to which seat type (Standard, Premium, Recliner, VIP). Row letters are comma-separated (e.g. A,B,C). The booking page will automatically reflect your changes.
-                </div>
-                <div class="seat-type-key">
-                    <div class="type-item"><div class="type-dot dot-standard"></div> Standard (S)</div>
-                    <div class="type-item"><div class="type-dot dot-premium"></div> Premium (P)</div>
-                    <div class="type-item"><div class="type-dot dot-recliner"></div> Recliner (R)</div>
-                    <div class="type-item"><div class="type-dot dot-vip"></div> VIP (V)</div>
-                    <div class="type-item"><div class="type-dot dot-empty"></div> Aisle (_)</div>
+        <%-- Hall Management --%>
+        <div class="settings-panel">
+            <div class="panel-head">
+                <h2>Hall Management</h2>
+            </div>
+            <div class="panel-body">
+                <div class="info-note">
+                    Click a hall to configure its seat layout. Paint seats by selecting a brush type then clicking or dragging on the grid.
                 </div>
 
-                <div class="brush-palette" style="margin-bottom: 20px; padding: 15px; background: #fff; border: 1px solid #e0e0e0; border-radius: 8px; display: flex; align-items: center; gap: 15px;">
-                    <span style="font-size: 13px; font-weight: 700; color: #555;">SELECTED BRUSH:</span>
-                    <div id="brush_S" class="brush-tool active" onclick="setBrush('S')"><div class="type-dot dot-standard"></div>Standard (S)</div>
-                    <div id="brush_P" class="brush-tool" onclick="setBrush('P')"><div class="type-dot dot-premium"></div>Premium (P)</div>
-                    <div id="brush_R" class="brush-tool" onclick="setBrush('R')"><div class="type-dot dot-recliner"></div>Recliner (R)</div>
-                    <div id="brush_V" class="brush-tool" onclick="setBrush('V')"><div class="type-dot dot-vip"></div>VIP (V)</div>
-                    <div id="brush__" class="brush-tool" onclick="setBrush('_')"><div class="type-dot dot-empty"></div>Aisle (_)</div>
-                    <div style="margin-left: auto; font-size: 11px; color: #888;">Tip: Click or Drag to paint seats</div>
+                <div class="type-key">
+                    <div class="type-key-item"><span class="brush-dot bd-S"></span> Standard (S)</div>
+                    <div class="type-key-item"><span class="brush-dot bd-P"></span> Premium (P)</div>
+                    <div class="type-key-item"><span class="brush-dot bd-R"></span> Recliner (R)</div>
+                    <div class="type-key-item"><span class="brush-dot bd-V"></span> VIP (V)</div>
+                    <div class="type-key-item"><span class="brush-dot bd-_"></span> Aisle (_)</div>
                 </div>
 
-                <style>
-                    .row-label:hover { background: #f0f0f0; color: #dc143c !important; }
-                    .brush-tool {
-                        display: flex; align-items: center; gap: 8px; padding: 6px 12px; border: 1px solid #ddd; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 600; transition: all 0.2s;
-                    }
-                    .brush-tool:hover { background: #f8f9fa; border-color: #ccc; }
-                    .brush-tool.active { background: #e8f0fe; border-color: #0d6efd; color: #0d6efd; box-shadow: 0 2px 4px rgba(13,110,253,0.1); }
-                    .type-dot.dot-empty { background: #fff; border: 1px dashed #ccc; }
-                </style>
+                <div class="brush-bar">
+                    <span class="brush-label">Brush:</span>
+                    <button type="button" id="brush_S" class="brush-btn active" onclick="setBrush('S')"><span class="brush-dot bd-S"></span> Standard</button>
+                    <button type="button" id="brush_P" class="brush-btn" onclick="setBrush('P')"><span class="brush-dot bd-P"></span> Premium</button>
+                    <button type="button" id="brush_R" class="brush-btn" onclick="setBrush('R')"><span class="brush-dot bd-R"></span> Recliner</button>
+                    <button type="button" id="brush_V" class="brush-btn" onclick="setBrush('V')"><span class="brush-dot bd-V"></span> VIP</button>
+                    <button type="button" id="brush__" class="brush-btn" onclick="setBrush('_')"><span class="brush-dot bd-_"></span> Aisle</button>
+                </div>
 
-                <div class="halls-list">
-                    <c:forEach var="hall" items="${hallConfigs}">
-                        <div class="hall-card">
-                            <div class="hall-card-header" onclick="toggleHall('hall_${hall.hallName.replace(' ', '_')}')">
-                                <h3>${hall.hallName}</h3>
-                                <div style="display:flex; align-items:center; gap: 12px;">
-                                    <span style="font-size:12px; color:#888;">${hall.totalSeats} seats total</span>
-                                    <button type="button" class="hall-toggle-btn">Configure</button>
-                                </div>
-                            </div>
-                            <div class="hall-card-body" id="hall_${hall.hallName.replace(' ', '_')}">
-                                <form method="post" action="${pageContext.request.contextPath}/manageSettings">
-                                    <input type="hidden" name="action" value="saveHallConfig">
-                                    <input type="hidden" name="hallName" value="${hall.hallName}">
-                                    <div class="seat-info">
-                                        Total seats = (standard rows + premium rows + recliner rows + vip rows) x seats per row.
-                                        Currently: <strong>${hall.totalSeats} seats</strong>
-                                    </div>
-                                    <div class="hall-layout-builder" style="margin-bottom: 20px;">
-                                        <label style="display:block; font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; color: #5c3f3f; margin-bottom: 6px;">Visual Seat Map Designer</label>
-                                        <p class="hall-form-help" style="margin-bottom: 12px;">Click on a seat cell to cycle through its type (Standard -> Premium -> Recliner -> VIP -> Empty Space).</p>
-                                        
-                                        <div style="margin-bottom: 12px; padding: 10px; background: #f9fbfd; border-radius: 6px; border: 1px solid #e8edf2; display: inline-block;">
-                                            <button type="button" class="btn-grid-control" onclick="addLayoutRow('${hall.hallName}')">+ Add Row</button>
-                                            <button type="button" class="btn-grid-control" onclick="removeLayoutRow('${hall.hallName}')">- Remove Row</button>
-                                            <button type="button" class="btn-grid-control" onclick="addLayoutCol('${hall.hallName}')">+ Add Col</button>
-                                            <button type="button" class="btn-grid-control" onclick="removeLayoutCol('${hall.hallName}')">- Remove Col</button>
-                                        </div>
-
-                                        <div style="overflow-x: auto; max-width: 100%; border: 1px solid #e0e0e0; border-radius: 8px; padding: 10px; background: #fff;">
-                                            <input type="hidden" id="layoutMap_${hall.hallName.replace(' ', '_')}" name="layoutMap" value="${not empty hall.layoutMap ? hall.layoutMap : 'S S S S S S S S S S S S|S S S S S S S S S S S S|P P P P P P P P P P P P'}">
-                                            <div id="grid_${hall.hallName.replace(' ', '_')}" class="layout-grid"></div>
-                                        </div>
-                                    </div>
-                                    <div class="hall-actions">
-                                        <button type="submit" class="btn-save-hall">Save Layout</button>
-                                        <button type="button" class="btn-delete-hall"
-                                            onclick="if(confirm('Remove hall ${hall.hallName}? This will also remove it from all future schedules.')) { document.getElementById('delForm_${hall.hallName.replace(' ', '_')}').submit(); }">
-                                            Delete Hall
-                                        </button>
-                                    </div>
-                                </form>
-                                <form id="delForm_${hall.hallName.replace(' ', '_')}" method="post" action="${pageContext.request.contextPath}/manageSettings" style="display:none;">
-                                    <input type="hidden" name="action" value="deleteHall">
-                                    <input type="hidden" name="hallName" value="${hall.hallName}">
-                                </form>
-                            </div>
+                <c:forEach var="hall" items="${hallConfigs}">
+                    <div class="hall-item">
+                        <div class="hall-item-head" onclick="toggleHall('hall_${hall.hallName.replace(' ', '_')}')">
+                            <h3>${hall.hallName} <span class="hall-meta">${hall.totalSeats} seats</span></h3>
+                            <button type="button" class="btn-toggle-hall">Configure</button>
                         </div>
-                    </c:forEach>
+                        <div class="hall-item-body" id="hall_${hall.hallName.replace(' ', '_')}">
+                            <form method="post" action="${pageContext.request.contextPath}/manageSettings">
+                                <input type="hidden" name="action" value="saveHallConfig">
+                                <input type="hidden" name="hallName" value="${hall.hallName}">
 
-                    <c:if test="${empty hallConfigs}">
-                        <p style="color:#888; font-size:0.9rem;">No halls configured yet. Add one below.</p>
-                    </c:if>
-                </div>
+                                <div class="hall-note">
+                                    Total seats = rows × columns. Currently: <strong>${hall.totalSeats} seats</strong>. Click a row letter to fill the whole row.
+                                </div>
 
-                <%-- Add new hall --%>
-                <form method="post" action="${pageContext.request.contextPath}/manageSettings" class="add-hall-form">
+                                <div class="grid-controls">
+                                    <button type="button" class="btn-grid-ctrl" onclick="addLayoutRow('${hall.hallName}')">+ Row</button>
+                                    <button type="button" class="btn-grid-ctrl" onclick="removeLayoutRow('${hall.hallName}')">- Row</button>
+                                    <button type="button" class="btn-grid-ctrl" onclick="addLayoutCol('${hall.hallName}')">+ Col</button>
+                                    <button type="button" class="btn-grid-ctrl" onclick="removeLayoutCol('${hall.hallName}')">- Col</button>
+                                </div>
+
+                                <div class="grid-canvas-wrap">
+                                    <input type="hidden" id="layoutMap_${hall.hallName.replace(' ', '_')}" name="layoutMap" value="${not empty hall.layoutMap ? hall.layoutMap : 'S S S S S S S S S S S S|S S S S S S S S S S S S|P P P P P P P P P P P P'}">
+                                    <div id="grid_${hall.hallName.replace(' ', '_')}" class="layout-grid"></div>
+                                </div>
+
+                                <div class="hall-actions">
+                                    <button type="submit" class="btn-save-hall">Save layout</button>
+                                    <button type="button" class="btn-del-hall"
+                                        onclick="if(confirm('Remove ${hall.hallName}? This cannot be undone.')) { document.getElementById('delForm_${hall.hallName.replace(' ', '_')}').submit(); }">
+                                        Delete hall
+                                    </button>
+                                </div>
+                            </form>
+                            <form id="delForm_${hall.hallName.replace(' ', '_')}" method="post" action="${pageContext.request.contextPath}/manageSettings" style="display:none;">
+                                <input type="hidden" name="action" value="deleteHall">
+                                <input type="hidden" name="hallName" value="${hall.hallName}">
+                            </form>
+                        </div>
+                    </div>
+                </c:forEach>
+
+                <c:if test="${empty hallConfigs}">
+                    <p style="color:#aaa;font-size:13px;margin-bottom:12px;">No halls configured yet.</p>
+                </c:if>
+
+                <form method="post" action="${pageContext.request.contextPath}/manageSettings" class="add-hall-row">
                     <input type="hidden" name="action" value="addHall">
-                    <input type="text" name="newHallName" class="add-hall-input" placeholder="New hall name e.g. Audi 04" required>
-                    <button type="submit" class="btn-add-hall">+ Add New Hall</button>
+                    <input type="text" name="newHallName" placeholder="New hall name e.g. Audi 04" required>
+                    <button type="submit" class="btn-add-hall">+ Add hall</button>
                 </form>
-                <p style="font-size:11px; color:#888; margin-top: 8px;">
-                    A new hall is added with a default 3-row standard layout (A,B,C) and 1 VIP row (E), 12 seats per row. You can edit it above.
-                </p>
+                <p style="font-size:11px;color:#aaa;margin-top:8px;">New halls start with a default 3-row standard layout.</p>
             </div>
         </div>
 
@@ -277,17 +583,20 @@
             if (body) body.classList.toggle('open');
         }
 
-        // --- Hall Layout Grid Builder Logic ---
-        
-        // currentBrush keeps track of which seat type we are currently "painting" with.
-        // S = Standard, P = Premium, R = Recliner, V = VIP, _ = Empty Aisle
-        let currentBrush = 'S'; 
-        
-        // isMouseDown helps us know when the user is dragging their mouse to paint multiple seats.
+        let currentBrush = 'S';
         let isMouseDown = false;
 
+        document.addEventListener('mousedown', () => isMouseDown = true);
+        document.addEventListener('mouseup', () => isMouseDown = false);
+
+        function setBrush(type) {
+            currentBrush = type;
+            document.querySelectorAll('.brush-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById('brush_' + type).classList.add('active');
+        }
+
         function parseLayout(str) {
-            if(!str) return [];
+            if (!str) return [];
             return str.split('|').map(r => r.split(' '));
         }
 
@@ -295,41 +604,18 @@
             return rows.map(r => r.join(' ')).join('|');
         }
 
-        // Track mouse clicks for the "drag-to-paint" feature
-        document.addEventListener('mousedown', () => isMouseDown = true);
-        document.addEventListener('mouseup', () => isMouseDown = false);
-
-        // This function runs when you click a seat type button in the palette.
-        function setBrush(type) {
-            currentBrush = type;
-            // Highlight the selected button and remove highlight from others
-            document.querySelectorAll('.brush-tool').forEach(b => b.classList.remove('active'));
-            document.getElementById('brush_' + type).classList.add('active');
-        }
-
-        // This is the core function that changes a seat's type.
-        // It updates the hidden text input (layoutMap) and the visual grid.
         function paintSeat(hallId, rowIndex, colIndex, cellElement) {
             const input = document.getElementById('layoutMap_' + hallId);
             let rows = parseLayout(input.value);
             if (rows[rowIndex][colIndex] === currentBrush) return;
-            
             rows[rowIndex][colIndex] = currentBrush;
             input.value = stringifyLayout(rows);
-            
-            // Optimization: Update the cell element directly instead of re-rendering everything
             if (cellElement) {
                 cellElement.className = 'layout-cell cell-' + currentBrush;
                 cellElement.innerText = currentBrush === '_' ? '' : currentBrush;
-                cellElement.title = "Click or drag to paint " + currentBrush;
             } else {
                 renderGrid(hallId);
             }
-        }
-
-        function cycleSeatType(hallId, rowIndex, colIndex) {
-            // Legacy click function - now just uses paintSeat with current brush
-            paintSeat(hallId, rowIndex, colIndex);
         }
 
         function addLayoutRow(rawHallName) {
@@ -346,13 +632,8 @@
             let hallId = rawHallName.replace(/ /g, '_');
             const input = document.getElementById('layoutMap_' + hallId);
             let rows = parseLayout(input.value);
-            if(rows.length > 1) {
-                rows.pop();
-                input.value = stringifyLayout(rows);
-                renderGrid(hallId);
-            } else {
-                alert("Cannot remove the last row.");
-            }
+            if (rows.length > 1) { rows.pop(); input.value = stringifyLayout(rows); renderGrid(hallId); }
+            else alert('Cannot remove the last row.');
         }
 
         function addLayoutCol(rawHallName) {
@@ -368,52 +649,43 @@
             let hallId = rawHallName.replace(/ /g, '_');
             const input = document.getElementById('layoutMap_' + hallId);
             let rows = parseLayout(input.value);
-            if(rows[0] && rows[0].length > 1) {
-                rows.forEach(r => r.pop());
-                input.value = stringifyLayout(rows);
-                renderGrid(hallId);
-            } else {
-                alert("Cannot remove the last column.");
-            }
+            if (rows[0] && rows[0].length > 1) { rows.forEach(r => r.pop()); input.value = stringifyLayout(rows); renderGrid(hallId); }
+            else alert('Cannot remove the last column.');
         }
 
         function renderGrid(hallId) {
             const input = document.getElementById('layoutMap_' + hallId);
             const container = document.getElementById('grid_' + hallId);
-            if(!input || !container) return;
+            if (!input || !container) return;
             container.innerHTML = '';
-            
-            let rows = parseLayout(input.value);
-            
-            // Render screen indicator
+
+            // Screen bar
             let screenDiv = document.createElement('div');
-            screenDiv.style.cssText = "width: 100%; height: 6px; background: #ccc; border-radius: 4px; margin-bottom: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); position: relative;";
-            let screenLabel = document.createElement('span');
-            screenLabel.innerText = "SCREEN";
-            screenLabel.style.cssText = "position: absolute; top: 10px; left: 50%; transform: translateX(-50%); font-size: 10px; font-weight: bold; color: #888; letter-spacing: 0.2em;";
-            screenDiv.appendChild(screenLabel);
+            screenDiv.style.cssText = 'width:100%;height:4px;background:#ccc;border-radius:2px;margin-bottom:16px;position:relative;';
+            let screenLbl = document.createElement('span');
+            screenLbl.innerText = 'SCREEN';
+            screenLbl.style.cssText = 'position:absolute;top:8px;left:50%;transform:translateX(-50%);font-size:9px;font-weight:700;color:#bbb;letter-spacing:0.2em;';
+            screenDiv.appendChild(screenLbl);
             container.appendChild(screenDiv);
-            
-            // Helper function to fill an entire row with the current brush
+
+            let rows = parseLayout(input.value);
+
             function fillRow(hallId, rIdx) {
-                const input = document.getElementById('layoutMap_' + hallId);
-                let rows = parseLayout(input.value);
-                // Map every seat in this row to the selected type
-                rows[rIdx] = rows[rIdx].map(() => currentBrush);
-                input.value = stringifyLayout(rows);
+                const inp = document.getElementById('layoutMap_' + hallId);
+                let rs = parseLayout(inp.value);
+                rs[rIdx] = rs[rIdx].map(() => currentBrush);
+                inp.value = stringifyLayout(rs);
                 renderGrid(hallId);
             }
 
             rows.forEach((row, rIdx) => {
                 let rowDiv = document.createElement('div');
                 rowDiv.className = 'layout-row';
-                
-                // Row letter indicator (Click to fill row)
+
                 let rowLabel = document.createElement('div');
                 rowLabel.className = 'row-label';
-                rowLabel.style.cssText = "width: 25px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: bold; color: #888; cursor: pointer; border-radius: 4px; margin-right: 5px;";
                 rowLabel.innerText = String.fromCharCode(65 + rIdx);
-                rowLabel.title = "Click to fill entire row with " + currentBrush;
+                rowLabel.title = 'Fill row with ' + currentBrush;
                 rowLabel.onclick = () => fillRow(hallId, rIdx);
                 rowDiv.appendChild(rowLabel);
 
@@ -421,23 +693,14 @@
                     let cellDiv = document.createElement('div');
                     cellDiv.className = 'layout-cell cell-' + cell;
                     cellDiv.innerText = cell === '_' ? '' : cell;
-                    
-                    cellDiv.onmousedown = (e) => {
-                        e.preventDefault();
-                        paintSeat(hallId, rIdx, cIdx, cellDiv);
-                    };
-                    cellDiv.onmouseenter = () => {
-                        if (isMouseDown) paintSeat(hallId, rIdx, cIdx, cellDiv);
-                    };
-                    
-                    cellDiv.title = "Click or drag to paint " + currentBrush;
+                    cellDiv.onmousedown = (e) => { e.preventDefault(); paintSeat(hallId, rIdx, cIdx, cellDiv); };
+                    cellDiv.onmouseenter = () => { if (isMouseDown) paintSeat(hallId, rIdx, cIdx, cellDiv); };
                     rowDiv.appendChild(cellDiv);
                 });
                 container.appendChild(rowDiv);
             });
         }
 
-        // Initialize all grids on page load
         document.addEventListener('DOMContentLoaded', () => {
             <c:forEach var="hall" items="${hallConfigs}">
             renderGrid('${hall.hallName.replace(' ', '_')}');

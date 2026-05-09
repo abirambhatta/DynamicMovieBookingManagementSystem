@@ -19,7 +19,13 @@
             display: flex;
             flex-direction: column;
             justify-content: center;
-            padding: 48px 64px;
+            align-items: center;
+            padding: 48px 48px;
+        }
+
+        .brand-inner {
+            max-width: 320px;
+            width: 100%;
         }
 
         .brand-name {
@@ -181,15 +187,17 @@
 <div class="split-layout">
 
     <div class="brand-side">
-        <div class="brand-name">MovieMint</div>
-        <p class="brand-desc">Online cinema ticket booking</p>
-        <div class="brand-divider"></div>
-        <ul class="brand-list">
-            <li>Browse currently showing films</li>
-            <li>Pick your seat from the hall map</li>
-            <li>Get a booking confirmation instantly</li>
-            <li>View or reprint your tickets anytime</li>
-        </ul>
+        <div class="brand-inner">
+            <div class="brand-name">MovieMint</div>
+            <p class="brand-desc">Online cinema ticket booking</p>
+            <div class="brand-divider"></div>
+            <ul class="brand-list">
+                <li>Browse currently showing films</li>
+                <li>Pick your seat from the hall map</li>
+                <li>Get a booking confirmation instantly</li>
+                <li>View or reprint your tickets anytime</li>
+            </ul>
+        </div>
     </div>
 
     <div class="form-side">
