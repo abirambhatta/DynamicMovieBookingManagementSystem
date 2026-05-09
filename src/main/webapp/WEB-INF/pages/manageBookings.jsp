@@ -6,95 +6,75 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Manage Bookings - MovieMint Admin</title>
-    <link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath}/css/style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <title>Bookings - MovieMint Admin</title>
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/style.css">
     <style>
-        .material-symbols-outlined {
-            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
-        }
-        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; margin-bottom: 30px; }
-        .stat-card { background: white; padding: 24px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); border-left: 4px solid #dc143c; }
-        .stat-card h3 { margin: 0 0 8px 0; font-size: 14px; color: #6c757d; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; }
-        .stat-card .stat-value { font-size: 32px; font-weight: 700; color: #2c3e50; margin: 0; }
-        .stat-card.confirmed { border-left-color: #2ecc71; }
-        .stat-card.cancelled { border-left-color: #e74c3c; }
-        .stat-card.today { border-left-color: #3498db; }
-        .status-badge { padding: 4px 10px; border-radius: 12px; font-size: 12px; font-weight: 600; text-transform: uppercase; }
-        .status-badge.confirmed { background: #d4edda; color: #155724; }
-        .status-badge.cancelled { background: #f8d7da; color: #721c24; }
-        .status-badge.completed { background: #d1ecf1; color: #0c5460; }
-        .filter-bar { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); margin-bottom: 24px; }
-        .search-section { margin-bottom: 20px; }
-        .search-form { display: flex; gap: 8px; }
-        .search-form input { flex: 1; padding: 10px 14px; border: 1px solid #ced4da; border-radius: 6px; font-size: 15px; }
-        .search-form input:focus { outline: none; border-color: #dc143c; box-shadow: 0 0 0 3px rgba(220, 20, 60, 0.1); }
-        .filters-section { display: flex; gap: 12px; flex-wrap: wrap; align-items: flex-end; }
-        .filter-group { display: flex; flex-direction: column; gap: 6px; }
-        .filter-group label { font-size: 13px; font-weight: 600; color: #495057; }
-        .filter-group select, .filter-group input[type="date"] { padding: 10px 14px; border: 1px solid #ced4da; border-radius: 6px; font-size: 14px; cursor: pointer; background: white; min-width: 150px; }
-        .filter-group select:focus, .filter-group input[type="date"]:focus { outline: none; border-color: #dc143c; box-shadow: 0 0 0 3px rgba(220, 20, 60, 0.1); }
-        .filter-actions { display: flex; gap: 8px; align-items: flex-end; }
-        .btn-filter { padding: 10px 20px; background: #dc143c; color: white; border: none; border-radius: 6px; font-size: 14px; font-weight: 500; cursor: pointer; white-space: nowrap; height: 42px; }
-        .btn-filter:hover { background: #b8102f; }
-        .btn-clear { padding: 10px 20px; background: #6c757d; color: white; border: none; border-radius: 6px; font-size: 14px; font-weight: 500; cursor: pointer; white-space: nowrap; text-decoration: none; display: inline-block; height: 42px; line-height: 22px; }
-        .btn-clear:hover { background: #5a6268; }
-        .divider { width: 100%; height: 1px; background: #e9ecef; margin: 16px 0; }
+        body { background: #f0f0f1; }
+        .admin-wrap { max-width: 1160px; margin: 0 auto; padding: 24px 20px 40px; }
+        .page-header { margin-bottom: 18px; }
+        .page-header h1 { font-size: 20px; font-weight: 700; color: #111; margin-bottom: 2px; }
+        .page-header p { font-size: 13px; color: #666; }
+
+        .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 16px; }
+        .stat-box { background: #fff; border: 1px solid #ddd; border-left: 3px solid #ccc; border-radius: 3px; padding: 14px 16px; }
+        .stat-box.red { border-left-color: #c9152f; }
+        .stat-box.green { border-left-color: #218a3a; }
+        .stat-box.orange { border-left-color: #e09000; }
+        .stat-box.blue { border-left-color: #3498db; }
+        .stat-box .label { font-size: 11px; font-weight: 600; color: #888; text-transform: uppercase; letter-spacing: 0.3px; margin-bottom: 6px; }
+        .stat-box .value { font-size: 24px; font-weight: 700; color: #111; }
+        .stat-box .sub { font-size: 11px; color: #aaa; margin-top: 4px; }
+
+        .filter-bar { background: #fff; border: 1px solid #ddd; border-radius: 3px; padding: 12px 14px; margin-bottom: 12px; }
+        .filter-form { display: flex; gap: 8px; align-items: flex-end; flex-wrap: wrap; }
+        .filter-form .fg { display: flex; flex-direction: column; gap: 3px; }
+        .filter-form label { font-size: 11px; font-weight: 600; color: #777; text-transform: uppercase; letter-spacing: 0.3px; }
+        .filter-form input, .filter-form select { padding: 7px 10px; border: 1px solid #ccc; border-radius: 3px; font-size: 13px; background: #fff; font-family: inherit; }
+        .filter-form input:focus, .filter-form select:focus { outline: none; border-color: #c9152f; }
+
+        .status-badge { padding: 2px 8px; border-radius: 2px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.3px; }
+        .status-badge.confirmed { background: #e2f5e8; color: #1a5c2b; }
+        .status-badge.cancelled { background: #fde8ec; color: #8b1a25; }
+        .status-badge.completed { background: #e8f0fe; color: #1a4a8b; }
+
+        @media (max-width: 900px) { .stats-row { grid-template-columns: 1fr 1fr; } }
     </style>
 </head>
 <body>
-    <!-- Check if user is admin, if not redirect to login page -->
     <c:if test="${empty user || user.role != 'admin'}">
         <c:redirect url="login"/>
     </c:if>
-    
-    <div class="dashboard">
-        <!-- Include header navigation for admin -->
-        <jsp:include page="adminHeader.jsp" />
-        
-        <div class="main-content">
-            <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 30px;">
-                <div>
-                    <h1 style="font-size: 28px; font-weight: 700; margin: 0; color: #212529;">Booking Records</h1>
-                    <p style="margin: 5px 0 0 0; color: #6c757d;">Manage and track all customer reservations.</p>
-                </div>
+
+    <jsp:include page="adminHeader.jsp" />
+
+    <div class="admin-wrap">
+        <div class="page-header">
+            <h1>Bookings</h1>
+            <p>All customer reservations</p>
+        </div>
+
+        <div class="stats-row">
+            <div class="stat-box red">
+                <div class="label">Total</div>
+                <div class="value">${totalBookings}</div>
+                <div class="sub">all time</div>
             </div>
-            
-            <!-- Statistics Cards -->
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <h3>Total Bookings</h3>
-                    <p class="stat-value">${totalBookings}</p>
-                    <div style="margin-top: 15px; display: flex; align-items: center; font-size: 12px; font-weight: 700; color: #dc143c;">
-                        <span class="material-symbols-outlined" style="font-size: 16px; margin-right: 5px;">confirmation_number</span>
-                        All time reservations
-                    </div>
-                </div>
-                <div class="stat-card confirmed">
-                    <h3>Confirmed</h3>
-                    <p class="stat-value">${confirmedBookings}</p>
-                    <div style="margin-top: 15px; display: flex; align-items: center; font-size: 12px; font-weight: 700; color: #2ecc71;">
-                        <span class="material-symbols-outlined" style="font-size: 16px; margin-right: 5px;">check_circle</span>
-                        Successful bookings
-                    </div>
-                </div>
-                <div class="stat-card cancelled">
-                    <h3>Cancelled</h3>
-                    <p class="stat-value">${cancelledBookings}</p>
-                    <div style="margin-top: 15px; display: flex; align-items: center; font-size: 12px; font-weight: 700; color: #e74c3c;">
-                        <span class="material-symbols-outlined" style="font-size: 16px; margin-right: 5px;">cancel</span>
-                        Refunded or cancelled
-                    </div>
-                </div>
-                <div class="stat-card today">
-                    <h3>Today's Bookings</h3>
-                    <p class="stat-value">${todayBookings}</p>
-                    <div style="margin-top: 15px; display: flex; align-items: center; font-size: 12px; font-weight: 700; color: #3498db;">
-                        <span class="material-symbols-outlined" style="font-size: 16px; margin-right: 5px;">today</span>
-                        Bookings made today
-                    </div>
-                </div>
+            <div class="stat-box green">
+                <div class="label">Confirmed</div>
+                <div class="value">${confirmedBookings}</div>
+                <div class="sub">successful</div>
             </div>
+            <div class="stat-box orange">
+                <div class="label">Cancelled</div>
+                <div class="value">${cancelledBookings}</div>
+                <div class="sub">refunded</div>
+            </div>
+            <div class="stat-box blue">
+                <div class="label">Today</div>
+                <div class="value">${todayBookings}</div>
+                <div class="sub">bookings today</div>
+            </div>
+        </div>
             
             <c:if test="${not empty param.success}">
                 <div class="success-message">${param.success}</div>
@@ -179,9 +159,8 @@
             </script>
             
             <!-- Bookings table -->
-            <div class="table-container">
+            <div class="table-wrap" style="background:#fff;border:1px solid #ddd;border-radius:3px;overflow-x:auto;">
                 <table class="data-table" data-paginate="true" data-rows-per-page="8">
-                    <!-- Table header -->
                     <thead>
                         <tr>
                             <th>Booking ID</th>
@@ -195,48 +174,40 @@
                             <th>Actions</th>
                         </tr>
                     </thead>
-                    <!-- Table body -->
                     <tbody>
-                        <!-- Check if bookings list has data -->
                         <c:choose>
                             <c:when test="${not empty bookings}">
-                                <!-- Loop through each booking -->
                                 <c:forEach var="booking" items="${bookings}">
                                     <tr>
                                         <td>${booking.bookingId}</td>
                                         <td>${booking.userName}</td>
                                         <td>${booking.movieTitle}</td>
-                                        <td><fmt:formatDate value="${booking.bookingDate}" pattern="MMM dd, yyyy HH:mm"/></td>
+                                        <td><fmt:formatDate value="${booking.bookingDate}" pattern="dd MMM yyyy HH:mm"/></td>
                                         <td>${booking.showTime}</td>
                                         <td>${booking.numberOfSeats}</td>
                                         <td>Rs. <fmt:formatNumber value="${booking.totalPrice}" pattern="#,##0.00"/></td>
                                         <td>
                                             <span class="status-badge ${booking.status.toLowerCase()}">${booking.status}</span>
                                         </td>
-                                        <td>
-                                            <div style="display: flex; gap: 8px; align-items: center;">
-                                                <form action="${pageContext.request.contextPath}/manageBookings" method="post" style="display:inline;">
-                                                    <input type="hidden" name="action" value="updateStatus">
-                                                    <input type="hidden" name="bookingId" value="${booking.bookingId}">
-                                                    <select name="status" onchange="this.form.submit()" style="padding: 6px 10px; border: 1px solid #ced4da; border-radius: 4px; font-size: 13px; cursor: pointer;">
-                                                        <option value="Confirmed" ${booking.status == 'Confirmed' ? 'selected' : ''}>Confirmed</option>
-                                                        <option value="Cancelled" ${booking.status == 'Cancelled' ? 'selected' : ''}>Cancelled</option>
-                                                        <option value="Completed" ${booking.status == 'Completed' ? 'selected' : ''}>Completed</option>
-                                                    </select>
-                                                </form>
-                                                <a href="${pageContext.request.contextPath}/manageBookings?action=delete&id=${booking.bookingId}" onclick="return confirm('Delete this booking?')" style="padding: 6px 10px; background: white; color: #dc3545; border: 1px solid rgba(220, 53, 69, 0.2); border-radius: 4px; text-decoration: none; display: inline-flex; align-items: center; justify-center; transition: all 0.2s;" onmouseover="this.style.backgroundColor='#dc3545'; this.style.color='white';" onmouseout="this.style.backgroundColor='white'; this.style.color='#dc3545';" title="Delete Booking">
-                                                    <span class="material-symbols-outlined" style="font-size: 18px;">delete</span>
-                                                </a>
-                                            </div>
+                                        <td style="white-space:nowrap">
+                                            <form action="${pageContext.request.contextPath}/manageBookings" method="post" style="display:inline;">
+                                                <input type="hidden" name="action" value="updateStatus">
+                                                <input type="hidden" name="bookingId" value="${booking.bookingId}">
+                                                <select name="status" onchange="this.form.submit()" style="padding:4px 8px;border:1px solid #ccc;border-radius:3px;font-size:12px;cursor:pointer;">
+                                                    <option value="Confirmed" ${booking.status == 'Confirmed' ? 'selected' : ''}>Confirmed</option>
+                                                    <option value="Cancelled" ${booking.status == 'Cancelled' ? 'selected' : ''}>Cancelled</option>
+                                                    <option value="Completed" ${booking.status == 'Completed' ? 'selected' : ''}>Completed</option>
+                                                </select>
+                                            </form>
+                                            <a href="${pageContext.request.contextPath}/manageBookings?action=delete&id=${booking.bookingId}"
+                                               onclick="return confirm('Delete this booking?')"
+                                               class="btn-delete" style="text-decoration:none">Del</a>
                                         </td>
                                     </tr>
                                 </c:forEach>
                             </c:when>
                             <c:otherwise>
-                                <!-- Show message if no bookings found -->
-                                <tr>
-                                    <td colspan="9">No bookings found.</td>
-                                </tr>
+                                <tr><td colspan="9" style="text-align:center;padding:28px;color:#aaa;font-size:13px;">No bookings found.</td></tr>
                             </c:otherwise>
                         </c:choose>
                     </tbody>

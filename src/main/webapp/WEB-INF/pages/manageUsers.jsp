@@ -2,382 +2,443 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <!DOCTYPE html>
-<html class="light" lang="en">
+<html lang="en">
 <head>
-    <meta charset="utf-8"/>
-    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-    <title>Manage Users | CinemaDirector Admin</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Users - MovieMint Admin</title>
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/style.css">
-    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet"/>
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
-    <script id="tailwind-config">
-        tailwind.config = {
-            darkMode: "class",
-            theme: {
-                extend: {
-                    "colors": {
-                        "tertiary-fixed": "#95f2f1",
-                        "secondary-container": "#dfe0e0",
-                        "primary-container": "#dc143c",
-                        "on-primary-container": "#fff1f0",
-                        "secondary-fixed-dim": "#c6c6c7",
-                        "on-tertiary": "#ffffff",
-                        "secondary": "#5d5f5f",
-                        "on-error": "#ffffff",
-                        "surface-container-lowest": "#ffffff",
-                        "surface-bright": "#f6faff",
-                        "surface-variant": "#dbe4ed",
-                        "on-secondary-container": "#616363",
-                        "on-secondary-fixed-variant": "#454747",
-                        "on-background": "#141d23",
-                        "surface-container-highest": "#dbe4ed",
-                        "primary": "#b1002c",
-                        "on-tertiary-fixed-variant": "#004f4f",
-                        "tertiary-container": "#007d7d",
-                        "surface-container": "#e6eff8",
-                        "on-tertiary-fixed": "#002020",
-                        "primary-fixed": "#ffdad9",
-                        "on-primary": "#ffffff",
-                        "tertiary": "#006262",
-                        "outline-variant": "#e6bdbc",
-                        "on-surface-variant": "#5c3f3f",
-                        "inverse-on-surface": "#e9f2fb",
-                        "on-surface": "#141d23",
-                        "on-primary-fixed": "#40000a",
-                        "secondary-fixed": "#e2e2e2",
-                        "outline": "#916f6e",
-                        "surface-container-low": "#ecf5fe",
-                        "tertiary-fixed-dim": "#78d6d5",
-                        "surface-tint": "#bf0030",
-                        "background": "#f6faff",
-                        "on-secondary-fixed": "#1a1c1c",
-                        "inverse-surface": "#293138",
-                        "inverse-primary": "#ffb3b3",
-                        "primary-fixed-dim": "#ffb3b3",
-                        "error-container": "#ffdad6",
-                        "on-primary-fixed-variant": "#920022",
-                        "surface": "#f6faff",
-                        "surface-dim": "#d2dbe4",
-                        "surface-container-high": "#e0e9f2",
-                        "on-tertiary-container": "#c9fffe",
-                        "on-error-container": "#93000a",
-                        "error": "#ba1a1a",
-                        "on-secondary": "#ffffff"
-                    },
-                    "borderRadius": {
-                        "DEFAULT": "0.125rem",
-                        "lg": "0.25rem",
-                        "xl": "0.5rem",
-                        "full": "0.75rem"
-                    },
-                    "fontFamily": {
-                        "headline": ["Manrope"],
-                        "body": ["Inter"],
-                        "label": ["Inter"]
-                    }
-                },
-            },
-        }
-    </script>
     <style>
-        .material-symbols-outlined {
-            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        body { background: #f0f0f1; }
+
+        .admin-wrap {
+            max-width: 1160px;
+            margin: 0 auto;
+            padding: 24px 20px 40px;
         }
-        .headlines\:font-\['Manrope'\] { font-family: 'Manrope', sans-serif; }
+
+        .page-header {
+            margin-bottom: 18px;
+        }
+
+        .page-header h1 {
+            font-size: 20px;
+            font-weight: 700;
+            color: #111;
+            margin-bottom: 2px;
+        }
+
+        .page-header p { font-size: 13px; color: #666; }
+
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .stat-box {
+            background: #fff;
+            border: 1px solid #ddd;
+            border-left: 3px solid #ccc;
+            border-radius: 3px;
+            padding: 14px 16px;
+        }
+
+        .stat-box.red { border-left-color: #c9152f; }
+        .stat-box.blue { border-left-color: #3498db; }
+        .stat-box.green { border-left-color: #218a3a; }
+
+        .stat-box .label {
+            font-size: 11px;
+            font-weight: 600;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            margin-bottom: 6px;
+        }
+
+        .stat-box .value {
+            font-size: 24px;
+            font-weight: 700;
+            color: #111;
+        }
+
+        .stat-box .sub { font-size: 11px; color: #aaa; margin-top: 4px; }
+
+        .filter-bar {
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            padding: 12px 14px;
+            margin-bottom: 12px;
+        }
+
+        .filter-form {
+            display: flex;
+            gap: 8px;
+            align-items: flex-end;
+            flex-wrap: wrap;
+        }
+
+        .filter-form .fg { display: flex; flex-direction: column; gap: 3px; }
+
+        .filter-form label {
+            font-size: 11px;
+            font-weight: 600;
+            color: #777;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        .filter-form input,
+        .filter-form select {
+            padding: 7px 10px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+            font-size: 13px;
+            background: #fff;
+            font-family: inherit;
+        }
+
+        .filter-form input { min-width: 220px; }
+        .filter-form input:focus, .filter-form select:focus { outline: none; border-color: #c9152f; }
+
+        .msg-ok {
+            background: #e2f5e8; color: #1a5c2b; border: 1px solid #b8e0c4;
+            border-radius: 3px; padding: 9px 12px; font-size: 13px; margin-bottom: 12px;
+        }
+
+        .msg-err {
+            background: #fde8ec; color: #8b1a25; border: 1px solid #f5c6cb;
+            border-radius: 3px; padding: 9px 12px; font-size: 13px; margin-bottom: 12px;
+        }
+
+        .table-wrap {
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            overflow-x: auto;
+        }
+
+        table { width: 100%; border-collapse: collapse; min-width: 700px; }
+
+        thead th {
+            background: #f5f5f5;
+            font-size: 11px;
+            font-weight: 600;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            padding: 9px 14px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+            white-space: nowrap;
+        }
+
+        tbody td {
+            padding: 9px 14px;
+            font-size: 13px;
+            color: #333;
+            border-bottom: 1px solid #f0f0f0;
+            vertical-align: middle;
+        }
+
+        tbody tr:last-child td { border-bottom: none; }
+        tbody tr:hover td { background: #fafafa; }
+
+        .user-init {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 26px; height: 26px;
+            background: #f0f0f0;
+            border-radius: 3px;
+            font-size: 10px;
+            font-weight: 700;
+            color: #555;
+            margin-right: 6px;
+            flex-shrink: 0;
+        }
+
+        .role-badge {
+            display: inline-block;
+            padding: 2px 7px;
+            border-radius: 2px;
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        .role-admin { background: #fde8ec; color: #c9152f; border: 1px solid #f5c6cb; }
+        .role-user { background: #f0f0f0; color: #666; border: 1px solid #ddd; }
+
+        .status-dot {
+            display: inline-block;
+            width: 6px; height: 6px;
+            border-radius: 50%;
+            margin-right: 5px;
+            vertical-align: middle;
+        }
+
+        .status-active { background: #218a3a; }
+        .status-inactive { background: #bbb; }
+
+        .empty-row td { text-align: center; padding: 28px; color: #aaa; font-size: 13px; }
+
+        /* Modal */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.4);
+            z-index: 50;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-overlay.open { display: flex; }
+
+        .modal-box {
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            width: 100%;
+            max-width: 440px;
+            overflow: hidden;
+        }
+
+        .modal-head {
+            padding: 14px 18px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .modal-head h3 { font-size: 15px; font-weight: 700; color: #111; }
+        .modal-head button { background: none; border: none; font-size: 18px; color: #888; cursor: pointer; line-height: 1; }
+        .modal-head button:hover { color: #333; }
+
+        .modal-body { padding: 16px 18px; }
+
+        .modal-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            padding: 7px 0;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 13px;
+        }
+
+        .modal-row:last-child { border-bottom: none; }
+        .modal-row .key { color: #888; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px; }
+        .modal-row .val { color: #222; font-weight: 600; }
+
+        .modal-foot {
+            padding: 10px 18px;
+            border-top: 1px solid #eee;
+            text-align: right;
+            background: #fafafa;
+        }
+
+        @media (max-width: 900px) {
+            .stats-row { grid-template-columns: 1fr 1fr; }
+        }
     </style>
 </head>
-<body style="background-color: #f8f9fa; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; color: #212529;">
+<body>
     <c:if test="${empty user || user.role != 'admin'}">
         <c:redirect url="login"/>
     </c:if>
 
     <jsp:include page="adminHeader.jsp" />
 
-    <div class="main-content">
-    <main class="min-h-screen p-8">
-        <div class="flex justify-between items-end mb-10">
-            <div>
-                <h1 class="text-3xl font-bold tracking-tight" style="color: #212529;">User Directory</h1>
-                <p class="mt-1" style="color: #6c757d;">Manage administrators, staff, and customers.</p>
-            </div>
+    <div class="admin-wrap">
+        <div class="page-header">
+            <h1>Users</h1>
+            <p>Manage registered accounts</p>
         </div>
 
-        <!-- Stats Bento Grid -->
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-10">
-            <div class="p-6 rounded-xl" style="background-color: white; border: 1px solid #e9ecef; border-left: 4px solid #dc143c; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
-                <p class="text-xs font-bold uppercase tracking-widest mb-2" style="color: #6c757d;">Total Users</p>
-                <h3 class="text-4xl font-bold leading-none" style="color: #212529;">${totalUsers}</h3>
-                <div class="mt-4 flex items-center text-xs font-bold" style="color: #dc143c;">
-                    <span class="material-symbols-outlined text-sm mr-1">group</span>
-                    Registered members
-                </div>
+        <div class="stats-row">
+            <div class="stat-box red">
+                <div class="label">Total users</div>
+                <div class="value">${totalUsers}</div>
+                <div class="sub">registered</div>
             </div>
-            <div class="p-6 rounded-xl" style="background-color: white; border: 1px solid #e9ecef; border-left: 4px solid #3498db; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
-                <p class="text-xs font-bold uppercase tracking-widest mb-2" style="color: #6c757d;">Admins</p>
-                <h3 class="text-4xl font-bold leading-none" style="color: #212529;">${totalAdmins}</h3>
-                <div class="mt-4 flex items-center text-xs font-bold" style="color: #6c757d;">
-                    <span class="material-symbols-outlined text-sm mr-1">admin_panel_settings</span>
-                    System administrators
-                </div>
+            <div class="stat-box blue">
+                <div class="label">Admins</div>
+                <div class="value">${totalAdmins}</div>
+                <div class="sub">system admins</div>
             </div>
-            <div class="p-6 rounded-xl" style="background-color: white; border: 1px solid #e9ecef; border-left: 4px solid #28a745; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
-                <p class="text-xs font-bold uppercase tracking-widest mb-2" style="color: #6c757d;">Active Users</p>
-                <h3 class="text-4xl font-bold leading-none" style="color: #212529;">${activeUsers}</h3>
-                <div class="mt-4 flex items-center text-xs font-bold" style="color: #28a745;">
-                    <span class="material-symbols-outlined text-sm mr-1">check_circle</span>
-                    With recent bookings
-                </div>
+            <div class="stat-box green">
+                <div class="label">Active users</div>
+                <div class="value">${activeUsers}</div>
+                <div class="sub">with bookings</div>
             </div>
-            <div class="p-6 rounded-xl flex flex-col justify-between" style="background-color: #dc143c; color: white;">
-                <div>
-                    <p class="text-xs font-bold uppercase tracking-widest mb-2" style="opacity: 0.9;">New Registrations</p>
-                    <h3 class="text-4xl font-bold leading-none">${newUsersThisMonth}</h3>
-                </div>
-                <div class="mt-4 text-xs font-bold flex items-center" style="opacity: 0.9;">
-                    <span class="material-symbols-outlined text-sm mr-1">trending_up</span> This month
-                </div>
+            <div class="stat-box">
+                <div class="label">New this month</div>
+                <div class="value">${newUsersThisMonth}</div>
+                <div class="sub">registrations</div>
             </div>
         </div>
 
         <c:if test="${not empty param.success}">
-            <div class="p-4 rounded-lg mb-6 font-semibold" style="background-color: #d4edda; color: #155724; border-left: 4px solid #28a745;">
-                ${param.success}
-            </div>
+            <div class="msg-ok">${param.success}</div>
         </c:if>
-        
         <c:if test="${not empty param.error}">
-            <div class="p-4 rounded-lg mb-6 font-semibold" style="background-color: #f8d7da; color: #721c24; border-left: 4px solid #dc3545;">
-                ${param.error}
-            </div>
+            <div class="msg-err">${param.error}</div>
         </c:if>
 
-        <!-- Search and Filters -->
-        <div class="p-6 rounded-xl mb-6" style="background-color: white; border: 1px solid #e9ecef; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
-            <form action="${pageContext.request.contextPath}/manageUsers" method="get" class="flex flex-col md:flex-row gap-4 items-end">
-                <div class="flex-1 w-full relative">
-                    <label class="text-[10px] font-bold uppercase tracking-widest mb-1 block" style="color: #6c757d;">Search Users</label>
-                    <div class="relative">
-                        <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-lg" style="color: #6c757d;">search</span>
-                        <input type="text" name="search" placeholder="Search by name or email..." value="${param.search}" class="w-full pl-10 pr-4 py-3 rounded-lg text-sm" style="background-color: white; border: 1px solid #ced4da;" onfocus="this.style.borderColor='#dc143c'; this.style.boxShadow='0 0 0 3px rgba(220, 20, 60, 0.1)';" onblur="this.style.borderColor='#ced4da'; this.style.boxShadow='none';">
-                    </div>
+        <div class="filter-bar">
+            <form action="${pageContext.request.contextPath}/manageUsers" method="get" class="filter-form">
+                <div class="fg">
+                    <label>Search</label>
+                    <input type="text" name="search" value="${param.search}" placeholder="Name or email...">
                 </div>
-                
-                <div class="w-full md:w-auto">
-                    <label class="text-[10px] font-bold uppercase tracking-widest mb-1 block" style="color: #6c757d;">Role Filter</label>
-                    <select name="role" class="w-full py-3 px-4 pr-8 rounded-lg text-sm cursor-pointer" style="background-color: white; border: 1px solid #ced4da;">
-                        <option value="all" ${param.role == 'all' || empty param.role ? 'selected' : ''}>All Roles</option>
-                        <option value="admin" ${param.role == 'admin' ? 'selected' : ''}>Admin Only</option>
-                        <option value="user" ${param.role == 'user' ? 'selected' : ''}>User Only</option>
+                <div class="fg">
+                    <label>Role</label>
+                    <select name="role">
+                        <option value="all" ${empty param.role || param.role == 'all' ? 'selected' : ''}>All roles</option>
+                        <option value="admin" ${param.role == 'admin' ? 'selected' : ''}>Admin only</option>
+                        <option value="user" ${param.role == 'user' ? 'selected' : ''}>User only</option>
                     </select>
                 </div>
-
-                <div class="w-full md:w-auto">
-                    <label class="text-[10px] font-bold uppercase tracking-widest mb-1 block" style="color: #6c757d;">Sort By</label>
-                    <select name="sort" class="w-full py-3 px-4 pr-8 rounded-lg text-sm cursor-pointer" style="background-color: white; border: 1px solid #ced4da;">
+                <div class="fg">
+                    <label>Sort</label>
+                    <select name="sort">
                         <option value="" ${empty param.sort ? 'selected' : ''}>Default</option>
-                        <option value="name" ${param.sort == 'name' ? 'selected' : ''}>Name (A-Z)</option>
-                        <option value="bookings" ${param.sort == 'bookings' ? 'selected' : ''}>Most Bookings</option>
+                        <option value="name" ${param.sort == 'name' ? 'selected' : ''}>Name A–Z</option>
+                        <option value="bookings" ${param.sort == 'bookings' ? 'selected' : ''}>Most bookings</option>
                     </select>
                 </div>
-
-                <div class="flex gap-2 w-full md:w-auto mt-4 md:mt-0">
-                    <button type="submit" class="px-6 py-3 rounded-lg text-[11px] font-bold uppercase tracking-widest w-full md:w-auto" style="background-color: #dc143c; color: white;" onmouseover="this.style.backgroundColor='#b71c1c';" onmouseout="this.style.backgroundColor='#dc143c';">Search</button>
-                    <c:if test="${not empty param.search || not empty param.role || not empty param.sort}">
-                        <a href="${pageContext.request.contextPath}/manageUsers" class="px-6 py-3 rounded-lg text-[11px] font-bold uppercase tracking-widest flex items-center justify-center w-full md:w-auto" style="background-color: #f8f9fa; color: #212529; border: 1px solid #ced4da;">Clear</a>
-                    </c:if>
-                </div>
+                <button type="submit" class="btn-search" style="align-self:flex-end;">Search</button>
+                <c:if test="${not empty param.search || not empty param.role || not empty param.sort}">
+                    <a href="${pageContext.request.contextPath}/manageUsers" class="btn-sort" style="align-self:flex-end;text-decoration:none;padding:5px 11px;font-size:12px;">Clear</a>
+                </c:if>
             </form>
         </div>
 
-        <!-- User Table Section -->
-        <div class="rounded-xl overflow-hidden" style="background-color: white; border: 1px solid #e9ecef; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
-            <div class="overflow-x-auto">
-                <table class="w-full text-left border-collapse min-w-[800px]" data-paginate="true" data-rows-per-page="8">
-                    <thead>
-                        <tr style="background-color: #dc143c; color: white;">
-                            <th class="px-6 py-4 text-[11px] font-bold uppercase tracking-[0.1em]">User Identity</th>
-                            <th class="px-6 py-4 text-[11px] font-bold uppercase tracking-[0.1em]">Contact & Date</th>
-                            <th class="px-6 py-4 text-[11px] font-bold uppercase tracking-[0.1em]">Activity</th>
-                            <th class="px-6 py-4 text-[11px] font-bold uppercase tracking-[0.1em]">Status & Role</th>
-                            <th class="px-6 py-4 text-[11px] font-bold uppercase tracking-[0.1em] text-right">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody style="border-top: 1px solid #e9ecef;">
-                        <c:choose>
-                            <c:when test="${not empty users}">
-                                <c:forEach var="u" items="${users}">
-                                    <tr style="border-bottom: 1px solid #e9ecef;" onmouseover="this.style.backgroundColor='#f8f9fa';" onmouseout="this.style.backgroundColor='white';">
-                                        <td class="px-6 py-4">
-                                            <div class="flex items-center gap-4">
-                                                <div class="w-10 h-10 rounded-md flex items-center justify-center font-bold shrink-0" style="background-color: rgba(220, 20, 60, 0.1); color: #dc143c;">
-                                                    <c:choose>
-                                                        <c:when test="${u.fullName.length() >= 2}">
-                                                            ${u.fullName.substring(0, 2).toUpperCase()}
-                                                        </c:when>
-                                                        <c:otherwise>
-                                                            ${u.fullName.toUpperCase()}
-                                                        </c:otherwise>
-                                                    </c:choose>
-                                                </div>
-                                                <div class="min-w-0">
-                                                    <p class="font-bold truncate" style="color: #212529;">${u.fullName}</p>
-                                                    <p class="text-xs truncate" style="color: #6c757d;">ID: ${u.userId}</p>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td class="px-6 py-4">
-                                            <p class="text-sm font-medium truncate" style="color: #212529;">${u.email}</p>
-                                            <p class="text-xs mt-0.5" style="color: #6c757d;">${u.phone}</p>
-                                            <p class="text-[10px] mt-1 uppercase tracking-wider" style="color: #6c757d;">Joined: <fmt:formatDate value="${u.registrationDate}" pattern="MMM dd, yyyy"/></p>
-                                        </td>
-                                        <td class="px-6 py-4">
-                                            <p class="text-sm font-bold" style="color: #212529;">${u.bookingCount} Bookings</p>
-                                            <p class="text-xs mt-0.5 font-medium" style="color: #6c757d;">Rs. <fmt:formatNumber value="${u.totalSpent}" pattern="#,##0.00"/></p>
-                                        </td>
-                                        <td class="px-6 py-4">
-                                            <div class="flex flex-col gap-2 items-start">
-                                                <c:choose>
-                                                    <c:when test="${u.role == 'admin'}">
-                                                        <span class="px-2.5 py-1 rounded text-[10px] font-bold uppercase tracking-wider" style="background-color: rgba(220, 20, 60, 0.1); color: #dc143c; border: 1px solid rgba(220, 20, 60, 0.2);">Admin</span>
-                                                    </c:when>
-                                                    <c:otherwise>
-                                                        <span class="px-2.5 py-1 rounded text-[10px] font-bold uppercase tracking-wider" style="background-color: #f8f9fa; color: #6c757d; border: 1px solid #e9ecef;">User</span>
-                                                    </c:otherwise>
-                                                </c:choose>
-                                                <c:choose>
-                                                    <c:when test="${u.active}">
-                                                        <div class="flex items-center gap-1.5 font-bold text-[10px] uppercase tracking-wider" style="color: #28a745;">
-                                                            <span class="w-1.5 h-1.5 rounded-full" style="background-color: #28a745;"></span> Active
-                                                        </div>
-                                                    </c:when>
-                                                    <c:otherwise>
-                                                        <div class="flex items-center gap-1.5 font-bold text-[10px] uppercase tracking-wider" style="color: #6c757d;">
-                                                            <span class="w-1.5 h-1.5 rounded-full" style="background-color: #6c757d;"></span> Inactive
-                                                        </div>
-                                                    </c:otherwise>
-                                                </c:choose>
-                                            </div>
-                                        </td>
-                                        <td class="px-6 py-4 text-right">
-                                            <div class="flex justify-end gap-2">
-                                                <c:choose>
-                                                    <c:when test="${u.role != 'admin'}">
-                                                        <a href="${pageContext.request.contextPath}/manageUsers?action=changeRole&id=${u.userId}&role=admin" onclick="return confirm('Promote ${u.fullName} to Admin?')" class="p-2 rounded-md flex items-center justify-center" style="background-color: white; color: #6c757d; border: 1px solid #ced4da;" onmouseover="this.style.borderColor='#28a745'; this.style.color='#28a745';" onmouseout="this.style.borderColor='#ced4da'; this.style.color='#6c757d';" title="Make Admin">
-                                                            <span class="material-symbols-outlined text-[18px]">admin_panel_settings</span>
-                                                        </a>
-                                                    </c:when>
-                                                    <c:otherwise>
-                                                        <a href="${pageContext.request.contextPath}/manageUsers?action=changeRole&id=${u.userId}&role=user" onclick="return confirm('Demote ${u.fullName} to User?')" class="p-2 rounded-md flex items-center justify-center" style="background-color: white; color: #dc143c; border: 1px solid #ced4da;" onmouseover="this.style.borderColor='#dc143c'; this.style.color='#dc143c';" onmouseout="this.style.borderColor='#ced4da'; this.style.color='#dc143c';" title="Make User">
-                                                            <span class="material-symbols-outlined text-[18px]">person</span>
-                                                        </a>
-                                                    </c:otherwise>
-                                                </c:choose>
-                                                
-                                                <button onclick="viewUserDetails(${u.userId}, '${u.fullName.replace("'", "\\'")}', '${u.email}', '${u.phone}', '${u.role}', '<fmt:formatDate value="${u.registrationDate}" pattern="MMM dd, yyyy"/>', ${u.bookingCount}, ${u.totalSpent})" class="p-2 rounded-md flex items-center justify-center" style="background-color: white; color: #6c757d; border: 1px solid #ced4da;" onmouseover="this.style.borderColor='#dc143c'; this.style.color='#dc143c';" onmouseout="this.style.borderColor='#ced4da'; this.style.color='#6c757d';">
-                                                    <span class="material-symbols-outlined text-[18px]">visibility</span>
-                                                </button>
-                                                
-                                                <a href="${pageContext.request.contextPath}/manageUsers?action=delete&id=${u.userId}" onclick="return confirm('Are you sure you want to delete ${u.fullName.replace("'", "\\'")}?')" class="p-2 rounded-md flex items-center justify-center" style="background-color: white; color: #dc3545; border: 1px solid rgba(220, 53, 69, 0.2);" onmouseover="this.style.backgroundColor='#dc3545'; this.style.color='white';" onmouseout="this.style.backgroundColor='white'; this.style.color='#dc3545';">
-                                                    <span class="material-symbols-outlined text-[18px]">delete</span>
-                                                </a>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                </c:forEach>
-                            </c:when>
-                            <c:otherwise>
+        <div class="table-wrap">
+            <table data-paginate="true" data-rows-per-page="10">
+                <thead>
+                    <tr>
+                        <th>User</th>
+                        <th>Email / Phone</th>
+                        <th>Joined</th>
+                        <th>Bookings</th>
+                        <th>Spent</th>
+                        <th>Role</th>
+                        <th>Status</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <c:choose>
+                        <c:when test="${not empty users}">
+                            <c:forEach var="u" items="${users}">
                                 <tr>
-                                    <td colspan="5" class="px-6 py-12 text-center" style="color: #6c757d;">
-                                        <span class="material-symbols-outlined text-4xl mb-2" style="opacity: 0.5;">person_search</span>
-                                        <p>No users found matching your criteria.</p>
+                                    <td>
+                                        <span class="user-init"><c:out value="${u.fullName.length() >= 2 ? u.fullName.substring(0,2).toUpperCase() : u.fullName.toUpperCase()}" /></span>
+                                        <strong><c:out value="${u.fullName}" /></strong>
+                                        <div style="font-size:11px;color:#aaa;margin-left:32px">ID: ${u.userId}</div>
+                                    </td>
+                                    <td>
+                                        <div>${u.email}</div>
+                                        <div style="font-size:12px;color:#888">${u.phone}</div>
+                                    </td>
+                                    <td style="white-space:nowrap;color:#666"><fmt:formatDate value="${u.registrationDate}" pattern="dd MMM yyyy"/></td>
+                                    <td>${u.bookingCount}</td>
+                                    <td>Rs. <fmt:formatNumber value="${u.totalSpent}" pattern="#,##0.00"/></td>
+                                    <td>
+                                        <c:choose>
+                                            <c:when test="${u.role == 'admin'}"><span class="role-badge role-admin">Admin</span></c:when>
+                                            <c:otherwise><span class="role-badge role-user">User</span></c:otherwise>
+                                        </c:choose>
+                                    </td>
+                                    <td>
+                                        <c:choose>
+                                            <c:when test="${u.active}"><span class="status-dot status-active"></span>Active</c:when>
+                                            <c:otherwise><span class="status-dot status-inactive"></span>Inactive</c:otherwise>
+                                        </c:choose>
+                                    </td>
+                                    <td style="white-space:nowrap">
+                                        <c:choose>
+                                            <c:when test="${u.role != 'admin'}">
+                                                <a href="${pageContext.request.contextPath}/manageUsers?action=changeRole&id=${u.userId}&role=admin"
+                                                   onclick="return confirm('Promote ${u.fullName} to admin?')"
+                                                   class="btn-success" style="text-decoration:none">Promote</a>
+                                            </c:when>
+                                            <c:otherwise>
+                                                <a href="${pageContext.request.contextPath}/manageUsers?action=changeRole&id=${u.userId}&role=user"
+                                                   onclick="return confirm('Demote ${u.fullName} to user?')"
+                                                   class="btn-block" style="text-decoration:none">Demote</a>
+                                            </c:otherwise>
+                                        </c:choose>
+                                        <button class="btn-view"
+                                            onclick="showUser(${u.userId}, '${u.fullName.replace("'", "\\'")}', '${u.email}', '${u.phone}', '${u.role}', '<fmt:formatDate value="${u.registrationDate}" pattern="dd MMM yyyy"/>', ${u.bookingCount}, ${u.totalSpent})">
+                                            View
+                                        </button>
+                                        <a href="${pageContext.request.contextPath}/manageUsers?action=delete&id=${u.userId}"
+                                           onclick="return confirm('Delete ${u.fullName.replace("'", "\\'")}?')"
+                                           class="btn-delete" style="text-decoration:none">Delete</a>
                                     </td>
                                 </tr>
-                            </c:otherwise>
-                        </c:choose>
-                    </tbody>
-                </table>
-            </div>
+                            </c:forEach>
+                        </c:when>
+                        <c:otherwise>
+                            <tr class="empty-row"><td colspan="8">No users found</td></tr>
+                        </c:otherwise>
+                    </c:choose>
+                </tbody>
+            </table>
         </div>
-    </main>
     </div>
 
-    <!-- User Details Modal (Retained and styled) -->
-    <div id="userModal" class="hidden fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-        <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-            <div class="fixed inset-0 transition-opacity" style="background-color: rgba(0,0,0,0.5);" aria-hidden="true" onclick="closeModal()"></div>
-            <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-            
-            <div class="inline-block align-bottom rounded-xl text-left overflow-hidden transform transition-all sm:my-8 sm:align-middle sm:max-w-lg w-full" style="background-color: white; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
-                <div class="px-4 pt-5 pb-4 sm:p-6 sm:pb-4" style="background-color: white; border-bottom: 1px solid #e9ecef;">
-                    <div class="flex justify-between items-center mb-5">
-                        <h3 class="text-lg leading-6 font-bold" style="color: #212529;" id="modal-title">User Details</h3>
-                        <button onclick="closeModal()" style="color: #6c757d;" onmouseover="this.style.color='#212529';" onmouseout="this.style.color='#6c757d';">
-                            <span class="material-symbols-outlined">close</span>
-                        </button>
-                    </div>
-                    
-                    <div class="space-y-4">
-                        <div class="flex justify-between pb-3" style="border-bottom: 1px solid #f8f9fa;">
-                            <span class="text-[11px] font-bold uppercase tracking-widest" style="color: #6c757d;">User ID</span>
-                            <span class="font-semibold" style="color: #212529;" id="modal-userId"></span>
-                        </div>
-                        <div class="flex justify-between pb-3" style="border-bottom: 1px solid #f8f9fa;">
-                            <span class="text-[11px] font-bold uppercase tracking-widest" style="color: #6c757d;">Full Name</span>
-                            <span class="font-semibold" style="color: #212529;" id="modal-fullName"></span>
-                        </div>
-                        <div class="flex justify-between pb-3" style="border-bottom: 1px solid #f8f9fa;">
-                            <span class="text-[11px] font-bold uppercase tracking-widest" style="color: #6c757d;">Email</span>
-                            <span class="font-semibold" style="color: #212529;" id="modal-email"></span>
-                        </div>
-                        <div class="flex justify-between pb-3" style="border-bottom: 1px solid #f8f9fa;">
-                            <span class="text-[11px] font-bold uppercase tracking-widest" style="color: #6c757d;">Phone</span>
-                            <span class="font-semibold" style="color: #212529;" id="modal-phone"></span>
-                        </div>
-                        <div class="flex justify-between pb-3" style="border-bottom: 1px solid #f8f9fa;">
-                            <span class="text-[11px] font-bold uppercase tracking-widest" style="color: #6c757d;">Role</span>
-                            <span class="font-bold uppercase" style="color: #dc143c;" id="modal-role"></span>
-                        </div>
-                        <div class="flex justify-between pb-3" style="border-bottom: 1px solid #f8f9fa;">
-                            <span class="text-[11px] font-bold uppercase tracking-widest" style="color: #6c757d;">Registered</span>
-                            <span class="font-semibold" style="color: #212529;" id="modal-registered"></span>
-                        </div>
-                        <div class="flex justify-between pb-3" style="border-bottom: 1px solid #f8f9fa;">
-                            <span class="text-[11px] font-bold uppercase tracking-widest" style="color: #6c757d;">Total Bookings</span>
-                            <span class="font-semibold" style="color: #212529;" id="modal-bookings"></span>
-                        </div>
-                        <div class="flex justify-between pb-1">
-                            <span class="text-[11px] font-bold uppercase tracking-widest" style="color: #6c757d;">Total Spent</span>
-                            <span class="font-semibold" style="color: #212529;" id="modal-spent"></span>
-                        </div>
-                    </div>
-                </div>
-                <div class="px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse" style="background-color: #f8f9fa;">
-                    <button type="button" onclick="closeModal()" class="w-full inline-flex justify-center rounded-md px-4 py-2 text-base font-medium uppercase tracking-wider font-bold sm:ml-3 sm:w-auto sm:text-sm" style="background-color: #dc143c; color: white; border: none; box-shadow: 0 1px 3px rgba(0,0,0,0.1);" onmouseover="this.style.backgroundColor='#b71c1c';" onmouseout="this.style.backgroundColor='#dc143c';">
-                        Close
-                    </button>
-                </div>
+    <!-- User detail modal -->
+    <div class="modal-overlay" id="userModal">
+        <div class="modal-box">
+            <div class="modal-head">
+                <h3>User details</h3>
+                <button onclick="closeModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="modal-row"><span class="key">ID</span><span class="val" id="m-id"></span></div>
+                <div class="modal-row"><span class="key">Name</span><span class="val" id="m-name"></span></div>
+                <div class="modal-row"><span class="key">Email</span><span class="val" id="m-email"></span></div>
+                <div class="modal-row"><span class="key">Phone</span><span class="val" id="m-phone"></span></div>
+                <div class="modal-row"><span class="key">Role</span><span class="val" id="m-role"></span></div>
+                <div class="modal-row"><span class="key">Registered</span><span class="val" id="m-reg"></span></div>
+                <div class="modal-row"><span class="key">Bookings</span><span class="val" id="m-bookings"></span></div>
+                <div class="modal-row"><span class="key">Total spent</span><span class="val" id="m-spent"></span></div>
+            </div>
+            <div class="modal-foot">
+                <button class="btn-search" onclick="closeModal()">Close</button>
             </div>
         </div>
     </div>
 
     <script>
-        function viewUserDetails(userId, fullName, email, phone, role, registered, bookings, spent) {
-            document.getElementById('modal-userId').textContent = userId;
-            document.getElementById('modal-fullName').textContent = fullName;
-            document.getElementById('modal-email').textContent = email;
-            document.getElementById('modal-phone').textContent = phone;
-            document.getElementById('modal-role').textContent = role;
-            document.getElementById('modal-registered').textContent = registered;
-            document.getElementById('modal-bookings').textContent = bookings;
-            document.getElementById('modal-spent').textContent = 'Rs. ' + parseFloat(spent).toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
-            
-            document.getElementById('userModal').classList.remove('hidden');
+        function showUser(id, name, email, phone, role, reg, bookings, spent) {
+            document.getElementById('m-id').textContent = id;
+            document.getElementById('m-name').textContent = name;
+            document.getElementById('m-email').textContent = email;
+            document.getElementById('m-phone').textContent = phone;
+            document.getElementById('m-role').textContent = role;
+            document.getElementById('m-reg').textContent = reg;
+            document.getElementById('m-bookings').textContent = bookings;
+            document.getElementById('m-spent').textContent = 'Rs. ' + parseFloat(spent).toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
+            document.getElementById('userModal').classList.add('open');
         }
-        
+
         function closeModal() {
-            document.getElementById('userModal').classList.add('hidden');
+            document.getElementById('userModal').classList.remove('open');
         }
+
+        document.getElementById('userModal').addEventListener('click', function(e) {
+            if (e.target === this) closeModal();
+        });
     </script>
     <script src="${pageContext.request.contextPath}/js/pagination.js"></script>
 </body>

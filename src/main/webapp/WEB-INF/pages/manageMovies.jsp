@@ -7,50 +7,46 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Manage Movies - MovieMint Admin</title>
     <link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath}/css/style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
     <style>
-        .material-symbols-outlined {
-            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
-        }
-        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; margin-bottom: 30px; }
-        .stat-card { background: white; padding: 24px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); border-left: 4px solid #dc143c; }
-        .stat-card h3 { margin: 0 0 8px 0; font-size: 14px; color: #6c757d; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; }
-        .stat-card .stat-value { font-size: 32px; font-weight: 700; color: #2c3e50; margin: 0; }
-        .stat-card.now-showing { border-left-color: #2ecc71; }
-        .stat-card.upcoming { border-left-color: #3498db; }
-        .stat-card.showtimes { border-left-color: #f39c12; }
-        .btn-edit, .btn-delete { min-width: 80px; padding: 8px 16px; font-size: 13px; display: inline-block; text-align: center; }
-        .schedule-container { border: 1px solid #e9ecef; border-radius: 8px; padding: 20px; margin-top: 10px; background: #f8f9fa; }
-        .date-tabs { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
-        .date-tab { padding: 10px 20px; border: 2px solid #ced4da; border-radius: 6px; cursor: pointer; transition: all 0.2s; background: white; font-size: 14px; font-weight: 500; }
-        .date-tab:hover { border-color: #dc143c; }
-        .date-tab.active { border-color: #dc143c; background: #dc143c; color: white; }
+        body { background: #f0f0f1; }
+        .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 18px; }
+        .stat-box { background: #fff; border: 1px solid #ddd; border-left: 3px solid #ccc; border-radius: 3px; padding: 14px 16px; }
+        .stat-box.red { border-left-color: #c9152f; }
+        .stat-box.green { border-left-color: #218a3a; }
+        .stat-box.blue { border-left-color: #3498db; }
+        .stat-box.amber { border-left-color: #e09000; }
+        .stat-box .label { font-size: 11px; font-weight: 600; color: #888; text-transform: uppercase; letter-spacing: 0.3px; margin-bottom: 6px; }
+        .stat-box .value { font-size: 24px; font-weight: 700; color: #111; }
+        .stat-box .sub { font-size: 11px; color: #aaa; margin-top: 4px; }
+        .btn-edit, .btn-delete { min-width: 60px; padding: 5px 11px; font-size: 12px; display: inline-block; text-align: center; }
+        .schedule-container { border: 1px solid #ddd; border-radius: 4px; padding: 16px; margin-top: 10px; background: #fafafa; }
+        .date-tabs { display: flex; gap: 6px; margin-bottom: 16px; flex-wrap: wrap; }
+        .date-tab { padding: 6px 14px; border: 1px solid #ccc; border-radius: 3px; cursor: pointer; background: #fff; font-size: 13px; font-weight: 500; }
+        .date-tab:hover { border-color: #c9152f; }
+        .date-tab.active { border-color: #c9152f; background: #c9152f; color: #fff; }
         .time-input-section { display: none; }
         .time-input-section.active { display: block; }
-        .time-input-row { display: flex; gap: 10px; align-items: center; margin-bottom: 10px; }
-        .time-input-row input[type="time"] { padding: 8px 12px; border: 1px solid #ced4da; border-radius: 6px; font-size: 14px; }
-        .add-time-btn { background: #28a745; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 14px; }
-        .remove-time-btn { background: #dc3545; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 13px; }
-        .time-list { margin-top: 15px; }
-        .time-chip { display: inline-block; padding: 8px 16px; background: #dc143c; color: white; border-radius: 20px; margin: 4px; font-size: 13px; }
-        .time-chip .remove { margin-left: 8px; cursor: pointer; font-weight: bold; }
-        .conflict-warning { color: #dc3545; font-size: 13px; margin-top: 5px; display: none; }
+        .time-input-row { display: flex; gap: 8px; align-items: center; margin-bottom: 8px; }
+        .time-input-row input[type="time"] { padding: 7px 10px; border: 1px solid #ccc; border-radius: 3px; font-size: 13px; }
+        .add-time-btn { background: #218a3a; color: #fff; border: none; padding: 7px 14px; border-radius: 3px; cursor: pointer; font-size: 13px; }
+        .remove-time-btn { background: #c82333; color: #fff; border: none; padding: 5px 10px; border-radius: 3px; cursor: pointer; font-size: 12px; }
+        .time-chip { display: inline-block; padding: 4px 10px; background: #c9152f; color: #fff; border-radius: 3px; margin: 3px; font-size: 12px; }
+        .time-chip .remove { margin-left: 6px; cursor: pointer; font-weight: bold; }
+        .conflict-warning { color: #c82333; font-size: 12px; margin-top: 4px; display: none; }
         .conflict-warning.show { display: block; }
-
-        /* TMDB Search Styles */
-        .tmdb-search-bar { display: flex; gap: 8px; margin-bottom: 16px; }
-        .tmdb-search-bar input { flex: 1; padding: 10px 14px; border: 2px solid #0d6efd; border-radius: 6px; font-size: 14px; }
-        .tmdb-search-bar button { padding: 10px 18px; background: #0d6efd; color: white; border: none; border-radius: 6px; font-size: 13px; font-weight: 700; cursor: pointer; white-space: nowrap; }
-        .tmdb-search-bar button:hover { background: #0b5ed7; }
-        .tmdb-results { border: 1px solid #dee2e6; border-radius: 8px; background: white; max-height: 300px; overflow-y: auto; display: none; margin-bottom: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
-        .tmdb-result-item { display: flex; align-items: center; gap: 12px; padding: 10px 14px; cursor: pointer; border-bottom: 1px solid #f0f0f0; transition: background 0.15s; }
-        .tmdb-result-item:hover { background: #f0f6ff; }
-        .tmdb-result-item img { width: 36px; height: 52px; object-fit: cover; border-radius: 4px; flex-shrink: 0; }
-        .tmdb-result-item img.no-poster { background: #e9ecef; display: flex; align-items: center; justify-content: center; }
-        .tmdb-result-title { font-weight: 700; font-size: 14px; color: #1a1a1a; }
-        .tmdb-result-meta { font-size: 12px; color: #6c757d; }
-        .tmdb-badge { display: inline-block; background: #0d6efd; color: white; font-size: 10px; font-weight: 800; padding: 2px 6px; border-radius: 4px; margin-bottom: 6px; letter-spacing: 0.05em; }
-        .tmdb-autofill-note { font-size: 12px; color: #0d6efd; font-weight: 600; margin-bottom: 10px; display: none; }
+        .tmdb-search-bar { display: flex; gap: 8px; margin-bottom: 12px; }
+        .tmdb-search-bar input { flex: 1; padding: 8px 12px; border: 1px solid #3498db; border-radius: 3px; font-size: 14px; }
+        .tmdb-search-bar button { padding: 8px 16px; background: #3498db; color: #fff; border: none; border-radius: 3px; font-size: 13px; font-weight: 600; cursor: pointer; }
+        .tmdb-search-bar button:hover { background: #2980b9; }
+        .tmdb-results { border: 1px solid #ddd; border-radius: 4px; background: #fff; max-height: 280px; overflow-y: auto; display: none; margin-bottom: 10px; }
+        .tmdb-result-item { display: flex; align-items: center; gap: 10px; padding: 9px 12px; cursor: pointer; border-bottom: 1px solid #f0f0f0; }
+        .tmdb-result-item:hover { background: #f5f9ff; }
+        .tmdb-result-item img { width: 32px; height: 46px; object-fit: cover; border-radius: 2px; flex-shrink: 0; }
+        .tmdb-result-title { font-weight: 700; font-size: 13px; color: #1a1a1a; }
+        .tmdb-result-meta { font-size: 11px; color: #888; }
+        .tmdb-badge { display: inline-block; background: #3498db; color: #fff; font-size: 10px; font-weight: 800; padding: 2px 6px; border-radius: 2px; margin-bottom: 5px; }
+        .tmdb-autofill-note { font-size: 12px; color: #3498db; font-weight: 600; margin-bottom: 8px; display: none; }
+        @media (max-width: 900px) { .stats-row { grid-template-columns: 1fr 1fr; } }
     </style>
 </head>
 <body>
@@ -62,46 +58,31 @@
         <jsp:include page="adminHeader.jsp" />
         
         <div class="main-content">
-            <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 30px;">
-                <div>
-                    <h1 style="font-size: 28px; font-weight: 700; margin: 0; color: #212529;">Movie Catalog</h1>
-                    <p style="margin: 5px 0 0 0; color: #6c757d;">Manage your cinema's movies and showtimes.</p>
-                </div>
+            <div style="margin-bottom: 16px;">
+                <h1 style="font-size: 20px; font-weight: 700; margin: 0 0 2px; color: #111;">Movies</h1>
+                <p style="font-size: 13px; color: #666; margin: 0;">Manage the cinema's movie catalog and showtimes.</p>
             </div>
-            
-            <!-- Statistics Cards -->
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <h3>Total Movies</h3>
-                    <p class="stat-value">${totalMovies}</p>
-                    <div style="margin-top: 15px; display: flex; align-items: center; font-size: 12px; font-weight: 700; color: #dc143c;">
-                        <span class="material-symbols-outlined" style="font-size: 16px; margin-right: 5px;">movie</span>
-                        All movies in database
-                    </div>
+
+            <div class="stats-row">
+                <div class="stat-box red">
+                    <div class="label">Total movies</div>
+                    <div class="value">${totalMovies}</div>
+                    <div class="sub">in catalog</div>
                 </div>
-                <div class="stat-card now-showing">
-                    <h3>Now Showing</h3>
-                    <p class="stat-value">${nowShowing}</p>
-                    <div style="margin-top: 15px; display: flex; align-items: center; font-size: 12px; font-weight: 700; color: #2ecc71;">
-                        <span class="material-symbols-outlined" style="font-size: 16px; margin-right: 5px;">play_circle</span>
-                        Currently in theaters
-                    </div>
+                <div class="stat-box green">
+                    <div class="label">Now showing</div>
+                    <div class="value">${nowShowing}</div>
+                    <div class="sub">currently in theaters</div>
                 </div>
-                <div class="stat-card upcoming">
-                    <h3>Upcoming</h3>
-                    <p class="stat-value">${upcoming}</p>
-                    <div style="margin-top: 15px; display: flex; align-items: center; font-size: 12px; font-weight: 700; color: #3498db;">
-                        <span class="material-symbols-outlined" style="font-size: 16px; margin-right: 5px;">upcoming</span>
-                        Coming soon
-                    </div>
+                <div class="stat-box blue">
+                    <div class="label">Upcoming</div>
+                    <div class="value">${upcoming}</div>
+                    <div class="sub">coming soon</div>
                 </div>
-                <div class="stat-card showtimes">
-                    <h3>Total Showtimes</h3>
-                    <p class="stat-value">${totalShowTimes}</p>
-                    <div style="margin-top: 15px; display: flex; align-items: center; font-size: 12px; font-weight: 700; color: #f39c12;">
-                        <span class="material-symbols-outlined" style="font-size: 16px; margin-right: 5px;">schedule</span>
-                        Active schedules
-                    </div>
+                <div class="stat-box amber">
+                    <div class="label">Showtimes</div>
+                    <div class="value">${totalShowTimes}</div>
+                    <div class="sub">active schedules</div>
                 </div>
             </div>
             
