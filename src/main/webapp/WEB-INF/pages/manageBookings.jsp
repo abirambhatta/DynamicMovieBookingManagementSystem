@@ -25,17 +25,62 @@
         .stat-box .value { font-size: 24px; font-weight: 700; color: #111; }
         .stat-box .sub { font-size: 11px; color: #aaa; margin-top: 4px; }
 
-        .filter-bar { background: #fff; border: 1px solid #ddd; border-radius: 3px; padding: 12px 14px; margin-bottom: 12px; }
-        .filter-form { display: flex; gap: 8px; align-items: flex-end; flex-wrap: wrap; }
-        .filter-form .fg { display: flex; flex-direction: column; gap: 3px; }
-        .filter-form label { font-size: 11px; font-weight: 600; color: #777; text-transform: uppercase; letter-spacing: 0.3px; }
-        .filter-form input, .filter-form select { padding: 7px 10px; border: 1px solid #ccc; border-radius: 3px; font-size: 13px; background: #fff; font-family: inherit; }
-        .filter-form input:focus, .filter-form select:focus { outline: none; border-color: #c9152f; }
+        .filter-bar { background: #fff; border: 1px solid #ddd; border-radius: 3px; padding: 14px 16px; margin-bottom: 12px; display: flex; flex-direction: column; gap: 10px; }
+
+        /* Search row */
+        .search-section {}
+        .search-form { display: flex; gap: 6px; }
+        .search-form input { flex: 1; padding: 7px 10px; border: 1px solid #ccc; border-radius: 3px; font-size: 13px; font-family: inherit; }
+        .search-form input:focus { outline: none; border-color: #c9152f; }
+
+        /* Filter row */
+        .filters-section { display: flex; gap: 8px; align-items: flex-end; flex-wrap: wrap; }
+        .filter-group { display: flex; flex-direction: column; gap: 3px; }
+        .filter-group label { font-size: 11px; font-weight: 600; color: #777; text-transform: uppercase; letter-spacing: 0.3px; }
+        .filter-group input, .filter-group select { padding: 7px 10px; border: 1px solid #ccc; border-radius: 3px; font-size: 13px; background: #fff; font-family: inherit; }
+        .filter-group input:focus, .filter-group select:focus { outline: none; border-color: #c9152f; }
+        .filter-actions { display: flex; gap: 6px; align-items: flex-end; padding-bottom: 1px; }
+
+        .divider { border: none; border-top: 1px solid #eee; margin: 2px 0; }
+
+        /* Filter / Clear buttons */
+        .btn-filter {
+            padding: 7px 14px;
+            background: #c9152f;
+            color: #fff;
+            border: none;
+            border-radius: 3px;
+            font-size: 13px;
+            font-family: inherit;
+            font-weight: 600;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+        .btn-filter:hover { background: #a01026; }
+
+        .btn-clear {
+            padding: 7px 12px;
+            background: #fff;
+            color: #555;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+            font-size: 13px;
+            font-family: inherit;
+            font-weight: 500;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            white-space: nowrap;
+        }
+        .btn-clear:hover { border-color: #c9152f; color: #c9152f; text-decoration: none; }
 
         .status-badge { padding: 2px 8px; border-radius: 2px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.3px; }
         .status-badge.confirmed { background: #e2f5e8; color: #1a5c2b; }
         .status-badge.cancelled { background: #fde8ec; color: #8b1a25; }
         .status-badge.completed { background: #e8f0fe; color: #1a4a8b; }
+
+        .success-message { background: #e2f5e8; color: #1a5c2b; border: 1px solid #b8e0c4; border-radius: 3px; padding: 9px 12px; font-size: 13px; margin-bottom: 10px; }
+        .error-message { background: #fde8ec; color: #8b1a25; border: 1px solid #f5c6cb; border-radius: 3px; padding: 9px 12px; font-size: 13px; margin-bottom: 10px; }
 
         @media (max-width: 900px) { .stats-row { grid-template-columns: 1fr 1fr; } }
     </style>
