@@ -58,16 +58,17 @@
         }
 
         .brand-title {
-            font-size: 42px;
+            font-size: 54px;
             font-weight: 900;
             letter-spacing: -1.5px;
             margin-bottom: 12px;
             text-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            line-height: 1.1;
         }
 
         .brand-tag {
-            font-size: 15px;
-            color: rgba(255,255,255,0.85);
+            font-size: 18px;
+            color: rgba(255,255,255,0.9);
             line-height: 1.5;
         }
 

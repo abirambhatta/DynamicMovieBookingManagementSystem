@@ -29,15 +29,16 @@
         }
 
         .brand-name {
-            font-size: 28px;
-            font-weight: 800;
-            letter-spacing: -0.5px;
-            margin-bottom: 8px;
+            font-size: 44px;
+            font-weight: 900;
+            letter-spacing: -1px;
+            margin-bottom: 12px;
+            line-height: 1.1;
         }
 
         .brand-desc {
-            font-size: 14px;
-            color: rgba(255,255,255,0.8);
+            font-size: 16px;
+            color: rgba(255,255,255,0.9);
             margin-bottom: 36px;
             line-height: 1.5;
         }

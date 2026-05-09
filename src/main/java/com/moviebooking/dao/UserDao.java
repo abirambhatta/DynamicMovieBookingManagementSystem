@@ -183,6 +183,7 @@ public class UserDao {
             }
         } catch (SQLException e) {
             e.printStackTrace();
+            throw new RuntimeException("Database connection failed. Please check your database server.", e);
         }
         return null;
     }
