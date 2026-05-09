@@ -101,10 +101,17 @@ TMDB_API_KEY=your_tmdb_api_key
 - itextpdf-5.5.13.3.jar
 - xmlworker-5.5.13.3.jar
 
-**Deployment Steps:**
-1. Build the project (if using Eclipse: Export → WAR file)
-2. Copy the WAR file to `[TOMCAT_HOME]/webapps/`
-3. Start Tomcat server
+**Running in Eclipse IDE (Recommended):**
+1. **Import Project**: File → Import → Existing Projects into Workspace → Select the cloned directory.
+2. **Add Tomcat Server**: Open the "Servers" view → Right-click → New → Server → Select Apache Tomcat v10.1 (ensure your JRE matches, e.g., Java 21).
+3. **Configure Project**: Right-click project → Properties → Project Facets → Ensure "Dynamic Web Module" (v6.0) and "Java" (v21) are checked.
+4. **Deploy**: Right-click the Tomcat Server in the Servers view → Add and Remove → Add `MovieBookingManagementSystem` to the configured side.
+5. **Run**: Start the server and navigate to `http://localhost:8080/MovieBookingManagementSystem/`
+
+**Running via WAR Deployment:**
+1. Build the project (Eclipse: File → Export → WAR file).
+2. Copy the exported WAR file to `[TOMCAT_HOME]/webapps/`.
+3. Start the Tomcat server.
 4. Access the application at `http://localhost:8080/MovieBookingManagementSystem/`
 
 ## Default Login Credentials

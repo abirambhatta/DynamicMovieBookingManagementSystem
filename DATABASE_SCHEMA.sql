@@ -1,5 +1,5 @@
 -- ==============================================================================
--- 🎬 Movie Booking Management System - Master Database Schema
+-- Movie Booking Management System - Master Database Schema
 -- Use this file to recreate the entire database structure from scratch.
 -- ==============================================================================
 
@@ -109,9 +109,9 @@ CREATE TABLE IF NOT EXISTS system_settings (
 -- ==============================================================================
 
 -- 1. Create Default Admin Account (Password: admin123)
--- Note: Replace with actual hashed password in production
+-- Note: Replace with actual hashed password in production. Below hash is for 'admin123'
 INSERT IGNORE INTO users (full_name, email, phone, password, role) 
-VALUES ('Super Admin', 'admin@moviebooking.com', '0000000000', 'admin123', 'admin');
+VALUES ('Super Admin', 'admin@moviemint.com', '0000000000', '4UvNsuX7aCADBV415I53InOaeOJreO0I5Gx9rmHNWiI2F1Ckux5Ut++oQPOYqFQM', 'admin');
 
 -- 2. Seed Default Global Settings
 INSERT IGNORE INTO system_settings (setting_key, setting_value) VALUES 
