@@ -268,9 +268,9 @@
                                 <div class="booking-ref">Booking #${booking.bookingId} &nbsp;<span class="badge-confirmed">Confirmed</span></div>
                                 <div class="booking-title">${booking.movieTitle}</div>
                                 <div class="booking-meta-row">
-                                    <span>🕐 <c:out value="${booking.showTime}" /></span>
-                                    <span>💺 ${booking.numberOfSeats} seat(s)</span>
-                                    <span>Rs. ${booking.totalPrice}</span>
+                                    <span>Time: <c:out value="${booking.showTime}" /></span>
+                                    <span>Seats: ${booking.numberOfSeats}</span>
+                                    <span>Total: Rs. ${booking.totalPrice}</span>
                                 </div>
                                 <a href="${pageContext.request.contextPath}/ticketConfirmation?bookingId=${booking.bookingId}" class="btn-view-ticket">View Ticket</a>
                             </div>
