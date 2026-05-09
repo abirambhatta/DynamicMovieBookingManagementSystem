@@ -504,18 +504,29 @@ table td:last-child { white-space: nowrap; }
     margin-bottom: 16px;
 }
 
+.filter-bar {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px 16px;
+    margin-bottom: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
 .search-form {
     display: flex;
-    gap: 8px;
-    margin-bottom: 10px;
+    gap: 6px;
 }
 
 .search-form input {
     flex: 1;
-    padding: 9px 11px;
+    padding: 7px 10px;
     border: 1px solid #ccc;
-    border-radius: 4px;
-    font-size: 14px;
+    border-radius: 3px;
+    font-size: 13px;
+    font-family: inherit;
 }
 
 .search-form input:focus {
@@ -523,26 +534,86 @@ table td:last-child { white-space: nowrap; }
     border-color: var(--red);
 }
 
-.filter-section {
+.filters-section {
     display: flex;
-    gap: 12px;
-    align-items: center;
+    gap: 8px;
+    align-items: flex-end;
     flex-wrap: wrap;
 }
 
-.filter-section label {
-    font-size: 13px;
-    font-weight: 500;
-    color: #444;
+.filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
 }
 
-.filter-section select {
+.filter-group label {
+    font-size: 11px;
+    font-weight: 600;
+    color: #777;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+.filter-group input, .filter-group select {
     padding: 7px 10px;
     border: 1px solid #ccc;
-    border-radius: 4px;
-    background: #fff;
+    border-radius: 3px;
     font-size: 13px;
+    background: #fff;
+    font-family: inherit;
+    min-width: 140px;
 }
+
+.filter-group input:focus, .filter-group select:focus {
+    outline: none;
+    border-color: var(--red);
+}
+
+.filter-actions {
+    display: flex;
+    gap: 6px;
+    align-items: flex-end;
+    padding-bottom: 1px;
+}
+
+.divider {
+    border: none;
+    border-top: 1px solid #eee;
+    margin: 2px 0;
+}
+
+.btn-filter {
+    padding: 7px 14px;
+    background: var(--red);
+    color: #fff;
+    border: 1px solid var(--red);
+    border-radius: 3px;
+    font-size: 13px;
+    font-family: inherit;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+}
+.btn-filter:hover { background: var(--red-dark); border-color: var(--red-dark); color: #fff; text-decoration: none; }
+
+.btn-clear {
+    padding: 7px 12px;
+    background: #fff;
+    color: #555;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    font-size: 13px;
+    font-family: inherit;
+    font-weight: 500;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    white-space: nowrap;
+}
+.btn-clear:hover { border-color: var(--red); color: var(--red); text-decoration: none; }
 
 /* ── BOOKING ── */
 .booking-card {

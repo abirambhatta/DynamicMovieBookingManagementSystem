@@ -99,22 +99,22 @@
             </div>
             
             <!-- Filter Bar -->
-            <div style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); margin: 20px 0;">
+            <div class="filter-bar">
                 <!-- Search Section -->
-                <div style="margin-bottom: 16px;">
-                    <form action="${pageContext.request.contextPath}/manageMovies" method="get" style="display: flex; gap: 8px;">
-                        <input type="text" name="search" id="searchInput" placeholder="Search by title, genre, or director..." value="${param.search}" style="flex: 1; padding: 10px 14px; border: 1px solid #ced4da; border-radius: 6px; font-size: 15px;">
-                        <button type="submit" style="padding: 10px 20px; background: #dc143c; color: white; border: none; border-radius: 6px; font-size: 14px; font-weight: 500; cursor: pointer; white-space: nowrap;">Search</button>
+                <div class="search-section">
+                    <form action="${pageContext.request.contextPath}/manageMovies" method="get" class="search-form">
+                        <input type="text" name="search" id="searchInput" placeholder="Search by title, genre, or director..." value="${param.search}">
+                        <button type="submit" class="btn-filter">Search</button>
                     </form>
                 </div>
                 
-                <div style="width: 100%; height: 1px; background: #e9ecef; margin: 16px 0;"></div>
+                <div class="divider"></div>
                 
                 <!-- Filter Section -->
-                <form action="${pageContext.request.contextPath}/manageMovies" method="get" style="display: flex; gap: 12px; flex-wrap: wrap; align-items: flex-end;">
-                    <div style="display: flex; flex-direction: column; gap: 6px;">
-                        <label style="font-size: 13px; font-weight: 600; color: #495057;">Status</label>
-                        <select name="status" style="padding: 10px 14px; border: 1px solid #ced4da; border-radius: 6px; font-size: 14px; cursor: pointer; background: white; min-width: 150px;">
+                <form action="${pageContext.request.contextPath}/manageMovies" method="get" class="filters-section">
+                    <div class="filter-group">
+                        <label>Status</label>
+                        <select name="status">
                             <option value="" ${empty param.status ? 'selected' : ''}>All Movies</option>
                             <option value="showing" ${param.status == 'showing' ? 'selected' : ''}>Now Showing</option>
                             <option value="upcoming" ${param.status == 'upcoming' ? 'selected' : ''}>Upcoming</option>
@@ -123,9 +123,9 @@
                         </select>
                     </div>
                     
-                    <div style="display: flex; flex-direction: column; gap: 6px;">
-                        <label style="font-size: 13px; font-weight: 600; color: #495057;">Genre</label>
-                        <select name="genre" style="padding: 10px 14px; border: 1px solid #ced4da; border-radius: 6px; font-size: 14px; cursor: pointer; background: white; min-width: 150px;">
+                    <div class="filter-group">
+                        <label>Genre</label>
+                        <select name="genre">
                             <option value="all" ${param.genre == 'all' || empty param.genre ? 'selected' : ''}>All Genres</option>
                             <c:forEach var="g" items="${genres}">
                                 <option value="${g}" ${param.genre == g ? 'selected' : ''}>${g}</option>
@@ -133,9 +133,9 @@
                         </select>
                     </div>
                     
-                    <div style="display: flex; flex-direction: column; gap: 6px;">
-                        <label style="font-size: 13px; font-weight: 600; color: #495057;">Language</label>
-                        <select name="language" style="padding: 10px 14px; border: 1px solid #ced4da; border-radius: 6px; font-size: 14px; cursor: pointer; background: white; min-width: 150px;">
+                    <div class="filter-group">
+                        <label>Language</label>
+                        <select name="language">
                             <option value="all" ${param.language == 'all' || empty param.language ? 'selected' : ''}>All Languages</option>
                             <c:forEach var="lang" items="${languages}">
                                 <option value="${lang}" ${param.language == lang ? 'selected' : ''}>${lang}</option>
@@ -143,10 +143,10 @@
                         </select>
                     </div>
                     
-                    <div style="display: flex; gap: 8px; align-items: flex-end;">
-                        <button type="submit" style="padding: 10px 20px; background: #dc143c; color: white; border: none; border-radius: 6px; font-size: 14px; font-weight: 500; cursor: pointer; white-space: nowrap; height: 42px;">Apply Filters</button>
+                    <div class="filter-actions">
+                        <button type="submit" class="btn-filter">Apply Filters</button>
                         <c:if test="${not empty param.search || not empty param.status || not empty param.genre || not empty param.language}">
-                            <a href="${pageContext.request.contextPath}/manageMovies" style="padding: 10px 20px; background: #6c757d; color: white; border: none; border-radius: 6px; font-size: 14px; font-weight: 500; cursor: pointer; white-space: nowrap; text-decoration: none; display: inline-block; height: 42px; line-height: 22px;">Clear All</a>
+                            <a href="${pageContext.request.contextPath}/manageMovies" class="btn-clear">Clear All</a>
                         </c:if>
                     </div>
                 </form>

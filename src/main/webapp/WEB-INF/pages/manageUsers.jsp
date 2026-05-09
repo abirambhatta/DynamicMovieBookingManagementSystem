@@ -66,43 +66,7 @@
 
         .stat-box .sub { font-size: 11px; color: #aaa; margin-top: 4px; }
 
-        .filter-bar {
-            background: #fff;
-            border: 1px solid #ddd;
-            border-radius: 3px;
-            padding: 12px 14px;
-            margin-bottom: 12px;
-        }
 
-        .filter-form {
-            display: flex;
-            gap: 8px;
-            align-items: flex-end;
-            flex-wrap: wrap;
-        }
-
-        .filter-form .fg { display: flex; flex-direction: column; gap: 3px; }
-
-        .filter-form label {
-            font-size: 11px;
-            font-weight: 600;
-            color: #777;
-            text-transform: uppercase;
-            letter-spacing: 0.3px;
-        }
-
-        .filter-form input,
-        .filter-form select {
-            padding: 7px 10px;
-            border: 1px solid #ccc;
-            border-radius: 3px;
-            font-size: 13px;
-            background: #fff;
-            font-family: inherit;
-        }
-
-        .filter-form input { min-width: 220px; }
-        .filter-form input:focus, .filter-form select:focus { outline: none; border-color: #c9152f; }
 
         .msg-ok {
             background: #e2f5e8; color: #1a5c2b; border: 1px solid #b8e0c4;
@@ -292,12 +256,24 @@
         </c:if>
 
         <div class="filter-bar">
-            <form action="${pageContext.request.contextPath}/manageUsers" method="get" class="filter-form">
-                <div class="fg">
-                    <label>Search</label>
-                    <input type="text" name="search" value="${param.search}" placeholder="Name or email...">
-                </div>
-                <div class="fg">
+            <!-- Search Section -->
+            <div class="search-section">
+                <form action="${pageContext.request.contextPath}/manageUsers" method="get" class="search-form">
+                    <input type="text" name="search" value="${param.search}" placeholder="Search by name or email...">
+                    <button type="submit" class="btn-filter">Search</button>
+                </form>
+            </div>
+            
+            <div class="divider"></div>
+            
+            <!-- Filter Section -->
+            <form action="${pageContext.request.contextPath}/manageUsers" method="get" class="filters-section">
+                <!-- Preserve search when filtering -->
+                <c:if test="${not empty param.search}">
+                    <input type="hidden" name="search" value="${param.search}">
+                </c:if>
+                
+                <div class="filter-group">
                     <label>Role</label>
                     <select name="role">
                         <option value="all" ${empty param.role || param.role == 'all' ? 'selected' : ''}>All roles</option>
@@ -305,18 +281,22 @@
                         <option value="user" ${param.role == 'user' ? 'selected' : ''}>User only</option>
                     </select>
                 </div>
-                <div class="fg">
-                    <label>Sort</label>
+                
+                <div class="filter-group">
+                    <label>Sort By</label>
                     <select name="sort">
                         <option value="" ${empty param.sort ? 'selected' : ''}>Default</option>
                         <option value="name" ${param.sort == 'name' ? 'selected' : ''}>Name A–Z</option>
                         <option value="bookings" ${param.sort == 'bookings' ? 'selected' : ''}>Most bookings</option>
                     </select>
                 </div>
-                <button type="submit" class="btn-search" style="align-self:flex-end;">Search</button>
-                <c:if test="${not empty param.search || not empty param.role || not empty param.sort}">
-                    <a href="${pageContext.request.contextPath}/manageUsers" class="btn-sort" style="align-self:flex-end;text-decoration:none;padding:5px 11px;font-size:12px;">Clear</a>
-                </c:if>
+                
+                <div class="filter-actions">
+                    <button type="submit" class="btn-filter">Apply Filters</button>
+                    <c:if test="${not empty param.search || not empty param.role || not empty param.sort}">
+                        <a href="${pageContext.request.contextPath}/manageUsers" class="btn-clear">Clear All</a>
+                    </c:if>
+                </div>
             </form>
         </div>
 
