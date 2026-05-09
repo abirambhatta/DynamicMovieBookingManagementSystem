@@ -12,7 +12,7 @@
         <h1>500</h1>
         <h2>Internal Server Error</h2>
         <p>Something went wrong. Please try again later.</p>
-        <a href="${pageContext.request.contextPath}/login" class="btn">Go to Login</a>
+        <a href="${pageContext.request.contextPath}/logout" class="btn">Return to Login</a>
     </div>
 </body>
 </html>

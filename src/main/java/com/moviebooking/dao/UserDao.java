@@ -65,6 +65,7 @@ public class UserDao {
             e.printStackTrace();
             throw new RuntimeException("Database connection failed", e);
         }
+        return false;
     }
 
     /**
@@ -86,6 +87,7 @@ public class UserDao {
             e.printStackTrace();
             throw new RuntimeException("Database connection failed", e);
         }
+        return false;
     }
 
     /**
@@ -125,6 +127,7 @@ public class UserDao {
             e.printStackTrace();
             throw new RuntimeException("Database connection failed", e);
         }
+        return users;
     }
 
     /**
@@ -157,6 +160,7 @@ public class UserDao {
             e.printStackTrace();
             throw new RuntimeException("Database connection failed", e);
         }
+        return null;
     }
 
     /**
@@ -265,6 +269,7 @@ public class UserDao {
             e.printStackTrace();
             throw new RuntimeException("Database connection failed", e);
         }
+        return 0;
     }
     
     /**
@@ -283,6 +288,7 @@ public class UserDao {
             e.printStackTrace();
             throw new RuntimeException("Database connection failed", e);
         }
+        return 0;
     }
     
     /**
@@ -301,6 +307,7 @@ public class UserDao {
             e.printStackTrace();
             throw new RuntimeException("Database connection failed", e);
         }
+        return 0;
     }
     
     /**
@@ -319,6 +326,7 @@ public class UserDao {
             e.printStackTrace();
             throw new RuntimeException("Database connection failed", e);
         }
+        return 0;
     }
     
     /**
@@ -397,6 +405,7 @@ public class UserDao {
             e.printStackTrace();
             throw new RuntimeException("Database connection failed", e);
         }
+        return users;
     }
 
     /**
@@ -447,6 +456,7 @@ public class UserDao {
             e.printStackTrace();
             throw new RuntimeException("Database connection failed", e);
         }
+        return false;
     }
 
     /**
