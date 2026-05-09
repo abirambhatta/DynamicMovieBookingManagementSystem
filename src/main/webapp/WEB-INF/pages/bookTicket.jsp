@@ -328,12 +328,68 @@
         }
 
         .btn-book.ready:hover { background: #a01026; }
+
+        /* ── NO SHOWTIMES STATE ── */
+        .no-showtimes-panel {
+            display: none;
+            height: 100vh;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            text-align: center;
+            padding: 40px 24px;
+            background: #f4f4f5;
+        }
+
+        .no-showtimes-panel.visible { display: flex; }
+
+        .no-showtimes-panel .ns-icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+            opacity: 0.3;
+        }
+
+        .no-showtimes-panel h2 {
+            font-size: 22px;
+            font-weight: 700;
+            color: #1a1a1a;
+            margin-bottom: 8px;
+        }
+
+        .no-showtimes-panel p {
+            font-size: 14px;
+            color: #888;
+            max-width: 380px;
+            line-height: 1.6;
+            margin-bottom: 28px;
+        }
+
+        .ns-back-btn {
+            display: inline-block;
+            padding: 11px 28px;
+            background: var(--red);
+            color: #fff;
+            font-size: 14px;
+            font-weight: 600;
+            border-radius: 5px;
+            text-decoration: none;
+            transition: background 0.15s;
+        }
+        .ns-back-btn:hover { background: var(--red-dark); color: #fff; text-decoration: none; }
     </style>
 </head>
 <body>
     <c:if test="${empty user}"><c:redirect url="login"/></c:if>
 
-    <div class="booking-layout">
+    <%-- No Showtimes Fallback Panel --%>
+    <div class="no-showtimes-panel" id="noShowtimesPanel">
+        <div class="ns-icon">🎬</div>
+        <h2>No Upcoming Showtimes</h2>
+        <p>There are no available showtimes scheduled for <strong>${movie.title}</strong> right now. Check back later or browse other movies.</p>
+        <a href="${pageContext.request.contextPath}/browseMovies" class="ns-back-btn">Browse Other Movies</a>
+    </div>
+
+    <div class="booking-layout" id="bookingLayout">
 
         <%-- LEFT: Seat Map --%>
         <section class="seat-section">
@@ -726,6 +782,12 @@
         }
 
         window.onload = function() {
+            if (sortedDates.length === 0) {
+                document.getElementById('bookingLayout').style.display = 'none';
+                document.getElementById('noShowtimesPanel').classList.add('visible');
+                return;
+            }
+
             renderDates();
             const preDate = "${preSelectedDate}";
             const preTime = "${preSelectedTime}";
