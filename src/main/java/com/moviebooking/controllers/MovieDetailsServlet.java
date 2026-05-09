@@ -48,9 +48,17 @@ public class MovieDetailsServlet extends HttpServlet {
                     ShowTime st = showTimes.get(i);
                     json.append("{");
                     json.append("\"id\":").append(st.getShowId()).append(",");
-                    json.append("\"date\":\"").append(st.getShowDate().toString()).append("\",");
-                    java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("hh:mm a");
-                    json.append("\"time\":\"").append(sdf.format(st.getShowTime())).append("\",");
+                    
+                    String dateStr = st.getShowDate() != null ? st.getShowDate().toString() : "";
+                    json.append("\"date\":\"").append(dateStr).append("\",");
+                    
+                    String timeStr = "";
+                    if (st.getShowTime() != null) {
+                        java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("hh:mm a");
+                        timeStr = sdf.format(st.getShowTime());
+                    }
+                    json.append("\"time\":\"").append(timeStr).append("\",");
+                    
                     json.append("\"hall\":\"").append(st.getHall() != null ? st.getHall() : "Audi 01").append("\"");
                     json.append("}");
                     if(i < showTimes.size() -1) json.append(",");
@@ -67,6 +75,9 @@ public class MovieDetailsServlet extends HttpServlet {
             }
         } catch (NumberFormatException e) {
             // Invalid movie ID (not a number) - go back to browse movies
+            response.sendRedirect(request.getContextPath() + "/browseMovies");
+        } catch (Exception e) {
+            e.printStackTrace();
             response.sendRedirect(request.getContextPath() + "/browseMovies");
         }
     }
