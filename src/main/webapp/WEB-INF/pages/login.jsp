@@ -25,6 +25,7 @@
             display: flex;
             flex-direction: column;
             justify-content: center;
+            align-items: center;
             padding: 60px 80px;
             flex-shrink: 0;
             position: relative;
@@ -53,7 +54,13 @@
             pointer-events: none;
         }
 
-        .brand-inner { position: relative; z-index: 1; }
+        .brand-inner { 
+            position: relative; z-index: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
 
         .brand-logo {
             font-size: 42px;

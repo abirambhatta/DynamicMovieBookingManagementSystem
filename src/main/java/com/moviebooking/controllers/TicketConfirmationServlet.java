@@ -52,10 +52,31 @@ public class TicketConfirmationServlet extends HttpServlet {
                 Movie movie = movieDao.getMovieById(targetBooking.getMovieId());
                 String orderRef = "MBK-" + String.format("%05d", bookingId);
 
+                String rawShowTime = targetBooking.getShowTime();
+                String hall = "—";
+                String showDate = "N/A";
+                String showTimeOnly = rawShowTime;
+                
+                if (rawShowTime != null && rawShowTime.contains(" - ")) {
+                    String[] parts = rawShowTime.split(" - ", 2);
+                    hall = parts[1].trim();
+                    showTimeOnly = parts[0].trim();
+                }
+                
+                if (showTimeOnly != null && showTimeOnly.contains(" ")) {
+                    int firstSpace = showTimeOnly.indexOf(' ');
+                    showDate = showTimeOnly.substring(0, firstSpace);
+                    showTimeOnly = showTimeOnly.substring(firstSpace + 1);
+                } else if (showTimeOnly != null) {
+                    showDate = showTimeOnly;
+                }
+
                 request.setAttribute("bookingId", bookingId);
                 request.setAttribute("orderRef", orderRef);
                 request.setAttribute("movie", movie);
-                request.setAttribute("showTime", targetBooking.getShowTime());
+                request.setAttribute("showTime", showTimeOnly);
+                request.setAttribute("showDate", showDate);
+                request.setAttribute("hall", hall);
                 request.setAttribute("seatIds", targetBooking.getSeatType());
                 request.setAttribute("numberOfSeats", targetBooking.getNumberOfSeats());
                 request.setAttribute("totalPrice", targetBooking.getTotalPrice());

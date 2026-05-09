@@ -16,51 +16,53 @@
 
         .login-brand {
             flex: 1;
-            background: #c9152f;
+            background: radial-gradient(circle at 30% 30%, #e61937 0%, #c9152f 40%, #5c0008 100%);
             color: #fff;
             display: flex;
             flex-direction: column;
             justify-content: center;
-            padding: 48px 60px;
+            align-items: center;
+            padding: 60px 80px;
             position: relative;
             overflow: hidden;
+            box-shadow: inset -10px 0 30px rgba(0,0,0,0.15);
         }
 
         .login-brand::before {
             content: '';
             position: absolute;
-            top: -20%;
-            left: -10%;
-            width: 300px;
-            height: 300px;
-            background: rgba(255,255,255,0.03);
+            width: 600px; height: 600px;
             border-radius: 50%;
+            background: radial-gradient(circle, rgba(255,255,255,0.08) 0%, transparent 70%);
+            top: -200px; left: -100px;
+            pointer-events: none;
         }
 
         .login-brand::after {
             content: '';
             position: absolute;
-            bottom: -10%;
-            right: -10%;
-            width: 400px;
-            height: 400px;
-            background: rgba(255,255,255,0.03);
+            width: 400px; height: 400px;
             border-radius: 50%;
+            background: radial-gradient(circle, rgba(0,0,0,0.3) 0%, transparent 70%);
+            bottom: -100px; right: -100px;
+            pointer-events: none;
         }
 
         .brand-content {
             position: relative;
             z-index: 1;
-            max-width: 320px;
-            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
             text-align: center;
         }
 
         .brand-title {
-            font-size: 32px;
-            font-weight: 800;
+            font-size: 42px;
+            font-weight: 900;
+            letter-spacing: -1.5px;
             margin-bottom: 12px;
-            letter-spacing: -0.5px;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.2);
         }
 
         .brand-tag {

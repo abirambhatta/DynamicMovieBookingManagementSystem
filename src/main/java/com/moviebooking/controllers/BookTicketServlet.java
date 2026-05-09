@@ -204,10 +204,11 @@ public class BookTicketServlet extends HttpServlet {
                 
                 // Extract date from showTime (format: "2026-04-25 05:30")
                 if (showTimeOnly.contains(" ")) {
-                    String[] dateParts = showTimeOnly.split(" ");
-                    if (dateParts.length > 0) {
-                        showDate = dateParts[0];
-                    }
+                    int firstSpace = showTimeOnly.indexOf(' ');
+                    showDate = showTimeOnly.substring(0, firstSpace);
+                    showTimeOnly = showTimeOnly.substring(firstSpace + 1);
+                } else {
+                    showDate = showTimeOnly;
                 }
 
                 // Send ticket email with attachment
@@ -223,7 +224,7 @@ public class BookTicketServlet extends HttpServlet {
                 request.setAttribute("bookingId",    newBookingId);
                 request.setAttribute("orderRef",     orderRef);
                 request.setAttribute("movie",        movie);
-                request.setAttribute("showTime",     finalShowTime);
+                request.setAttribute("showTime",     showTimeOnly);
                 request.setAttribute("showDate",     showDate);
                 request.setAttribute("hall",         hall);
                 request.setAttribute("seatIds",      seatType);
