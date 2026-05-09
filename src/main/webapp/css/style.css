@@ -258,6 +258,21 @@ input:-webkit-autofill:active{
     min-height: 90px;
 }
 
+.login-box .btn-primary,
+.register-box .btn-primary,
+.forgot-password-box .btn-primary {
+    font-size: 16px;
+    padding: 12px 20px;
+    font-weight: 600;
+}
+
+.login-box .auth-links,
+.register-box .auth-links,
+.forgot-password-box .auth-links {
+    font-size: 15px;
+    margin-top: 24px;
+}
+
 /* ── BUTTONS ── */
 button { cursor: pointer; }
 
