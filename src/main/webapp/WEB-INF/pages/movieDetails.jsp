@@ -251,7 +251,7 @@
         /* ── VIEWING TIMES ── */
         .viewing-times-section {
             margin-top: 40px;
-            background: #0b1021;
+            background: #161616;
             border-radius: 8px;
             padding: 24px;
             border: 1px solid rgba(255,255,255,0.05);
@@ -284,25 +284,6 @@
             border-radius: 50%;
             margin-bottom: 8px;
         }
-
-        .vt-legend {
-            display: flex;
-            gap: 16px;
-            font-size: 11px;
-            font-weight: 700;
-            color: rgba(255,255,255,0.4);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-        .vt-legend span {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-        .vt-dot { width: 10px; height: 10px; border-radius: 50%; border: 2px solid; background: transparent; }
-        .vt-dot.sold { border-color: #e50914; }
-        .vt-dot.booked { border-color: #f5b50a; }
-        .vt-dot.avail { border-color: #2e8b57; }
 
         .vt-dates {
             display: flex;
@@ -643,11 +624,11 @@
 
                         <div class="action-row">
                             <a href="#viewingTimes" class="btn-book">
-                                🎟 Book Tickets Now
+                                Book Tickets Now
                             </a>
                             <c:if test="${not empty movie.trailerUrl}">
                                 <button type="button" onclick="openTrailer('${movie.trailerUrl}')" class="btn-trailer">
-                                    ▶ Watch Trailer
+                                    Watch Trailer
                                 </button>
                             </c:if>
                         </div>
@@ -659,11 +640,6 @@
                     <div class="vt-header">
                         <div class="vt-title-area">
                             <h2>Viewing Times</h2>
-                            <div class="vt-legend">
-                                <span><div class="vt-dot sold"></div> SOLD</span>
-                                <span><div class="vt-dot booked"></div> BOOKED</span>
-                                <span><div class="vt-dot avail"></div> AVAILABLE</span>
-                            </div>
                         </div>
                         <div class="vt-dates" id="vtDatesContainer">
                             <%-- Populated by JS --%>
@@ -680,14 +656,14 @@
                     <div>
                         <c:if test="${not empty movie.description}">
                             <div class="detail-panel">
-                                <h2>📖 Synopsis</h2>
+                                <h2>Synopsis</h2>
                                 <p>${movie.description}</p>
                             </div>
                         </c:if>
 
                         <c:if test="${not empty movie.director or not empty movie.castList}">
                             <div class="detail-panel">
-                                <h2>🎬 Cast & Crew</h2>
+                                <h2>Cast & Crew</h2>
                                 <div class="crew-row">
                                     <c:if test="${not empty movie.director}">
                                         <div class="crew-item">
@@ -709,7 +685,7 @@
                     <%-- Right Sidebar --%>
                     <div>
                         <div class="detail-panel">
-                            <h2>ℹ️ Information</h2>
+                            <h2>Information</h2>
                             <ul class="info-list">
                                 <li>
                                     <span class="ikey">Format</span>
@@ -835,30 +811,27 @@
             const container = document.getElementById('vtDatesContainer');
             if (!container) return;
             
-            if (sortedDates.length === 0) {
-                container.innerHTML = '<span style="color:#888; font-size:13px;">No upcoming showtimes available.</span>';
-                document.getElementById('vtHallsContainer').innerHTML = '';
-                return;
-            }
-
             container.innerHTML = '';
             
             const today = new Date();
-            const todayStr = today.getFullYear() + '-' + String(today.getMonth()+1).padStart(2,'0') + '-' + String(today.getDate()).padStart(2,'0');
+            const datesToRender = [];
             
-            const tomm = new Date(today);
-            tomm.setDate(tomm.getDate() + 1);
-            const tommStr = tomm.getFullYear() + '-' + String(tomm.getMonth()+1).padStart(2,'0') + '-' + String(tomm.getDate()).padStart(2,'0');
+            for(let i=0; i<5; i++) {
+                const d = new Date(today);
+                d.setDate(d.getDate() + i);
+                const ds = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+                datesToRender.push(ds);
+            }
 
-            sortedDates.forEach(ds => {
+            datesToRender.forEach((ds, index) => {
                 const btn = document.createElement('button');
                 btn.className = 'vt-date-btn';
                 btn.dataset.date = ds;
                 
                 let label = '';
-                if (ds === todayStr) {
+                if (index === 0) {
                     label = 'Today';
-                } else if (ds === tommStr) {
+                } else if (index === 1) {
                     label = 'Tomm';
                 } else {
                     const d = new Date(ds + 'T00:00:00');
@@ -871,9 +844,7 @@
             });
             
             // Select first date by default
-            if (sortedDates.length > 0) {
-                selectVTDate(sortedDates[0]);
-            }
+            selectVTDate(datesToRender[0]);
         }
 
         function selectVTDate(ds) {
@@ -891,6 +862,11 @@
             container.innerHTML = '';
             
             const times = stGrouped[ds] || [];
+            
+            if (times.length === 0) {
+                container.innerHTML = '<span style="color:#888; font-size:13px; padding: 20px 0; display: block;">No upcoming showtimes scheduled for this date.</span>';
+                return;
+            }
             
             // Group by hall
             const byHall = {};
@@ -916,13 +892,32 @@
                     return new Date(a.date + ' ' + a.time) - new Date(b.date + ' ' + b.time);
                 });
                 
+                const now = new Date();
+
                 byHall[hall].forEach(st => {
                     const tParts = st.time.split(' ');
                     const mainTime = tParts[0];
                     const ampm = tParts[1] || '';
                     
-                    const a = document.createElement('a');
-                    a.href = contextPath + '/bookTicket?movieId=' + movieId + '&showId=' + st.id;
+                    // Check if time has passed
+                    let hours = parseInt(mainTime.split(':')[0], 10);
+                    const mins = parseInt(mainTime.split(':')[1], 10);
+                    if (ampm.toUpperCase() === 'PM' && hours < 12) hours += 12;
+                    if (ampm.toUpperCase() === 'AM' && hours === 12) hours = 0;
+                    
+                    // Create date object for showtime. Warning: st.date is YYYY-MM-DD
+                    const [y, m, d] = st.date.split('-');
+                    const showDateTime = new Date(y, m - 1, d, hours, mins, 0);
+                    const isPast = showDateTime < now;
+                    
+                    const a = document.createElement(isPast ? 'span' : 'a');
+                    if (!isPast) {
+                        a.href = contextPath + '/bookTicket?movieId=' + movieId + '&showId=' + st.id;
+                    } else {
+                        a.style.opacity = '0.4';
+                        a.style.cursor = 'not-allowed';
+                        a.title = 'Show has passed';
+                    }
                     a.className = 'vt-time-btn';
                     a.innerHTML = mainTime + (ampm ? ' <br><span>' + ampm + '</span>' : '');
                     timesDiv.appendChild(a);

@@ -487,26 +487,21 @@
         let currentTime = null;
 
         const stGrouped = {};
-        rawShowTimes.forEach(st => {
-            if (!stGrouped[st.date]) stGrouped[st.date] = [];
-            stGrouped[st.date].push(st);
-        });
-
-        // Only dates that have showtimes
-        const sortedDates = [];
-        if (movieStartDateStr && movieEndDateStr) {
-            const now = new Date();
-            const todayStr = now.getFullYear() + '-'
-                + String(now.getMonth()+1).padStart(2,'0') + '-'
-                + String(now.getDate()).padStart(2,'0');
-
-            let s = new Date(movieStartDateStr), e = new Date(movieEndDateStr);
-            while (s <= e) {
-                const ds = s.toISOString().split('T')[0];
-                if (ds >= todayStr && stGrouped[ds] && stGrouped[ds].length > 0) sortedDates.push(ds);
-                s.setDate(s.getDate() + 1);
-            }
+        if (rawShowTimes && Array.isArray(rawShowTimes)) {
+            rawShowTimes.forEach(st => {
+                if (!stGrouped[st.date]) stGrouped[st.date] = [];
+                stGrouped[st.date].push(st);
+            });
         }
+
+        // Only dates that have showtimes, starting from today
+        const sortedDates = Object.keys(stGrouped).sort().filter(ds => {
+            const now = new Date();
+            const todayStr = now.getFullYear() + '-' 
+                + String(now.getMonth()+1).padStart(2,'0') + '-' 
+                + String(now.getDate()).padStart(2,'0');
+            return ds >= todayStr;
+        });
 
         function buildSeatGrid(hallName) {
             const container = document.getElementById('seatContainer');
@@ -775,28 +770,33 @@
         }
 
         window.onload = function() {
-            if (sortedDates.length === 0) {
-                document.getElementById('bookingLayout').style.display = 'none';
-                document.getElementById('noShowtimesPanel').classList.add('visible');
-                return;
-            }
+            try {
+                if (sortedDates.length === 0) {
+                    document.getElementById('bookingLayout').style.display = 'none';
+                    document.getElementById('noShowtimesPanel').classList.add('visible');
+                    return;
+                }
 
-            renderDates();
-            const preDate = "${preSelectedDate}";
-            const preTime = "${preSelectedTime}";
-            const preHall = "${preSelectedHall}";
+                renderDates();
+                const preDate = "${preSelectedDate}";
+                const preTime = "${preSelectedTime}";
+                const preHall = "${preSelectedHall}";
 
-            if (preDate && sortedDates.includes(preDate)) {
-                selectDate(preDate);
-                setTimeout(() => {
-                    document.querySelectorAll('.time-btn:not(.expired)').forEach(btn => {
-                        if (btn.innerText.includes(preTime) && btn.innerText.includes(preHall)) btn.click();
-                    });
-                }, 80);
-            } else if (sortedDates.length > 0) {
-                selectDate(sortedDates[0]);
+                if (preDate && sortedDates.includes(preDate)) {
+                    selectDate(preDate);
+                    setTimeout(() => {
+                        document.querySelectorAll('.time-btn:not(.expired)').forEach(btn => {
+                            if (btn.innerText.includes(preTime) && btn.innerText.includes(preHall)) btn.click();
+                        });
+                    }, 80);
+                } else if (sortedDates.length > 0) {
+                    selectDate(sortedDates[0]);
+                }
+                updateSummary();
+            } catch(e) {
+                console.error(e);
+                document.getElementById('dateContainer').innerHTML = '<span class="no-showtimes-msg" style="color:var(--red);">Failed to load showtimes. Please refresh.</span>';
             }
-            updateSummary();
         };
     </script>
 </body>

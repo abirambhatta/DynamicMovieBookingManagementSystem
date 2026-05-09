@@ -47,7 +47,7 @@ public class MovieDetailsServlet extends HttpServlet {
                 for(int i=0; i<showTimes.size(); i++){
                     ShowTime st = showTimes.get(i);
                     json.append("{");
-                    json.append("\"id\":").append(st.getShowId()).append(",");
+                    json.append("\"id\":").append(st.getShowTimeId()).append(",");
                     
                     String dateStr = st.getShowDate() != null ? st.getShowDate().toString() : "";
                     json.append("\"date\":\"").append(dateStr).append("\",");
