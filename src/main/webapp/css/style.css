@@ -195,8 +195,8 @@ input:-webkit-autofill:active{
 }
 
 .login-box h2, .register-box h2, .forgot-password-box h2 {
-    font-size: 22px;
-    font-weight: 600;
+    font-size: 28px;
+    font-weight: 700;
     margin-bottom: 24px;
     color: var(--text);
     text-align: center;
@@ -225,20 +225,20 @@ input:-webkit-autofill:active{
 
 .form-group label {
     display: block;
-    font-size: 13px;
-    font-weight: 500;
+    font-size: 15px;
+    font-weight: 600;
     color: #444;
-    margin-bottom: 5px;
+    margin-bottom: 8px;
 }
 
 .form-group input,
 .form-group select,
 .form-group textarea {
     width: 100%;
-    padding: 9px 11px;
+    padding: 12px 14px;
     border: 1px solid #ccc;
     border-radius: 4px;
-    font-size: 14px;
+    font-size: 16px;
     font-family: inherit;
     background: #fff;
     color: var(--text);

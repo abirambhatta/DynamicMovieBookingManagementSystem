@@ -818,7 +818,8 @@
         });
 
         // ── VIEWING TIMES LOGIC ──
-        const rawShowTimes = ${showTimesJson != null ? showTimesJson : '[]'};
+        <c:if test="${not empty movie}">
+        const rawShowTimes = ${not empty showTimesJson ? showTimesJson : '[]'};
         const movieId = ${movie.movieId};
         const contextPath = '${pageContext.request.contextPath}';
 
@@ -937,6 +938,7 @@
         if (typeof rawShowTimes !== 'undefined') {
             renderVTDates();
         }
+        </c:if>
 
     </script>
 </body>
