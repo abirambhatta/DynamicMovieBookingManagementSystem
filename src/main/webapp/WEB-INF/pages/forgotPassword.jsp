@@ -8,22 +8,94 @@
     <title>MovieMint | Reset Password</title>
     <link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath}/css/style.css">
     <style>
-        .forgot-password-container {
-            max-width: 420px;
-            margin: 100px auto;
-            background: white;
-            padding: 40px;
-            border-radius: 8px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-            border: 1px solid #e9ecef;
+        .login-layout {
+            display: flex;
+            min-height: 100vh;
+            width: 100%;
         }
-        .forgot-password-container h2 {
+
+        .login-brand {
+            flex: 1;
+            background: #c9152f;
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 48px 60px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .login-brand::before {
+            content: '';
+            position: absolute;
+            top: -20%;
+            left: -10%;
+            width: 300px;
+            height: 300px;
+            background: rgba(255,255,255,0.03);
+            border-radius: 50%;
+        }
+
+        .login-brand::after {
+            content: '';
+            position: absolute;
+            bottom: -10%;
+            right: -10%;
+            width: 400px;
+            height: 400px;
+            background: rgba(255,255,255,0.03);
+            border-radius: 50%;
+        }
+
+        .brand-content {
+            position: relative;
+            z-index: 1;
+            max-width: 320px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .brand-title {
+            font-size: 32px;
+            font-weight: 800;
+            margin-bottom: 12px;
+            letter-spacing: -0.5px;
+        }
+
+        .brand-tag {
+            font-size: 15px;
+            color: rgba(255,255,255,0.85);
+            line-height: 1.5;
+        }
+
+        .login-form-wrap {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f5f5f5;
+            padding: 40px 24px;
+        }
+
+        .login-card {
+            background: #fff;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 40px 36px;
+            width: 100%;
+            max-width: 440px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+
+        .login-card h2 {
             text-align: center;
             color: #212529;
             margin-bottom: 32px;
-            font-size: 28px;
-            font-weight: 600;
+            font-size: 24px;
+            font-weight: 700;
         }
+
         .step-indicator {
             display: flex;
             justify-content: space-between;
@@ -160,8 +232,17 @@
     </style>
 </head>
 <body>
-    <div class="forgot-password-container">
-        <h2>Reset Password</h2>
+    <div class="login-layout">
+        <div class="login-brand">
+            <div class="brand-content">
+                <div class="brand-title">MovieMint</div>
+                <div class="brand-tag">Account Recovery</div>
+            </div>
+        </div>
+
+        <div class="login-form-wrap">
+            <div class="login-card">
+                <h2>Reset Password</h2>
 
         <div class="step-indicator">
             <div class="step ${step == '1' ? 'active' : (step != '1' ? 'completed' : '')}"></div>
@@ -201,17 +282,22 @@
             <form method="POST" action="${pageContext.request.contextPath}/forgotPassword">
                 <input type="hidden" name="step" value="2">
                 <input type="hidden" name="email" value="${email}">
+                <input type="hidden" name="otp" id="fullOtp">
 
                 <p class="info-text">Enter the 6-digit OTP sent to ${email}</p>
 
-                <div class="form-group">
-                    <label for="otp">One-Time Password</label>
-                    <input type="text" id="otp" name="otp" required placeholder="000000" maxlength="6" pattern="[0-9]{6}">
+                <div class="otp-input-group">
+                    <input type="text" class="otp-input" id="otp1" maxlength="1" oninput="moveToNext(this, 'otp2')" onkeydown="moveToPrev(event, this, null)">
+                    <input type="text" class="otp-input" id="otp2" maxlength="1" oninput="moveToNext(this, 'otp3')" onkeydown="moveToPrev(event, this, 'otp1')">
+                    <input type="text" class="otp-input" id="otp3" maxlength="1" oninput="moveToNext(this, 'otp4')" onkeydown="moveToPrev(event, this, 'otp2')">
+                    <input type="text" class="otp-input" id="otp4" maxlength="1" oninput="moveToNext(this, 'otp5')" onkeydown="moveToPrev(event, this, 'otp3')">
+                    <input type="text" class="otp-input" id="otp5" maxlength="1" oninput="moveToNext(this, 'otp6')" onkeydown="moveToPrev(event, this, 'otp4')">
+                    <input type="text" class="otp-input" id="otp6" maxlength="1" oninput="moveToNext(this, null)" onkeydown="moveToPrev(event, this, 'otp5')">
                 </div>
 
-                <p class="info-text">OTP expires in <span class="timer" id="timer">10:00</span></p>
+                <p class="info-text">OTP expires in <span class="timer" id="timer">5:00</span></p>
 
-                <button type="submit" class="btn">Verify OTP</button>
+                <button type="submit" class="btn" id="verifyBtn">Verify OTP</button>
 
                 <div class="resend-otp">
                     <a href="${pageContext.request.contextPath}/forgotPassword?step=1">Resend OTP</a>
@@ -223,18 +309,43 @@
             </form>
 
             <script>
-                let timeLeft = 600;
-                const timerElement = document.getElementById('timer');
+                function moveToNext(current, nextFieldID) {
+                    if (current.value.length >= 1) {
+                        if (nextFieldID) {
+                            document.getElementById(nextFieldID).focus();
+                        } else {
+                            current.blur();
+                        }
+                    }
+                }
                 
-                const countdown = setInterval(() => {
-                    timeLeft--;
-                    const minutes = Math.floor(timeLeft / 60);
-                    const seconds = timeLeft % 60;
-                    timerElement.textContent = minutes + ':' + (seconds < 10 ? '0' : '') + seconds;
-                    
+                function moveToPrev(e, current, prevFieldID) {
+                    if (e.key === 'Backspace' && current.value.length === 0 && prevFieldID) {
+                        document.getElementById(prevFieldID).focus();
+                    }
+                }
+                
+                function combineOtp() {
+                    var otp = '';
+                    for (var i = 1; i <= 6; i++) {
+                        otp += document.getElementById('otp' + i).value;
+                    }
+                    document.getElementById('fullOtp').value = otp;
+                    return true;
+                }
+                
+                var timeLeft = 300; 
+                var timerId = setInterval(function() {
                     if (timeLeft <= 0) {
-                        clearInterval(countdown);
-                        timerElement.textContent = 'Expired';
+                        clearInterval(timerId);
+                        document.getElementById("timer").innerHTML = "Expired";
+                        document.getElementById("verifyBtn").disabled = true;
+                    } else {
+                        var minutes = Math.floor(timeLeft / 60);
+                        var seconds = timeLeft % 60;
+                        document.getElementById("timer").innerHTML = 
+                            minutes + ":" + (seconds < 10 ? "0" : "") + seconds;
+                        timeLeft -= 1;
                     }
                 }, 1000);
             </script>
@@ -265,6 +376,8 @@
                 </div>
             </form>
         </c:if>
+            </div>
+        </div>
     </div>
 </body>
 </html>
