@@ -95,7 +95,7 @@
             text-align: center;
             color: #212529;
             margin-bottom: 32px;
-            font-size: 24px;
+            font-size: 28px;
             font-weight: 700;
         }
 
@@ -123,17 +123,17 @@
         }
         .form-group label {
             display: block;
-            margin-bottom: 6px;
+            margin-bottom: 8px;
             color: #495057;
-            font-weight: 500;
-            font-size: 14px;
+            font-weight: 600;
+            font-size: 16px;
         }
         .form-group input {
             width: 100%;
-            padding: 10px 12px;
+            padding: 12px 14px;
             border: 1px solid #ced4da;
             border-radius: 6px;
-            font-size: 15px;
+            font-size: 16px;
             transition: border-color 0.2s, box-shadow 0.2s;
         }
         .form-group input:focus {
@@ -162,16 +162,16 @@
         }
         .btn {
             width: 100%;
-            padding: 12px;
+            padding: 14px;
             background-color: #dc143c;
             color: white;
             border: none;
             border-radius: 6px;
-            font-size: 15px;
-            font-weight: 500;
+            font-size: 17px;
+            font-weight: 600;
             cursor: pointer;
             transition: background-color 0.2s;
-            margin-top: 12px;
+            margin-top: 16px;
         }
         .btn:hover {
             background-color: #b71c1c;
@@ -200,7 +200,7 @@
         }
         .info-text {
             color: #6c757d;
-            font-size: 14px;
+            font-size: 16px;
             margin-top: 12px;
             text-align: center;
         }
@@ -212,6 +212,7 @@
             color: #dc143c;
             text-decoration: none;
             font-weight: 500;
+            font-size: 16px;
         }
         .resend-otp a:hover {
             text-decoration: underline;

@@ -554,10 +554,9 @@
     <c:choose>
         <c:when test="${not empty movie}">
 
-            <%-- Calculate hours and minutes for duration --%>
-            <c:set var="durHours" value="${movie.duration / 60}" />
-            <fmt:parseNumber var="durHoursInt" integerOnly="true" type="number" value="${durHours}" />
-            <c:set var="durMins" value="${movie.duration - (durHoursInt * 60)}" />
+            <%-- Calculate hours and minutes for duration safely --%>
+            <fmt:parseNumber var="durHoursInt" integerOnly="true" value="${movie.duration / 60}" />
+            <c:set var="durMins" value="${movie.duration % 60}" />
 
             <%-- Hero Banner --%>
             <div class="hero">
@@ -819,7 +818,7 @@
 
         // ── VIEWING TIMES LOGIC ──
         <c:if test="${not empty movie}">
-        const rawShowTimes = ${not empty showTimesJson ? showTimesJson : '[]'};
+        const rawShowTimes = ${showTimesJson};
         const movieId = ${movie.movieId};
         const contextPath = '${pageContext.request.contextPath}';
 

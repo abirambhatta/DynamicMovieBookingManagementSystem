@@ -91,36 +91,36 @@
         }
 
         .form-box h2 {
-            font-size: 20px;
+            font-size: 26px;
             font-weight: 700;
             color: #111;
-            margin-bottom: 4px;
+            margin-bottom: 6px;
         }
 
         .form-box .hint {
-            font-size: 13px;
+            font-size: 15px;
             color: #888;
-            margin-bottom: 22px;
+            margin-bottom: 24px;
         }
 
         .field { margin-bottom: 14px; }
 
         .field label {
             display: block;
-            font-size: 12px;
+            font-size: 14px;
             font-weight: 600;
             color: #555;
-            margin-bottom: 4px;
+            margin-bottom: 6px;
             text-transform: uppercase;
             letter-spacing: 0.3px;
         }
 
         .field input {
             width: 100%;
-            padding: 9px 11px;
+            padding: 12px 14px;
             border: 1px solid #ccc;
             border-radius: 3px;
-            font-size: 14px;
+            font-size: 16px;
             font-family: inherit;
             color: #111;
             background: #fff;
@@ -157,22 +157,22 @@
 
         .submit-btn {
             width: 100%;
-            padding: 10px;
+            padding: 14px;
             background: #c9152f;
             color: #fff;
             border: none;
             border-radius: 3px;
-            font-size: 14px;
-            font-weight: 600;
+            font-size: 16px;
+            font-weight: 700;
             cursor: pointer;
-            margin-top: 6px;
+            margin-top: 10px;
         }
 
         .submit-btn:hover { background: #a01026; }
 
         .form-footer {
-            margin-top: 16px;
-            font-size: 13px;
+            margin-top: 20px;
+            font-size: 15px;
             color: #666;
             text-align: center;
         }
