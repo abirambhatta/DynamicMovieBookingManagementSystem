@@ -342,9 +342,9 @@
                 <p>Showing stats for: <strong>${not empty selectedPeriod ? selectedPeriod : 'all time'}</strong></p>
             </div>
             <div class="period-filters">
-                <button onclick="window.location.href='${pageContext.request.contextPath}/adminHome?period=day'" class="${selectedPeriod == 'day' ? 'active' : ''}">Today</button>
-                <button onclick="window.location.href='${pageContext.request.contextPath}/adminHome?period=week'" class="${selectedPeriod == 'week' ? 'active' : ''}">This week</button>
-                <button onclick="window.location.href='${pageContext.request.contextPath}/adminHome?period=month'" class="${selectedPeriod == 'month' ? 'active' : ''}">This month</button>
+                <button onclick="window.location.href='${pageContext.request.contextPath}/adminHome?period=week'" class="${selectedPeriod == 'week' ? 'active' : ''}">Week</button>
+                <button onclick="window.location.href='${pageContext.request.contextPath}/adminHome?period=month_year'" class="${selectedPeriod == 'month_year' ? 'active' : ''}">Month</button>
+                <button onclick="window.location.href='${pageContext.request.contextPath}/adminHome?period=year'" class="${selectedPeriod == 'year' ? 'active' : ''}">Year</button>
                 <button onclick="toggleCustomRange()" class="${selectedPeriod == 'custom' ? 'active' : ''}">Custom</button>
                 <c:if test="${not empty selectedPeriod}">
                     <button onclick="window.location.href='${pageContext.request.contextPath}/adminHome'">Clear</button>
@@ -552,9 +552,11 @@
 
             if (labelType === 'day') {
                 labels = labels.map(s => { const d = new Date(s); return isNaN(d) ? s : d.toLocaleDateString('en-US', {month:'short', day:'numeric'}); });
+            } else if (labelType === 'weekday') {
+                labels = labels.map(s => { const d = new Date(s); return isNaN(d) ? s : d.toLocaleDateString('en-US', {weekday:'long'}); });
             } else if (labelType === 'month') {
                 const mo = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-                labels = labels.map(s => { const p = s.split('-'); return p.length >= 2 ? mo[parseInt(p[1])-1]+' '+p[0] : s; });
+                labels = labels.map(s => { const p = s.split('-'); return p.length >= 2 ? mo[parseInt(p[1])-1] : s; });
             } else if (labelType === 'hour') {
                 labels = labels.map(s => { const p = s.split(' '); return p.length === 2 ? p[1] : s; });
             } else if (labelType === 'week_group') {
@@ -592,7 +594,10 @@
         const customGroup = '${customGroup}';
         let chartType = 'month';
         if (selectedPeriod === 'day') chartType = 'hour';
-        else if (selectedPeriod === 'week' || selectedPeriod === 'month') chartType = 'day';
+        else if (selectedPeriod === 'week') chartType = 'weekday';
+        else if (selectedPeriod === 'month') chartType = 'day';
+        else if (selectedPeriod === 'month_year') chartType = 'month';
+        else if (selectedPeriod === 'year') chartType = 'year';
         else if (selectedPeriod === 'custom') {
             if (customGroup === 'week') chartType = 'week_group';
             else if (customGroup === 'month') chartType = 'month';

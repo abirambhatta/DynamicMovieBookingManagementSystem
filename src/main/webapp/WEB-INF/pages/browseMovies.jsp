@@ -67,18 +67,21 @@
             background: #fff;
             border: 1px solid #ddd;
             border-radius: 5px;
-            padding: 14px 16px;
-            margin-bottom: 20px;
+            padding: 16px 20px;
+            margin-bottom: 24px;
             display: flex;
-            gap: 10px;
+            flex-direction: row;
+            justify-content: flex-start;
             align-items: flex-end;
+            gap: 16px;
             flex-wrap: wrap;
         }
 
         .filter-bar .field {
             display: flex;
             flex-direction: column;
-            gap: 4px;
+            gap: 6px;
+            flex: 0 0 auto;
         }
 
         .filter-bar label {

@@ -560,6 +560,10 @@ public class BookingDao {
                 query.append(" AND booking_date >= DATE_SUB(CURDATE(), INTERVAL 7 DAY) ");
             } else if ("month".equals(period)) {
                 query.append(" AND booking_date >= DATE_SUB(CURDATE(), INTERVAL 30 DAY) ");
+            } else if ("month_year".equals(period)) {
+                query.append(" AND booking_date >= DATE_SUB(CURDATE(), INTERVAL 12 MONTH) ");
+            } else if ("year".equals(period)) {
+                // All years
             } else if ("custom".equals(period) && startDate != null && !startDate.isEmpty() && endDate != null && !endDate.isEmpty()) {
                 query.append(" AND DATE(booking_date) BETWEEN ? AND ? ");
             }
@@ -627,6 +631,14 @@ public class BookingDao {
         } else if ("month".equals(period)) {
             query.append("SELECT DATE(booking_date) as label, COALESCE(SUM(total_price), 0) as revenue ");
             query.append("FROM bookings WHERE status != 'Cancelled' AND booking_date >= DATE_SUB(CURDATE(), INTERVAL 30 DAY) ");
+            query.append("GROUP BY label ORDER BY label ASC");
+        } else if ("month_year".equals(period)) {
+            query.append("SELECT DATE_FORMAT(booking_date, '%Y-%m') as label, COALESCE(SUM(total_price), 0) as revenue ");
+            query.append("FROM bookings WHERE status != 'Cancelled' AND booking_date >= DATE_SUB(CURDATE(), INTERVAL 12 MONTH) ");
+            query.append("GROUP BY label ORDER BY label ASC");
+        } else if ("year".equals(period)) {
+            query.append("SELECT YEAR(booking_date) as label, COALESCE(SUM(total_price), 0) as revenue ");
+            query.append("FROM bookings WHERE status != 'Cancelled' ");
             query.append("GROUP BY label ORDER BY label ASC");
         } else if ("custom".equals(period) && startDate != null && endDate != null) {
             String groupBy = "day";
@@ -802,6 +814,10 @@ public class BookingDao {
             query.append(" AND b.booking_date >= DATE_SUB(CURDATE(), INTERVAL 7 DAY)");
         } else if ("month".equals(period)) {
             query.append(" AND b.booking_date >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)");
+        } else if ("month_year".equals(period)) {
+            query.append(" AND b.booking_date >= DATE_SUB(CURDATE(), INTERVAL 12 MONTH)");
+        } else if ("year".equals(period)) {
+            // All years
         }
         // Add custom date range filter
         else if (startDate != null && !startDate.isEmpty() && endDate != null && !endDate.isEmpty()) {
@@ -894,6 +910,10 @@ public class BookingDao {
             query.append(" AND booking_date >= DATE_SUB(CURDATE(), INTERVAL 7 DAY)");
         } else if ("month".equals(period)) {
             query.append(" AND booking_date >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)");
+        } else if ("month_year".equals(period)) {
+            query.append(" AND booking_date >= DATE_SUB(CURDATE(), INTERVAL 12 MONTH)");
+        } else if ("year".equals(period)) {
+            // All years
         } else if ("custom".equals(period) && startDate != null && !startDate.isEmpty() && endDate != null && !endDate.isEmpty()) {
             query.append(" AND DATE(booking_date) BETWEEN ? AND ?");
         }
@@ -925,6 +945,10 @@ public class BookingDao {
             query.append(" AND booking_date >= DATE_SUB(CURDATE(), INTERVAL 7 DAY)");
         } else if ("month".equals(period)) {
             query.append(" AND booking_date >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)");
+        } else if ("month_year".equals(period)) {
+            query.append(" AND booking_date >= DATE_SUB(CURDATE(), INTERVAL 12 MONTH)");
+        } else if ("year".equals(period)) {
+            // All years
         } else if ("custom".equals(period) && startDate != null && !startDate.isEmpty() && endDate != null && !endDate.isEmpty()) {
             query.append(" AND DATE(booking_date) BETWEEN ? AND ?");
         }
@@ -960,6 +984,10 @@ public class BookingDao {
             query.append(" AND b.booking_date >= DATE_SUB(CURDATE(), INTERVAL 7 DAY) ");
         } else if ("month".equals(period)) {
             query.append(" AND b.booking_date >= DATE_SUB(CURDATE(), INTERVAL 30 DAY) ");
+        } else if ("month_year".equals(period)) {
+            query.append(" AND b.booking_date >= DATE_SUB(CURDATE(), INTERVAL 12 MONTH) ");
+        } else if ("year".equals(period)) {
+            // All years
         } else if ("custom".equals(period) && startDate != null && !startDate.isEmpty() && endDate != null && !endDate.isEmpty()) {
             query.append(" AND DATE(b.booking_date) BETWEEN ? AND ? ");
         }
@@ -1001,6 +1029,10 @@ public class BookingDao {
             query.append(" AND b.booking_date >= DATE_SUB(CURDATE(), INTERVAL 7 DAY) ");
         } else if ("month".equals(period)) {
             query.append(" AND b.booking_date >= DATE_SUB(CURDATE(), INTERVAL 30 DAY) ");
+        } else if ("month_year".equals(period)) {
+            query.append(" AND b.booking_date >= DATE_SUB(CURDATE(), INTERVAL 12 MONTH) ");
+        } else if ("year".equals(period)) {
+            // All years
         } else if ("custom".equals(period) && startDate != null && !startDate.isEmpty() && endDate != null && !endDate.isEmpty()) {
             query.append(" AND DATE(b.booking_date) BETWEEN ? AND ? ");
         }
