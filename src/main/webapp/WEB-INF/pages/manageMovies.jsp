@@ -46,6 +46,11 @@
         .tmdb-result-meta { font-size: 11px; color: #888; }
         .tmdb-badge { display: inline-block; background: #3498db; color: #fff; font-size: 10px; font-weight: 800; padding: 2px 6px; border-radius: 2px; margin-bottom: 5px; }
         .tmdb-autofill-note { font-size: 12px; color: #3498db; font-weight: 600; margin-bottom: 8px; display: none; }
+        .admin-wrap { max-width: 1160px; margin: 0 auto; padding: 24px 20px 40px; }
+        .page-header { margin-bottom: 18px; }
+        .page-header h1 { font-size: 20px; font-weight: 700; color: #111; margin-bottom: 2px; }
+        .page-header p { font-size: 13px; color: #666; }
+        .action-buttons { margin-bottom: 12px; }
         @media (max-width: 900px) { .stats-row { grid-template-columns: 1fr 1fr; } }
     </style>
 </head>
@@ -54,14 +59,13 @@
         <c:redirect url="login"/>
     </c:if>
     
-    <div class="dashboard">
-        <jsp:include page="adminHeader.jsp" />
-        
-        <div class="main-content">
-            <div style="margin-bottom: 16px;">
-                <h1 style="font-size: 20px; font-weight: 700; margin: 0 0 2px; color: #111;">Movies</h1>
-                <p style="font-size: 13px; color: #666; margin: 0;">Manage the cinema's movie catalog and showtimes.</p>
-            </div>
+    <jsp:include page="adminHeader.jsp" />
+
+    <div class="admin-wrap">
+        <div class="page-header">
+            <h1>Movies</h1>
+            <p>Manage the cinema's movie catalog and showtimes.</p>
+        </div>
 
             <div class="stats-row">
                 <div class="stat-box red">
@@ -1553,8 +1557,6 @@
                         </c:choose>
                     </tbody>
                 </table>
-            </div>
-        </div>
     </div>
     <script src="${pageContext.request.contextPath}/js/pagination.js"></script>
 </body>
