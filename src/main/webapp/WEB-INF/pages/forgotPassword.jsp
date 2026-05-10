@@ -283,7 +283,7 @@
 
         <!-- Step 2: OTP Verification -->
         <c:if test="${step == '2'}">
-            <form method="POST" action="${pageContext.request.contextPath}/forgotPassword">
+            <form method="POST" action="${pageContext.request.contextPath}/forgotPassword" onsubmit="return combineOtp()">
                 <input type="hidden" name="step" value="2">
                 <input type="hidden" name="email" value="${email}">
                 <input type="hidden" name="otp" id="fullOtp">
@@ -338,7 +338,12 @@
                     return true;
                 }
                 
-                var timeLeft = 300; 
+                var sentTime = ${sessionScope.otpSentTime != null ? sessionScope.otpSentTime : 'new Date().getTime()'};
+                var now = new Date().getTime();
+                var elapsed = Math.floor((now - sentTime) / 1000);
+                var timeLeft = 300 - elapsed;
+                if (timeLeft < 0) timeLeft = 0;
+                
                 var timerId = setInterval(function() {
                     if (timeLeft <= 0) {
                         clearInterval(timerId);
