@@ -299,7 +299,20 @@
                     <input type="text" class="otp-input" id="otp6" maxlength="1" oninput="moveToNext(this, null)" onkeydown="moveToPrev(event, this, 'otp5')">
                 </div>
 
-                <p class="info-text">OTP expires in <span class="timer" id="timer">5:00</span></p>
+                <% 
+                    Long otpSent = (Long) request.getAttribute("otpSentTime");
+                    if (otpSent == null) otpSent = (Long) session.getAttribute("otpSentTime");
+                    
+                    long remain = 300;
+                    if (otpSent != null) {
+                        long elapsed = (System.currentTimeMillis() - otpSent) / 1000;
+                        remain = 300 - elapsed;
+                        if (remain < 0) remain = 0;
+                    }
+                    long mins = remain / 60;
+                    long secs = remain % 60;
+                %>
+                <p class="info-text">OTP expires in <span class="timer" id="timer"><%= mins %>:<%= (secs < 10 ? "0" : "") + secs %></span></p>
 
                 <button type="submit" class="btn" id="verifyBtn">Verify OTP</button>
 
@@ -338,16 +351,7 @@
                     return true;
                 }
                 
-                <% 
-                    Long otpSentTime = (Long) session.getAttribute("otpSentTime");
-                    long remainingTime = 300;
-                    if (otpSentTime != null) {
-                        long elapsedSeconds = (System.currentTimeMillis() - otpSentTime) / 1000;
-                        remainingTime = 300 - elapsedSeconds;
-                        if (remainingTime < 0) remainingTime = 0;
-                    }
-                %>
-                var timeLeft = <%= remainingTime %>;
+                var timeLeft = <%= remain %>;
                 
                 var timerId = setInterval(function() {
                     if (timeLeft <= 0) {

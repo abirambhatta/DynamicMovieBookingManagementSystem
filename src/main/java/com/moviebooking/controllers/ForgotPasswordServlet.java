@@ -104,6 +104,7 @@ public class ForgotPasswordServlet extends HttpServlet {
             // Move to step 2 (OTP verification)
             request.setAttribute("step", "2");
             request.setAttribute("email", email);
+            request.setAttribute("otpSentTime", session.getAttribute("otpSentTime"));
             request.setAttribute("success", "OTP sent to your email");
             request.getRequestDispatcher("/WEB-INF/pages/forgotPassword.jsp").forward(request, response);
         } else {
@@ -152,6 +153,7 @@ public class ForgotPasswordServlet extends HttpServlet {
             request.setAttribute("error", "Invalid or expired OTP");
             request.setAttribute("step", "2");
             request.setAttribute("email", email);
+            request.setAttribute("otpSentTime", session.getAttribute("otpSentTime"));
             request.getRequestDispatcher("/WEB-INF/pages/forgotPassword.jsp").forward(request, response);
         }
     }
