@@ -338,11 +338,16 @@
                     return true;
                 }
                 
-                var sentTime = ${sessionScope.otpSentTime != null ? sessionScope.otpSentTime : 'new Date().getTime()'};
-                var now = new Date().getTime();
-                var elapsed = Math.floor((now - sentTime) / 1000);
-                var timeLeft = 300 - elapsed;
-                if (timeLeft < 0) timeLeft = 0;
+                <% 
+                    Long otpSentTime = (Long) session.getAttribute("otpSentTime");
+                    long remainingTime = 300;
+                    if (otpSentTime != null) {
+                        long elapsedSeconds = (System.currentTimeMillis() - otpSentTime) / 1000;
+                        remainingTime = 300 - elapsedSeconds;
+                        if (remainingTime < 0) remainingTime = 0;
+                    }
+                %>
+                var timeLeft = <%= remainingTime %>;
                 
                 var timerId = setInterval(function() {
                     if (timeLeft <= 0) {
