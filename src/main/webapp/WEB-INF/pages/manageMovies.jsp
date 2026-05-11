@@ -24,6 +24,18 @@
         .date-tab { padding: 6px 14px; border: 1px solid #ccc; border-radius: 3px; cursor: pointer; background: #fff; font-size: 13px; font-weight: 500; }
         .date-tab:hover { border-color: #c9152f; }
         .date-tab.active { border-color: #c9152f; background: #c9152f; color: #fff; }
+        .date-tab.has-data { border-color: #218a3a; border-width: 2px; position: relative; }
+        .date-tab.has-data::after { 
+            content: ''; 
+            position: absolute; 
+            top: -4px; 
+            right: -4px; 
+            width: 8px; 
+            height: 8px; 
+            background: #218a3a; 
+            border-radius: 50%; 
+            border: 1px solid white;
+        }
         .time-input-section { display: none; }
         .time-input-section.active { display: block; }
         .time-input-row { display: flex; gap: 8px; align-items: center; margin-bottom: 8px; }
@@ -280,7 +292,7 @@
                                 <label style="font-weight: 500; margin-bottom: 10px; display: block;">Select Halls:</label>
                                 <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 20px;">
                                     <c:forEach var="hall" items="${availableHalls}">
-                                        <div class="date-tab" onclick="toggleHall(this, '${hall}')">${hall}</div>
+                                        <div class="date-tab" data-hall="${hall}" onclick="toggleHall(this, '${hall}')">${hall}</div>
                                     </c:forEach>
                                 </div>
                             </div>
@@ -853,6 +865,9 @@
                             }
                         });
                     }
+                    
+                    // Update highlights for date and hall tabs
+                    refreshHighlights();
                 }
                 
                 // Toggle hall selection on/off
@@ -1027,6 +1042,8 @@
                     timeInput.value = '';
                     // Update hidden form field
                     updateScheduleData();
+                    // Update highlights
+                    refreshHighlights();
                 }
                 
                 // Remove a show time from a hall
@@ -1041,6 +1058,8 @@
                     renderTimes(sectionId, hallId);
                     // Update hidden form field
                     updateScheduleData();
+                    // Update highlights
+                    refreshHighlights();
                 }
                 
                 // Display all times for a hall
@@ -1095,6 +1114,34 @@
                         }
                     }
                     document.getElementById('scheduleData').value = data.join(',');
+                }
+                
+                function refreshHighlights() {
+                    // 1. Date Tabs
+                    document.querySelectorAll('#dateTabs .date-tab').forEach(tab => {
+                        const dateKey = tab.getAttribute('data-date');
+                        let hasData = false;
+                        if (schedule[dateKey] && schedule[dateKey].halls) {
+                            for (let h in schedule[dateKey].halls) {
+                                if (schedule[dateKey].halls[h].length > 0) { hasData = true; break; }
+                            }
+                        }
+                        if (hasData) tab.classList.add('has-data');
+                        else tab.classList.remove('has-data');
+                    });
+                    
+                    // 2. Hall Tabs
+                    if (currentDate) {
+                        document.querySelectorAll('#hallSelection .date-tab').forEach(tab => {
+                            const hallId = tab.getAttribute('data-hall');
+                            let hasData = false;
+                            if (schedule[currentDate] && schedule[currentDate].halls[hallId] && schedule[currentDate].halls[hallId].length > 0) {
+                                hasData = true;
+                            }
+                            if (hasData) tab.classList.add('has-data');
+                            else tab.classList.remove('has-data');
+                        });
+                    }
                 }
                 
                 // Show edit movie form with movie data
@@ -1250,6 +1297,9 @@
                             }
                         });
                     }
+                    
+                    // Update highlights for date and hall tabs
+                    refreshEditHighlights();
                 }
                 
                 // Toggle edit hall
@@ -1389,6 +1439,7 @@
                     }
                     timeInput.value = '';
                     updateEditScheduleData();
+                    refreshEditHighlights();
                 }
 
                 // Remove edit time
@@ -1398,6 +1449,7 @@
                     }
                     renderEditTimes(sectionId, hallId);
                     updateEditScheduleData();
+                    refreshEditHighlights();
                 }
 
                 // Update hidden edit schedule data field before submit
@@ -1415,6 +1467,34 @@
                     const hiddenField = document.getElementById('editScheduleData');
                     if (hiddenField) {
                         hiddenField.value = scheduleDataParams.join(',');
+                    }
+                }
+                
+                function refreshEditHighlights() {
+                    // 1. Date Tabs
+                    document.querySelectorAll('#editDateTabs .date-tab').forEach(tab => {
+                        const dateKey = tab.getAttribute('data-date');
+                        let hasData = false;
+                        if (editSchedule[dateKey] && editSchedule[dateKey].halls) {
+                            for (let h in editSchedule[dateKey].halls) {
+                                if (editSchedule[dateKey].halls[h].length > 0) { hasData = true; break; }
+                            }
+                        }
+                        if (hasData) tab.classList.add('has-data');
+                        else tab.classList.remove('has-data');
+                    });
+                    
+                    // 2. Hall Tabs
+                    if (currentEditDate) {
+                        document.querySelectorAll('#editHallSelection .date-tab').forEach(tab => {
+                            const hallId = tab.getAttribute('data-hall');
+                            let hasData = false;
+                            if (editSchedule[currentEditDate] && editSchedule[currentEditDate].halls[hallId] && editSchedule[currentEditDate].halls[hallId].length > 0) {
+                                hasData = true;
+                            }
+                            if (hasData) tab.classList.add('has-data');
+                            else tab.classList.remove('has-data');
+                        });
                     }
                 }
                 
