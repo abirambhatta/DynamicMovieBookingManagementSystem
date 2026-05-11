@@ -746,6 +746,10 @@
                     // Check if end date is after start date
                     if (start > end) {
                         alert('End date must be after start date');
+                        document.getElementById('dateTabs').innerHTML = '';
+                        document.getElementById('timeInputSections').innerHTML = '';
+                        document.getElementById('hallSelection').style.display = 'none';
+                        schedule = {};
                         return;
                     }
                     
@@ -835,6 +839,20 @@
                     
                     // Clear time input sections
                     document.getElementById('timeInputSections').innerHTML = '';
+                    
+                    // RESTORE PREVIOUSLY ADDED HALLS FOR THIS DATE
+                    if (schedule[currentDate] && schedule[currentDate].halls) {
+                        Object.keys(schedule[currentDate].halls).forEach(h => {
+                            if (schedule[currentDate].halls[h].length > 0) {
+                                const hallTab = document.querySelector('#hallSelection .date-tab[data-hall="' + h + '"]');
+                                if (hallTab) {
+                                    hallTab.classList.add('active');
+                                    selectedHalls.push(h);
+                                    addHallSection(h);
+                                }
+                            }
+                        });
+                    }
                 }
                 
                 // Toggle hall selection on/off
@@ -922,6 +940,9 @@
                     section.appendChild(warning);
                     section.appendChild(timeList);
                     timeInputSections.appendChild(section);
+                    
+                    // Render existing times if any
+                    renderTimes(sectionId, hallId);
                 }
                 
                 // Remove time input section for a hall
@@ -1408,6 +1429,10 @@
                         const end = new Date(endDate);
                         if (start > end) {
                             alert('End date must be after start date');
+                            document.getElementById('editDateTabs').innerHTML = '';
+                            document.getElementById('editTimeInputSections').innerHTML = '';
+                            document.getElementById('editHallSelection').style.display = 'none';
+                            editSchedule = {};
                             return;
                         }
                         
