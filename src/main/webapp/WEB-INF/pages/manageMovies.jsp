@@ -714,7 +714,16 @@
                 
                 // Show the add movie form
                 function showAddForm() { 
-                    document.getElementById('addMovieForm').style.display = 'block';
+                    const addForm = document.getElementById('addMovieForm');
+                    const editForm = document.getElementById('editMovieForm');
+                    
+                    if (addForm.style.display === 'block') {
+                        hideAddForm();
+                    } else {
+                        hideEditForm(); // Ensure edit form is closed
+                        addForm.style.display = 'block';
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                    }
                 }
                 
                 // Hide the add movie form and reset all data
@@ -1152,6 +1161,9 @@
                 function showEditForm(movieId, title, genre, director, duration, language, description, posterImage, startDate, endDate, releaseDate, format, ageRating, trailerUrl, castList, pStd, pPrem, pRec, pVip) {
                     console.log('Opening edit form for movie ID:', movieId);
                     
+                    hideAddForm(); // Ensure add form is closed
+                    document.getElementById('editMovieForm').style.display = 'none'; // Reset view if another edit was open
+                    
                     document.getElementById('editMovieId').value = movieId;
                     document.getElementById('editTitle').value = title;
                     document.getElementById('editGenre').value = genre;
@@ -1219,6 +1231,7 @@
                     }
                     
                     document.getElementById('editMovieForm').style.display = 'block';
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
                 }
                 
                 // Preview new poster image before upload
