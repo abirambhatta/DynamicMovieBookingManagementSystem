@@ -4,11 +4,13 @@ A full-stack web application for booking movie tickets with advanced admin manag
 
 ## Features
 - **Security**: Role-Based Access Control (Admin/User) and OTP-based password reset.
-- **Catalog Management**: Deep TMDB API integration for auto-filling movie details and downloading posters, with YouTube trailer fallback.
+- **Catalog Management**: Deep TMDB API integration for auto-filling movie details and downloading posters, with YouTube trailer fallback and one-click "Restore" in the Edit interface.
+- **Persistent Asset Strategy**: Automated dual-storage for movie posters. Images are mirrored to both the server deployment and the project source (`/images/`), ensuring assets survive Tomcat restarts and clean builds.
 - **Dynamic Booking Engine**: Interactive JSON-powered seat maps that update in real-time.
 - **Advanced Pricing**: Support for 4-Tier pricing (Standard, Premium, Recliner, VIP) with global fallbacks.
 - **Hall Configuration**: Dynamic theater layouts (e.g., Audi 01, Audi 02) with custom row-to-tier mappings.
 - **Admin Dashboard**: Real-time business intelligence using Chart.js to track revenue, popular movies, and seat distribution.
+- **Real-World Cancellation**: Enterprise-grade booking management where admins can cancel transactions. The system automatically releases seats back to the public and reconciles revenue analytics in real-time.
 - **Data Integrity**: Soft-delete architecture for preserving financial history.
 
 ## Technology Stack
@@ -125,7 +127,8 @@ TMDB_API_KEY=your_tmdb_api_key
 - Keep dependencies updated
 
 ## Author
-Abiram Bhatta
+Abiram Bhatta (Kathmandu, Nepal)
+Contact: contact@moviemint.com.np
 
 ## Troubleshooting
 - **UnsupportedClassVersionError (500 Internal Server Error)**: If Tomcat fails to start or throws a 500 error, ensure your Java compiler targets the exact same Java version that your Tomcat server runs (e.g., compile with `javac --release 21` if Tomcat runs Java 21).
