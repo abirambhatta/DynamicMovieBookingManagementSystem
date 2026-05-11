@@ -317,7 +317,7 @@
                 <button type="submit" class="btn" id="verifyBtn">Verify OTP</button>
 
                 <div class="resend-otp">
-                    <a href="${pageContext.request.contextPath}/forgotPassword?step=1">Resend OTP</a>
+                    <a href="${pageContext.request.contextPath}/forgotPassword?step=resend">Resend OTP</a>
                 </div>
 
                 <div class="back-link">

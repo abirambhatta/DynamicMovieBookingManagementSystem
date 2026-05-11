@@ -41,6 +41,11 @@ public class ForgotPasswordServlet extends HttpServlet {
         }
         
         String step = request.getParameter("step");
+        if ("resend".equals(step)) {
+            handleResendOtp(request, response);
+            return;
+        }
+        
         if (step == null) {
             step = "1";
         }
@@ -63,6 +68,45 @@ public class ForgotPasswordServlet extends HttpServlet {
             handleOtpVerification(request, response);
         } else if ("3".equals(step)) {
             handlePasswordReset(request, response);
+        } else if ("resend".equals(step)) {
+            handleResendOtp(request, response);
+        }
+    }
+
+    /**
+     * Resend OTP to the email stored in session.
+     * Keeps user on step 2 and resets the 5-minute timer.
+     */
+    private void handleResendOtp(HttpServletRequest request, HttpServletResponse response) 
+            throws ServletException, IOException {
+        HttpSession session = request.getSession(false);
+        if (session == null || session.getAttribute("resetEmail") == null) {
+            request.setAttribute("error", "Session expired. Please enter your email again");
+            request.setAttribute("step", "1");
+            request.getRequestDispatcher("/WEB-INF/pages/forgotPassword.jsp").forward(request, response);
+            return;
+        }
+
+        String email = (String) session.getAttribute("resetEmail");
+        
+        // Generate new OTP and calculate expiry
+        String otp = OtpUtil.generateOtp();
+        long expiryTime = OtpUtil.getCurrentTimeMillis() + (10 * 60 * 1000);
+
+        if (userDao.storeOtp(email, otp, expiryTime) && EmailService.sendOtpEmail(email, otp)) {
+            session.setAttribute("otpSentTime", System.currentTimeMillis());
+            
+            request.setAttribute("step", "2");
+            request.setAttribute("email", email);
+            request.setAttribute("otpSentTime", session.getAttribute("otpSentTime"));
+            request.setAttribute("success", "A new OTP has been sent to your email!");
+            request.getRequestDispatcher("/WEB-INF/pages/forgotPassword.jsp").forward(request, response);
+        } else {
+            request.setAttribute("error", "Failed to resend OTP. Please try again");
+            request.setAttribute("step", "2");
+            request.setAttribute("email", email);
+            request.setAttribute("otpSentTime", session.getAttribute("otpSentTime"));
+            request.getRequestDispatcher("/WEB-INF/pages/forgotPassword.jsp").forward(request, response);
         }
     }
 
