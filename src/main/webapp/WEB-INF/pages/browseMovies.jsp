@@ -386,6 +386,7 @@
 
         <form action="${pageContext.request.contextPath}/browseMovies" method="get" class="filter-bar">
             <input type="hidden" name="status" value="${currentStatus}">
+            <input type="hidden" name="date" value="${currentDate}">
 
             <div class="field">
                 <label for="searchInput">Search</label>

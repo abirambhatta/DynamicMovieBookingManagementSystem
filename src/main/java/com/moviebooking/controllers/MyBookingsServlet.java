@@ -33,6 +33,11 @@ public class MyBookingsServlet extends HttpServlet {
 
         // Get user ID from session and fetch their bookings
         int userId = (int) session.getAttribute("userId");
+        
+        // Auto-expire past bookings: if show_time date has passed, mark as Completed
+        // show_time format is like "2026-05-09 10:00 - Audi 01", we extract the datetime part
+        bookingDao.expirePastBookings();
+        
         List<Booking> bookings = bookingDao.getBookingsByUserId(userId);
         // Pass bookings to the JSP page
         request.setAttribute("bookings", bookings);

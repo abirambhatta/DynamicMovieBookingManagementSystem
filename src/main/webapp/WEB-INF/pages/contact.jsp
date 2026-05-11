@@ -123,7 +123,7 @@
                             </div>
                             <div>
                                 <h3 class="text-xs font-bold text-secondary uppercase tracking-widest">Email</h3>
-                                <p class="font-semibold text-on-surface">support@moviemint.com</p>
+                                <p class="font-semibold text-on-surface">contact@moviemint.com.np</p>
                             </div>
                         </div>
                     </div>
@@ -135,7 +135,7 @@
                             </div>
                             <div>
                                 <h3 class="text-xs font-bold text-secondary uppercase tracking-widest">Phone</h3>
-                                <p class="font-semibold text-on-surface">+1 234 567 8900</p>
+                                <p class="font-semibold text-on-surface">+977 1 4410123</p>
                             </div>
                         </div>
                     </div>
@@ -147,7 +147,7 @@
                             </div>
                             <div>
                                 <h3 class="text-xs font-bold text-secondary uppercase tracking-widest">Address</h3>
-                                <p class="font-semibold text-on-surface text-sm">123 Movie Street<br>Cinema City, CC 12345</p>
+                                <p class="font-semibold text-on-surface text-sm">MovieMint Plaza, Durbarmarg<br>Kathmandu, Nepal</p>
                             </div>
                         </div>
                     </div>
@@ -159,7 +159,7 @@
                             </div>
                             <div>
                                 <h3 class="text-xs font-bold text-secondary uppercase tracking-widest">Business Hours</h3>
-                                <p class="font-semibold text-on-surface text-sm">Mon-Sun<br>9:00 AM - 10:00 PM</p>
+                                <p class="font-semibold text-on-surface text-sm">Mon-Sun<br>10:00 AM - 11:00 PM</p>
                             </div>
                         </div>
                     </div>

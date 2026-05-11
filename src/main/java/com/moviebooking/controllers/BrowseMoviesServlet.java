@@ -81,6 +81,11 @@ public class BrowseMoviesServlet extends HttpServlet {
             dateTabs.add(tab);
         }
         
+        // Fetch showtimes for the selected date
+        List<ShowTime> allShowTimes = showTimeDao.getShowTimesByDate(java.sql.Date.valueOf(selectedDate));
+        Map<Integer, List<ShowTime>> showTimesMap = allShowTimes.stream()
+                .collect(Collectors.groupingBy(ShowTime::getMovieId));
+
         // Filter movies based on status and date
         final LocalDate filterDate = selectedDate;
         
@@ -94,6 +99,9 @@ public class BrowseMoviesServlet extends HttpServlet {
                 .collect(Collectors.toList());
         } else {
             // "now_showing"
+            // Filter by:
+            // 1. Date range (start_date <= filterDate <= end_date)
+            // 2. AND must have at least one showtime on that date
             movies = movies.stream()
                 .filter(m -> {
                     if (m.getStartDate() == null || m.getEndDate() == null) return false;
@@ -116,11 +124,6 @@ public class BrowseMoviesServlet extends HttpServlet {
         if (language != null && !language.trim().isEmpty()) {
             movies = movies.stream().filter(m -> m.getLanguage().equalsIgnoreCase(language)).collect(Collectors.toList());
         }
-
-        // Fetch showtimes for the selected date
-        List<ShowTime> allShowTimes = showTimeDao.getShowTimesByDate(java.sql.Date.valueOf(filterDate));
-        Map<Integer, List<ShowTime>> showTimesMap = allShowTimes.stream()
-                .collect(Collectors.groupingBy(ShowTime::getMovieId));
 
         // Pass dynamic genres and languages
         List<String> genresList = movieDao.getAllGenres();

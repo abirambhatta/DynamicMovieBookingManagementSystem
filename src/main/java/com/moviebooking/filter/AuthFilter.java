@@ -47,14 +47,16 @@ public class AuthFilter implements Filter {
         // Get the role of the logged in user (admin or user)
         String role = (String) session.getAttribute("role");
 
-        // If trying to access admin page but user is not an admin, go to login
-        if (isAdminPage && !"admin".equals(role)) {
+        // If trying to access admin page but user is not an admin, clear session and go to login
+        if (isAdminPage && !"admin".equalsIgnoreCase(role)) {
+            session.invalidate();
             res.sendRedirect(req.getContextPath() + "/login");
             return;
         }
 
-        // If trying to access user page but user is not a normal user, go to login
-        if (isUserPage && !"user".equals(role)) {
+        // If trying to access user page but user is not a normal user OR admin, clear session and go to login
+        if (isUserPage && !"user".equalsIgnoreCase(role) && !"admin".equalsIgnoreCase(role)) {
+            session.invalidate();
             res.sendRedirect(req.getContextPath() + "/login");
             return;
         }

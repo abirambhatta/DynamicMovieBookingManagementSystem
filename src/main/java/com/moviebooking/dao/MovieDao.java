@@ -291,17 +291,24 @@ public class MovieDao {
     public List<Movie> searchMovies(String keyword) {
         checkSchema();
         List<Movie> movies = new ArrayList<>();
-        // Only search in active movies for users
-        String query = "SELECT * FROM movies WHERE is_active = 1 AND (title LIKE ? OR genre LIKE ? OR director LIKE ?) ORDER BY release_date DESC";
-        try (Connection conn = DBConnection.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(query)) {
-            // Add % before and after keyword so it matches anywhere in the text
+            // Update: Make search hyphen-insensitive so "spiderman" matches "Spider-Man"
+            // Also ensures case-insensitivity depending on DB collation (usually default is fine)
             String searchPattern = "%" + keyword + "%";
-            pstmt.setString(1, searchPattern);
-            pstmt.setString(2, searchPattern);
-            pstmt.setString(3, searchPattern);
-            ResultSet rs = pstmt.executeQuery();
-            while (rs.next()) {
+            String searchPatternNoHyphen = "%" + keyword.replace("-", "") + "%";
+            
+            String query = "SELECT * FROM movies WHERE is_active = 1 AND (" +
+                           "title LIKE ? OR REPLACE(title, '-', '') LIKE ? OR " +
+                           "genre LIKE ? OR director LIKE ?) " +
+                           "ORDER BY release_date DESC";
+            
+            try (Connection conn = DBConnection.getConnection();
+                 PreparedStatement pstmt = conn.prepareStatement(query)) {
+                pstmt.setString(1, searchPattern);
+                pstmt.setString(2, searchPatternNoHyphen);
+                pstmt.setString(3, searchPattern);
+                pstmt.setString(4, searchPattern);
+                ResultSet rs = pstmt.executeQuery();
+                while (rs.next()) {
                 Movie movie = new Movie();
                 movie.setMovieId(rs.getInt("movie_id"));
                 movie.setTitle(rs.getString("title"));
@@ -310,6 +317,8 @@ public class MovieDao {
                 movie.setDuration(rs.getInt("duration"));
                 movie.setLanguage(rs.getString("language"));
                 movie.setReleaseDate(rs.getDate("release_date"));
+                movie.setStartDate(rs.getDate("start_date"));
+                movie.setEndDate(rs.getDate("end_date"));
                 movie.setDescription(rs.getString("description"));
                 movie.setPosterImage(rs.getString("poster_image"));
                 movie.setFormat(rs.getString("format"));

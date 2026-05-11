@@ -311,6 +311,19 @@
                 <form action="${pageContext.request.contextPath}/manageMovies" method="post" enctype="multipart/form-data" onsubmit="return validateMovieDates(this)">
                     <input type="hidden" name="action" value="update">
                     <input type="hidden" name="movieId" id="editMovieId">
+                    <input type="hidden" id="tmdbPosterUrlEdit" name="tmdbPosterUrl" value="">
+
+                    <!-- TMDB AUTO-FILL SECTION FOR EDIT -->
+                    <div style="background:#f0f7ff;border:2px solid #3498db;border-radius:8px;padding:16px;margin-bottom:20px;">
+                        <span class="tmdb-badge" style="background:#3498db;">TMDB Auto-Fill</span>
+                        <p style="font-size:13px;color:#333;margin:0 0 10px;">Missing poster? Search here to auto-fill details and restore the image from TMDB.</p>
+                        <div class="tmdb-search-bar">
+                            <input type="text" id="tmdbQueryEdit" placeholder="Search title to restore details..." onkeydown="if(event.key==='Enter'){event.preventDefault();tmdbSearchEdit();}">
+                            <button type="button" onclick="tmdbSearchEdit()" style="background:#3498db;">Search TMDB</button>
+                        </div>
+                        <div id="tmdbResultsEdit" class="tmdb-results"></div>
+                        <div id="tmdbNoteEdit" class="tmdb-autofill-note">Fields auto-filled from TMDB! Click 'Update Movie' to save.</div>
+                    </div>
                     
                     <div class="form-group">
                         <label>Current Poster:</label>
@@ -323,6 +336,7 @@
                         <label>Update Poster Image (Optional):</label>
                         <input type="file" name="posterImage" accept="image/*" id="editPosterInput" onchange="previewEditImage()">
                         <small>Upload JPG, PNG, or GIF to replace current image</small>
+                        <div id="tmdbPosterPreviewEdit" style="margin-top:10px;"></div>
                         <div id="newPosterPreview" style="margin-top: 10px;"></div>
                     </div>
                     
@@ -606,8 +620,74 @@
                 }
 
                 function selectYouTubeTrailer(url) {
-                    document.getElementById('addTrailerUrl').value = url;
-                    document.getElementById('youtubeSearchFallback').style.display = 'none';
+                    const trailerInput = document.getElementById('addTrailerUrl');
+                    if (trailerInput) {
+                        trailerInput.value = url;
+                        document.getElementById('youtubeSearchFallback').style.display = 'none';
+                    }
+                }
+
+                // ============================================================
+                // TMDB EDIT FORM FUNCTIONS
+                // ============================================================
+                function tmdbSearchEdit() {
+                    const query = document.getElementById('tmdbQueryEdit').value.trim();
+                    if (!query) { alert('Please enter a movie title to search.'); return; }
+
+                    const resultsDiv = document.getElementById('tmdbResultsEdit');
+                    resultsDiv.style.display = 'block';
+                    resultsDiv.innerHTML = '<div style="padding:12px;color:#666;font-size:13px;">Searching TMDB...</div>';
+
+                    fetch(CONTEXT_PATH + '/tmdbSearch?action=search&q=' + encodeURIComponent(query))
+                        .then(res => res.json())
+                        .then(data => {
+                            if (!data || data.length === 0) {
+                                resultsDiv.innerHTML = '<div style="padding:12px;color:#dc3545;font-size:13px;">No results found.</div>';
+                                return;
+                            }
+                            resultsDiv.innerHTML = '';
+                            data.slice(0, 8).forEach(movie => {
+                                const item = document.createElement('div');
+                                item.className = 'tmdb-result-item';
+                                const year = movie.releaseDate ? movie.releaseDate.substring(0, 4) : '?';
+                                const imgSrc = movie.posterUrl || 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="36" height="52"><rect width="36" height="52" fill="%23e9ecef"/><text x="18" y="30" text-anchor="middle" font-size="10" fill="%23999">No Poster</text></svg>';
+                                item.innerHTML = '<img src="' + imgSrc + '"><div><div class="tmdb-result-title">' + movie.title + '</div><div class="tmdb-result-meta">' + year + '</div></div>';
+                                item.onclick = () => tmdbSelectMovieEdit(movie.tmdbId, movie.title);
+                                resultsDiv.appendChild(item);
+                            });
+                        });
+                }
+
+                function tmdbSelectMovieEdit(tmdbId, title) {
+                    const resultsDiv = document.getElementById('tmdbResultsEdit');
+                    resultsDiv.innerHTML = '<div style="padding:12px;color:#3498db;">Loading details...</div>';
+
+                    fetch(CONTEXT_PATH + '/tmdbSearch?action=details&tmdbId=' + tmdbId)
+                        .then(res => res.json())
+                        .then(d => {
+                            setVal('editTitle', d.title);
+                            setVal('editDirector', d.director);
+                            setVal('editDuration', d.duration);
+                            setVal('editLanguage', languageCodeToName(d.language));
+                            setVal('editDescription', d.overview || d.description);
+                            setVal('editTrailerUrl', d.trailerUrl);
+                            setVal('editCastList', d.cast);
+                            if (d.releaseDate) setVal('editReleaseDate', d.releaseDate);
+                            
+                            // Genre matching
+                            const editGenre = document.getElementById('editGenre');
+                            if (editGenre && d.genre) editGenre.value = d.genre;
+
+                            if (d.posterUrl) {
+                                document.getElementById('tmdbPosterUrlEdit').value = d.posterUrl;
+                                document.getElementById('tmdbPosterPreviewEdit').innerHTML =
+                                    '<img src="' + d.posterUrl + '" style="width:100px;border-radius:6px;border:2px solid #3498db;margin-top:10px;">'
+                                    + '<p style="font-size:11px;color:#3498db;margin-top:4px;">TMDB poster selected.</p>';
+                            }
+
+                            resultsDiv.style.display = 'none';
+                            document.getElementById('tmdbNoteEdit').style.display = 'block';
+                        });
                 }
                 // ============================================================
                 // END TMDB FUNCTIONS
@@ -1163,6 +1243,14 @@
                     
                     hideAddForm(); // Ensure add form is closed
                     document.getElementById('editMovieForm').style.display = 'none'; // Reset view if another edit was open
+                    
+                    // Clear TMDB search in edit form
+                    document.getElementById('tmdbQueryEdit').value = '';
+                    document.getElementById('tmdbResultsEdit').innerHTML = '';
+                    document.getElementById('tmdbResultsEdit').style.display = 'none';
+                    document.getElementById('tmdbNoteEdit').style.display = 'none';
+                    document.getElementById('tmdbPosterUrlEdit').value = '';
+                    document.getElementById('tmdbPosterPreviewEdit').innerHTML = '';
                     
                     document.getElementById('editMovieId').value = movieId;
                     document.getElementById('editTitle').value = title;

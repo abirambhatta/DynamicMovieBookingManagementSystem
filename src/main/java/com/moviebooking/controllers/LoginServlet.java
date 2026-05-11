@@ -29,12 +29,16 @@ public class LoginServlet extends HttpServlet {
         HttpSession session = request.getSession(false);
         if (session != null && session.getAttribute("user") != null) {
             String role = (String) session.getAttribute("role");
-            if ("admin".equals(role)) {
+            if ("admin".equalsIgnoreCase(role)) {
                 response.sendRedirect(request.getContextPath() + "/adminHome");
-            } else {
+                return;
+            } else if ("user".equalsIgnoreCase(role)) {
                 response.sendRedirect(request.getContextPath() + "/userHome");
+                return;
+            } else {
+                // Unknown or null role - session is corrupted, clear it and show login
+                session.invalidate();
             }
-            return;
         }
         
         request.getRequestDispatcher("/WEB-INF/pages/login.jsp").forward(request, response);
@@ -73,7 +77,7 @@ public class LoginServlet extends HttpServlet {
             session.setAttribute("role", user.getRole());
             
             // Redirect based on role
-            if ("admin".equals(user.getRole())) {
+            if ("admin".equalsIgnoreCase(user.getRole())) {
                 response.sendRedirect(request.getContextPath() + "/adminHome");
             } else {
                 response.sendRedirect(request.getContextPath() + "/userHome");

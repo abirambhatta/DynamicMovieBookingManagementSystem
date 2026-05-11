@@ -175,20 +175,31 @@ public class ManageMoviesServlet extends HttpServlet {
             if (filePart != null && filePart.getSize() > 0) {
                 // CASE 1: User uploaded a file from their computer
                 fileName = Paths.get(filePart.getSubmittedFileName()).getFileName().toString();
-                filePart.write(uploadPath + File.separator + fileName);
+                String fullPath = uploadPath + File.separator + fileName;
+                filePart.write(fullPath);
+                
+                // --- SOLUTION 2: Save to source folder too ---
+                saveToSource(fullPath, fileName);
+                
             } else if (tmdbPosterUrl != null && !tmdbPosterUrl.trim().isEmpty()) {
                 // CASE 2: No file uploaded, but we have a TMDB URL from auto-fill
                 try {
                     // Create a unique name for the downloaded image
                     String ext = tmdbPosterUrl.contains(".") ? tmdbPosterUrl.substring(tmdbPosterUrl.lastIndexOf('.')) : ".jpg";
                     fileName = "tmdb_" + System.currentTimeMillis() + ext;
+                    String fullPath = uploadPath + File.separator + fileName;
+                    
                     URL imgUrl = new URL(tmdbPosterUrl);
                     // Download the image and save it to our images folder
                     try (InputStream in = imgUrl.openStream();
-                         OutputStream out = new java.io.FileOutputStream(uploadPath + File.separator + fileName)) {
+                         OutputStream out = new java.io.FileOutputStream(fullPath)) {
                         byte[] buf = new byte[4096]; int n;
                         while ((n = in.read(buf)) != -1) out.write(buf, 0, n);
                     }
+                    
+                    // --- SOLUTION 2: Save to source folder too ---
+                    saveToSource(fullPath, fileName);
+                    
                 } catch (Exception ex) {
                     // If download fails, use the default placeholder
                     System.err.println("[ManageMoviesServlet] Failed to download TMDB poster: " + ex.getMessage());
@@ -291,15 +302,36 @@ public class ManageMoviesServlet extends HttpServlet {
             Movie existingMovie = movieDao.getMovieById(movieId);
             String posterImage = existingMovie.getPosterImage();
             
-            // Handle poster image upload if provided
             Part filePart = request.getPart("posterImage");
+            String tmdbPosterUrl = request.getParameter("tmdbPosterUrl");
+            String uploadPath = getServletContext().getRealPath("") + File.separator + "images";
+            File uploadDir = new File(uploadPath);
+            if (!uploadDir.exists()) uploadDir.mkdirs();
+
             if (filePart != null && filePart.getSize() > 0) {
+                // CASE 1: File upload override
                 String fileName = Paths.get(filePart.getSubmittedFileName()).getFileName().toString();
-                String uploadPath = getServletContext().getRealPath("") + File.separator + "images";
-                File uploadDir = new File(uploadPath);
-                if (!uploadDir.exists()) uploadDir.mkdirs();
-                filePart.write(uploadPath + File.separator + fileName);
+                String fullPath = uploadPath + File.separator + fileName;
+                filePart.write(fullPath);
                 posterImage = fileName;
+                saveToSource(fullPath, fileName);
+            } else if (tmdbPosterUrl != null && !tmdbPosterUrl.trim().isEmpty()) {
+                // CASE 2: TMDB Restore
+                try {
+                    String ext = tmdbPosterUrl.contains(".") ? tmdbPosterUrl.substring(tmdbPosterUrl.lastIndexOf('.')) : ".jpg";
+                    String fileName = "tmdb_" + System.currentTimeMillis() + ext;
+                    String fullPath = uploadPath + File.separator + fileName;
+                    URL imgUrl = new URL(tmdbPosterUrl);
+                    try (InputStream in = imgUrl.openStream();
+                         OutputStream out = new java.io.FileOutputStream(fullPath)) {
+                        byte[] buf = new byte[4096]; int n;
+                        while ((n = in.read(buf)) != -1) out.write(buf, 0, n);
+                    }
+                    posterImage = fileName;
+                    saveToSource(fullPath, fileName);
+                } catch (Exception ex) {
+                    System.err.println("[ManageMoviesServlet] Failed to download TMDB poster in Update: " + ex.getMessage());
+                }
             }
             
             Movie movie = new Movie(title, genre, director, duration, language, 
@@ -389,6 +421,24 @@ public class ManageMoviesServlet extends HttpServlet {
             }
         } catch (Exception e) {
             response.sendRedirect(request.getContextPath() + "/manageMovies?error=Invalid movie ID");
+        }
+    }
+    /**
+     * Helper for Solution 2: Saves the uploaded image to the project's source folder
+     * so it survives Tomcat redeployments/restarts.
+     */
+    private void saveToSource(String currentPath, String fileName) {
+        try {
+            String sourcePath = settingsDao.getSetting("PROJECT_SOURCE_PATH", null);
+            if (sourcePath != null && !sourcePath.isEmpty()) {
+                File sourceDir = new File(sourcePath);
+                if (sourceDir.exists()) {
+                    Files.copy(Paths.get(currentPath), Paths.get(sourcePath + File.separator + fileName), java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+                    System.out.println("[ManageMoviesServlet] Successfully backed up " + fileName + " to source folder.");
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("[ManageMoviesServlet] Failed to back up image to source: " + e.getMessage());
         }
     }
 }

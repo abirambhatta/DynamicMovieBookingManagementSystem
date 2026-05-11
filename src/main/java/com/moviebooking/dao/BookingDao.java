@@ -220,7 +220,13 @@ public class BookingDao {
              PreparedStatement pstmt = conn.prepareStatement(query)) {
             pstmt.setString(1, status);
             pstmt.setInt(2, bookingId);
-            return pstmt.executeUpdate() > 0;
+            
+            int rows = pstmt.executeUpdate();
+            if (rows > 0) {
+                System.out.println("[BookingDao] Updated booking " + bookingId + " status to " + status);
+                return true;
+            }
+            return false;
         } catch (SQLException e) {
             e.printStackTrace();
             return false;
@@ -350,6 +356,46 @@ public class BookingDao {
             e.printStackTrace();
         }
         return revenueData;
+    }
+    
+    public int getTotalBookings() {
+        String query = "SELECT COUNT(*) FROM bookings";
+        try (Connection conn = DBConnection.getConnection();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(query)) {
+            if (rs.next()) return rs.getInt(1);
+        } catch (SQLException e) { e.printStackTrace(); }
+        return 0;
+    }
+    
+    public int getConfirmedBookings() {
+        String query = "SELECT COUNT(*) FROM bookings WHERE status = 'Confirmed'";
+        try (Connection conn = DBConnection.getConnection();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(query)) {
+            if (rs.next()) return rs.getInt(1);
+        } catch (SQLException e) { e.printStackTrace(); }
+        return 0;
+    }
+    
+    public int getCancelledBookings() {
+        String query = "SELECT COUNT(*) FROM bookings WHERE status = 'Cancelled'";
+        try (Connection conn = DBConnection.getConnection();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(query)) {
+            if (rs.next()) return rs.getInt(1);
+        } catch (SQLException e) { e.printStackTrace(); }
+        return 0;
+    }
+    
+    public int getTodayBookings() {
+        String query = "SELECT COUNT(*) FROM bookings WHERE DATE(booking_date) = CURDATE()";
+        try (Connection conn = DBConnection.getConnection();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(query)) {
+            if (rs.next()) return rs.getInt(1);
+        } catch (SQLException e) { e.printStackTrace(); }
+        return 0;
     }
     
     /**
@@ -1068,5 +1114,28 @@ public class BookingDao {
             e.printStackTrace();
         }
         return topMovies;
+    }
+
+    /**
+     * Auto-expire past bookings.
+     * Changes status from 'Confirmed' to 'Completed' for bookings
+     * whose show_time date+time has already passed.
+     * show_time format: "2026-05-09 10:00 - Audi 01"
+     */
+    public void expirePastBookings() {
+        // Extract the datetime part before " - " and compare with current time
+        String query = "UPDATE bookings SET status = 'Completed' " +
+                       "WHERE status = 'Confirmed' " +
+                       "AND STR_TO_DATE(SUBSTRING_INDEX(show_time, ' - ', 1), '%Y-%m-%d %H:%i') < NOW()";
+        try (Connection conn = DBConnection.getConnection();
+             Statement stmt = conn.createStatement()) {
+            int updated = stmt.executeUpdate(query);
+            if (updated > 0) {
+                System.out.println("[BookingDao] Auto-expired " + updated + " past booking(s) to Completed.");
+            }
+        } catch (SQLException e) {
+            // Don't break the page if expiry fails, just log it
+            System.err.println("[BookingDao] Error expiring past bookings: " + e.getMessage());
+        }
     }
 }
