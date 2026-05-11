@@ -1,59 +1,51 @@
 -- ==============================================================================
--- Movie Booking Management System - Master Database Schema
--- Use this file to recreate the entire database structure from scratch.
+-- Movie Booking Management System - Database Schema
 -- ==============================================================================
 
--- Create the database
 CREATE DATABASE IF NOT EXISTS movie_booking_db;
 USE movie_booking_db;
 
--- --------------------------------------------------------
--- 1. USERS TABLE
--- Handles both normal users and administrators
--- --------------------------------------------------------
+-- Table: Users
+-- Stores profile and authentication data for customers and administrators
 CREATE TABLE IF NOT EXISTS users (
     user_id INT AUTO_INCREMENT PRIMARY KEY,
     full_name VARCHAR(100) NOT NULL,
     email VARCHAR(100) NOT NULL UNIQUE,
     phone VARCHAR(20) NOT NULL UNIQUE,
-    password VARCHAR(255) NOT NULL, -- Stored as Hashed Password
-    role VARCHAR(20) DEFAULT 'user', -- 'user' or 'admin'
+    password VARCHAR(255) NOT NULL,
+    role VARCHAR(20) DEFAULT 'user',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    reset_otp VARCHAR(6) NULL, -- For password reset feature
-    otp_expiry TIMESTAMP NULL -- Expiration time for the OTP
+    reset_otp VARCHAR(6) NULL,
+    otp_expiry TIMESTAMP NULL
 );
 
--- --------------------------------------------------------
--- 2. MOVIES TABLE
--- Master catalog for all movies, including soft deletes and custom pricing
--- --------------------------------------------------------
+-- Table: Movies
+-- Contains movie metadata, visual assets, and dynamic pricing configurations
 CREATE TABLE IF NOT EXISTS movies (
     movie_id INT AUTO_INCREMENT PRIMARY KEY,
     title VARCHAR(255) NOT NULL,
     genre VARCHAR(100),
     director VARCHAR(100),
-    duration INT NOT NULL, -- In minutes
+    duration INT NOT NULL,
     language VARCHAR(50),
     release_date DATE,
-    start_date DATE NOT NULL, -- When it starts showing in cinema
-    end_date DATE NOT NULL,   -- When it stops showing in cinema
+    start_date DATE NOT NULL,
+    end_date DATE NOT NULL,
     description TEXT,
     poster_image VARCHAR(255),
-    format VARCHAR(20) DEFAULT '2D', -- 2D, 3D, IMAX, etc.
+    format VARCHAR(20) DEFAULT '2D',
     age_rating VARCHAR(10) DEFAULT 'PG',
-    trailer_url VARCHAR(255), -- YouTube embed link
+    trailer_url VARCHAR(255),
     cast_list TEXT,
-    price_standard DOUBLE NULL, -- Custom price overrides
+    price_standard DOUBLE NULL,
     price_premium DOUBLE NULL,
     price_recliner DOUBLE NULL,
     price_vip DOUBLE NULL,
-    is_active BOOLEAN DEFAULT TRUE -- For Soft Deletes (0 = hidden, 1 = active)
+    is_active BOOLEAN DEFAULT TRUE
 );
 
--- --------------------------------------------------------
--- 3. SHOW TIMES TABLE
--- The schedule linking movies to specific dates, times, and halls
--- --------------------------------------------------------
+-- Table: Show Times
+-- Links movies to specific dates, times, and auditorium locations
 CREATE TABLE IF NOT EXISTS show_times (
     show_id INT AUTO_INCREMENT PRIMARY KEY,
     movie_id INT NOT NULL,
@@ -63,28 +55,24 @@ CREATE TABLE IF NOT EXISTS show_times (
     FOREIGN KEY (movie_id) REFERENCES movies(movie_id) ON DELETE CASCADE
 );
 
--- --------------------------------------------------------
--- 4. BOOKINGS TABLE
--- The transactional record of all ticket sales
--- --------------------------------------------------------
+-- Table: Bookings
+-- Record of seat reservations and transactional details
 CREATE TABLE IF NOT EXISTS bookings (
     booking_id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT NOT NULL,
     movie_id INT NOT NULL,
-    show_time VARCHAR(100) NOT NULL, -- e.g., "2026-04-25 14:30 - Audi 01"
+    show_time VARCHAR(100) NOT NULL,
     number_of_seats INT NOT NULL,
-    seat_type TEXT NOT NULL, -- e.g., "A1, A2, B4"
+    seat_type TEXT NOT NULL,
     total_price DOUBLE NOT NULL,
-    status VARCHAR(50) DEFAULT 'Confirmed', -- 'Confirmed' or 'Cancelled'
+    status VARCHAR(50) DEFAULT 'Confirmed',
     booking_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE RESTRICT,
     FOREIGN KEY (movie_id) REFERENCES movies(movie_id) ON DELETE RESTRICT
 );
 
--- --------------------------------------------------------
--- 5. HALL CONFIGURATION TABLE
--- Defines the physical layout and tier mapping for each cinema hall
--- --------------------------------------------------------
+-- Table: Hall Configuration
+-- Defines seat mapping, row tiers, and visual layout for each auditorium
 CREATE TABLE IF NOT EXISTS hall_config (
     hall_name VARCHAR(100) PRIMARY KEY,
     seats_per_row INT NOT NULL DEFAULT 12,
@@ -92,28 +80,25 @@ CREATE TABLE IF NOT EXISTS hall_config (
     premium_rows VARCHAR(100) DEFAULT 'E',
     recliner_rows VARCHAR(100) DEFAULT '',
     vip_rows VARCHAR(100) DEFAULT 'F',
-    layout_map TEXT -- e.g., "S S S | P P P | V V V" defining the visual grid
+    layout_map TEXT
 );
 
--- --------------------------------------------------------
--- 6. SYSTEM SETTINGS TABLE
--- Global variables for the application
--- --------------------------------------------------------
+-- Table: System Settings
+-- Configuration parameters for the application logic
 CREATE TABLE IF NOT EXISTS system_settings (
     setting_key VARCHAR(100) PRIMARY KEY,
     setting_value TEXT
 );
 
 -- ==============================================================================
--- DEFAULT DATA SEEDING (Run this to initialize a fresh system)
+-- Initial Data Population
 -- ==============================================================================
 
--- 1. Create Default Admin Account (Password: admin123)
--- Note: Replace with actual hashed password in production. Below hash is for 'admin123'
+-- Create system administrator account
 INSERT IGNORE INTO users (full_name, email, phone, password, role) 
 VALUES ('Super Admin', 'admin@moviemint.com', '0000000000', '4UvNsuX7aCADBV415I53InOaeOJreO0I5Gx9rmHNWiI2F1Ckux5Ut++oQPOYqFQM', 'admin');
 
--- 2. Seed Default Global Settings
+-- Set default global pricing and availability
 INSERT IGNORE INTO system_settings (setting_key, setting_value) VALUES 
 ('PRICE_STANDARD', '200.0'),
 ('PRICE_PREMIUM', '350.0'),
@@ -121,7 +106,7 @@ INSERT IGNORE INTO system_settings (setting_key, setting_value) VALUES
 ('PRICE_VIP', '750.0'),
 ('AVAILABLE_HALLS', 'Audi 01,Audi 02,Audi 03');
 
--- 3. Seed Default Hall Configurations
+-- Initialize default hall configurations
 INSERT IGNORE INTO hall_config (hall_name, seats_per_row, standard_rows, premium_rows, recliner_rows, vip_rows, layout_map) VALUES 
 ('Audi 01', 12, 'A,B,C,D', 'E', '', 'F', 'S S S S S S S S S S S S|S S S S S S S S S S S S|S S S S S S S S S S S S|S S S S S S S S S S S S|P P P P P P P P P P P P|V V V V V V V V V V V V'),
 ('Audi 02', 12, 'A,B,C,D', 'E', '', 'F', 'S S S S S S S S S S S S|S S S S S S S S S S S S|S S S S S S S S S S S S|S S S S S S S S S S S S|P P P P P P P P P P P P|V V V V V V V V V V V V'),
