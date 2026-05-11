@@ -19,7 +19,7 @@ public class EmailService {
 
     /**
      * Send OTP email for password reset.
-     * Email contains a 6-digit OTP valid for 10 minutes.
+     * Email contains a 6-digit OTP valid for 5 minutes.
      * @param recipientEmail the email address to send OTP to
      * @param otp the 6-digit OTP to include in email
      * @return true if email sent successfully, false otherwise
@@ -58,7 +58,7 @@ public class EmailService {
                     "<div style=\"background-color: #f8f9fa; padding: 20px; border-radius: 8px; text-align: center; margin: 20px 0;\">" +
                     "<h1 style=\"color: #dc143c; letter-spacing: 5px;\">" + otp + "</h1>" +
                     "</div>" +
-                    "<p style=\"color: #6c757d;\">This OTP is valid for 10 minutes only.</p>" +
+                    "<p style=\"color: #6c757d;\">This OTP is valid for 5 minutes only.</p>" +
                     "<p style=\"color: #6c757d;\">If you didn't request this, please ignore this email.</p>" +
                     "<hr style=\"border: none; border-top: 1px solid #e9ecef;\">" +
                     "<p style=\"color: #6c757d; font-size: 12px;\">MovieMint - Your Cinema Booking Platform</p>" +

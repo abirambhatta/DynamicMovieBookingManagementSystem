@@ -91,7 +91,7 @@ public class ForgotPasswordServlet extends HttpServlet {
         
         // Generate new OTP and calculate expiry
         String otp = OtpUtil.generateOtp();
-        long expiryTime = OtpUtil.getCurrentTimeMillis() + (10 * 60 * 1000);
+        long expiryTime = OtpUtil.getCurrentTimeMillis() + (5 * 60 * 1000);
 
         if (userDao.storeOtp(email, otp, expiryTime) && EmailService.sendOtpEmail(email, otp)) {
             session.setAttribute("otpSentTime", System.currentTimeMillis());
@@ -112,7 +112,7 @@ public class ForgotPasswordServlet extends HttpServlet {
 
     /**
      * Step 1: Verify email exists and send OTP.
-     * Generates 6-digit OTP, stores it with 10-minute expiry, and sends via email.
+     * Generates 6-digit OTP, stores it with 5-minute expiry, and sends via email.
      */
     private void handleEmailVerification(HttpServletRequest request, HttpServletResponse response) 
             throws ServletException, IOException {
@@ -134,9 +134,9 @@ public class ForgotPasswordServlet extends HttpServlet {
             return;
         }
 
-        // Generate OTP and calculate expiry time (10 minutes from now)
+        // Generate OTP and calculate expiry time (5 minutes from now)
         String otp = OtpUtil.generateOtp();
-        long expiryTime = OtpUtil.getCurrentTimeMillis() + (10 * 60 * 1000);
+        long expiryTime = OtpUtil.getCurrentTimeMillis() + (5 * 60 * 1000);
 
         // Store OTP in database and send email
         if (userDao.storeOtp(email, otp, expiryTime) && EmailService.sendOtpEmail(email, otp)) {
