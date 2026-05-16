@@ -1013,6 +1013,14 @@
                     const timeInputRow = document.createElement('div');
                     timeInputRow.className = 'time-input-row';
                     
+                    // --- NEW VALIDATION: Check if date has already passed ---
+                    const parts = sectionId.split('_');
+                    const dateStr = parts[1].slice(0,4) + '-' + parts[1].slice(4,6) + '-' + parts[1].slice(6,8);
+                    const showDateObj = new Date(dateStr);
+                    showDateObj.setHours(23, 59, 59, 999); // End of the show day
+                    const now = new Date();
+                    const isPastDate = showDateObj < now;
+
                     // Create time input field
                     const timeInput = document.createElement('input');
                     timeInput.type = 'time';
@@ -1026,6 +1034,25 @@
                     addBtn.textContent = 'Add Time';
                     addBtn.onclick = function() { addTime(sectionId, hallId); };
                     
+                    if (isPastDate) {
+                        timeInput.disabled = true;
+                        addBtn.disabled = true;
+                        addBtn.style.background = '#ccc';
+                        addBtn.title = "Cannot add shows to past dates";
+                        
+                        const pastMessage = document.createElement('div');
+                        pastMessage.style.color = '#856404';
+                        pastMessage.style.backgroundColor = '#fff3cd';
+                        pastMessage.style.border = '1px solid #ffeeba';
+                        pastMessage.style.padding = '8px 12px';
+                        pastMessage.style.borderRadius = '4px';
+                        pastMessage.style.fontSize = '12px';
+                        pastMessage.style.marginTop = '5px';
+                        pastMessage.style.marginBottom = '10px';
+                        pastMessage.innerHTML = '<strong>Note:</strong> This date has already passed. Show times cannot be added or modified.';
+                        section.appendChild(pastMessage);
+                    }
+
                     timeInputRow.appendChild(timeInput);
                     timeInputRow.appendChild(addBtn);
                     
@@ -1107,6 +1134,24 @@
                         alert('Please select a time');
                         return;
                     }
+
+                    // --- NEW VALIDATION: Prevent adding past times for today ---
+                    const partsArr = sectionId.split('_');
+                    let validatedDateStr = "";
+                    if (partsArr.length > 2) {
+                        // case: date_20240516
+                        validatedDateStr = partsArr[1].slice(0,4) + '-' + partsArr[1].slice(4,6) + '-' + partsArr[1].slice(6,8);
+                    } else {
+                        // fallback
+                        validatedDateStr = partsArr[0].slice(4,8) + '-' + partsArr[0].slice(8,10) + '-' + partsArr[0].slice(10,12);
+                    }
+                    
+                    const now = new Date();
+                    const selectedDateTime = new Date(validatedDateStr + 'T' + time);
+                    if (selectedDateTime < now) {
+                        alert('Error: Cannot add a show time that has already passed.');
+                        return;
+                    }
                     
                     // Check for conflicts
                     const parts = sectionId.split('_');
@@ -1169,15 +1214,27 @@
                     
                     // Create HTML for each time
                     let html = '';
+                    const now = new Date();
+                    const dateParts = sectionId.split('_');
+                    const dateStr = dateParts[1].slice(0,4) + '-' + dateParts[1].slice(4,6) + '-' + dateParts[1].slice(6,8);
+
                     times.forEach(time => {
+                        // Check if this specific show time has already passed
+                        const showDateTime = new Date(dateStr + 'T' + time);
+                        const isPast = showDateTime < now;
+
                         // Convert 24-hour time to 12-hour format
                         const [hours, minutes] = time.split(':');
                         const h = parseInt(hours);
                         const ampm = h >= 12 ? 'PM' : 'AM';
                         const displayHour = h % 12 || 12;
                         const formattedTime = displayHour + ':' + minutes + ' ' + ampm;
-                        // Create time chip with remove button
-                        html += '<span class="time-chip">' + formattedTime + '<span class="remove" onclick="removeTime(\'' + sectionId + '\', \'' + hallId + '\', \'' + time + '\')">×</span></span>';
+                        
+                        // Create time chip with remove button (only if not passed)
+                        html += '<span class="time-chip" style="' + (isPast ? 'background:#6c757d; cursor:not-allowed;' : '') + '" title="' + (isPast ? 'Past show - cannot remove' : '') + '">' + 
+                                formattedTime + 
+                                (!isPast ? '<span class="remove" onclick="removeTime(\'' + sectionId + '\', \'' + hallId + '\', \'' + time + '\')">×</span>' : '') + 
+                                '</span>';
                     });
                     timeList.innerHTML = html;
                 }
@@ -1437,8 +1494,20 @@
                     }
                     
                     let html = '';
+                    const now = new Date();
+                    const dateParts = sectionId.split('_');
+                    // sectionId looks like "date_20240509_edit_Audi 03"
+                    // dateParts[1] is "20240509"
+                    const dateStr = dateParts[1].slice(0,4) + '-' + dateParts[1].slice(4,6) + '-' + dateParts[1].slice(6,8);
+
                     times.forEach(t => {
                         const timeStr = t.length > 5 ? t.substring(0, 5) : t;
+                        
+                        // Check if this specific show time has already passed
+                        // Combine date and time (YYYY-MM-DDTHH:MM)
+                        const showDateTime = new Date(dateStr + 'T' + timeStr);
+                        const isPast = showDateTime < now;
+
                         let hours = 0, minutes = "00";
                         if(timeStr.includes(':')) {
                             const parts = timeStr.split(':');
@@ -1449,7 +1518,12 @@
                         const ampm = h >= 12 ? 'PM' : 'AM';
                         const displayHour = h % 12 || 12;
                         const formattedTime = displayHour + ':' + minutes + ' ' + ampm;
-                        html += '<span class="time-chip">' + formattedTime + '<span class="remove" onclick="removeEditTime(\'' + sectionId + '\', \'' + hallId + '\', \'' + timeStr + '\')">×</span></span>';
+                        
+                        // Create time chip with remove button (only if not passed)
+                        html += '<span class="time-chip" style="' + (isPast ? 'background:#6c757d; cursor:not-allowed;' : '') + '" title="' + (isPast ? 'Past show - cannot remove' : '') + '">' + 
+                                formattedTime + 
+                                (!isPast ? '<span class="remove" onclick="removeEditTime(\'' + sectionId + '\', \'' + hallId + '\', \'' + timeStr + '\')">×</span>' : '') + 
+                                '</span>';
                     });
                     timeList.innerHTML = html;
                 }
@@ -1478,6 +1552,15 @@
                     const timeInputRow = document.createElement('div');
                     timeInputRow.className = 'time-input-row';
                     
+                    // --- NEW VALIDATION: Check if date has already passed ---
+                    const partsArr = sectionId.split('_');
+                    // sectionId for edit is date_20240509_edit_Audi 03
+                    const dateStr = partsArr[1].slice(0,4) + '-' + partsArr[1].slice(4,6) + '-' + partsArr[1].slice(6,8);
+                    const showDateObj = new Date(dateStr);
+                    showDateObj.setHours(23, 59, 59, 999);
+                    const now = new Date();
+                    const isPastDate = showDateObj < now;
+
                     const timeInput = document.createElement('input');
                     timeInput.type = 'time';
                     timeInput.id = 'timeInput_' + sectionId;
@@ -1488,6 +1571,25 @@
                     addBtn.textContent = 'Add Time';
                     addBtn.onclick = function() { addEditTime(sectionId, hallId); };
                     
+                    if (isPastDate) {
+                        timeInput.disabled = true;
+                        addBtn.disabled = true;
+                        addBtn.style.background = '#ccc';
+                        addBtn.title = "Cannot add shows to past dates";
+                        
+                        const pastMessage = document.createElement('div');
+                        pastMessage.style.color = '#856404';
+                        pastMessage.style.backgroundColor = '#fff3cd';
+                        pastMessage.style.border = '1px solid #ffeeba';
+                        pastMessage.style.padding = '8px 12px';
+                        pastMessage.style.borderRadius = '4px';
+                        pastMessage.style.fontSize = '12px';
+                        pastMessage.style.marginTop = '5px';
+                        pastMessage.style.marginBottom = '10px';
+                        pastMessage.innerHTML = '<strong>Note:</strong> This date has already passed. Show times cannot be added or modified.';
+                        section.appendChild(pastMessage);
+                    }
+
                     timeInputRow.appendChild(timeInput);
                     timeInputRow.appendChild(addBtn);
                     

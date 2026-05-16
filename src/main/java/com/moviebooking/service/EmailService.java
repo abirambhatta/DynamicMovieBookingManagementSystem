@@ -129,7 +129,7 @@ public class EmailService {
             MimeBodyPart htmlPart = new MimeBodyPart();
             String htmlContent = "<html><body style=\"font-family: Arial, sans-serif;\">" +
                     "<div style=\"max-width: 600px; margin: 0 auto; padding: 20px;\">" +
-                    "<h2 style=\"color: #dc143c;\">🎬 Booking Confirmed!</h2>" +
+                    "<h2 style=\"color: #dc143c;\">Booking Confirmed!</h2>" +
                     "<p>Hi " + recipientName + ",</p>" +
                     "<p>Your movie ticket has been successfully booked. Here are your booking details:</p>" +
                     "<div style=\"background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;\">" +
@@ -141,9 +141,9 @@ public class EmailService {
                     "<p><strong>Number of Seats:</strong> " + numberOfSeats + "</p>" +
                     "<p><strong>Total Price:</strong> Rs. " + totalPrice + "</p>" +
                     "</div>" +
-                    "<p style=\"color: #6c757d;\">📎 Your ticket is attached as a PDF file.</p>" +
-                    "<p style=\"color: #6c757d;\">⏰ Please arrive 15 minutes before the show time.</p>" +
-                    "<p style=\"color: #6c757d;\">📱 Show this ticket at the cinema entrance.</p>" +
+                    "<p style=\"color: #6c757d;\">Your ticket is attached as a PDF file.</p>" +
+                    "<p style=\"color: #6c757d;\">Please arrive 15 minutes before the show time.</p>" +
+                    "<p style=\"color: #6c757d;\">Show this ticket at the cinema entrance.</p>" +
                     "<hr style=\"border: none; border-top: 1px solid #e9ecef;\">" +
                     "<p style=\"color: #6c757d; font-size: 12px;\">MovieMint - Your Cinema Booking Platform</p>" +
                     "</div></body></html>";
